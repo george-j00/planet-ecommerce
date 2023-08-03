@@ -3,8 +3,21 @@ const app = express();
 const path = require('path');
 const database = require('./config/database')
 const userRoutes = require('./Routes/users.routes');
+const cors = require("cors");
+const session = require('express-session');
 
 database.connectToMongoDB();
+
+app.use(
+  session({
+    secret: 'your_secret_key', // Replace with a secure secret key
+    resave: false,
+    saveUninitialized: true,
+    cookie: { secure: false }, // Set to true if using HTTPS
+  })
+);
+
+app.use(cors());
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
