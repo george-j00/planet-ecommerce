@@ -1,0 +1,72 @@
+<div id="category-content" class="contents">
+   
+    <button type="button" class="ml-auto mr-5 btn btn-success" data-bs-toggle="modal" data-bs-target="#addUserModal">
+        <i class="fa-solid fa-plus"></i> Add Category
+    </button>
+
+
+    <div class="modal fade" id="addUserModal" tabindex="-1" aria-labelledby="editProductModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="editProductModalLabel">Add Category</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <form action="/admin/add-category" method="POST">
+                <div class="mb-3">
+                  <label for="productTitle" class="form-label">Category Name</label>
+                  <input type="text" class="form-control" id="categoryName" name="categoryName" required>
+                </div>
+               
+                <button type="submit" class="btn btn-success">Add Category</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    
+      <div class="table-responsive mt-5">
+        <table class="table table-light">
+          <thead class="thead-light">
+            <tr>
+              <th scope="col">No.</th>
+              <th scope="col">Category Id</th>
+              <th scope="col">Category Name</th>
+              <th scope="col">Remove</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% categories.forEach((category, index) => { %>
+              <tr>
+                <td scope="row"><%= index + 1 %></td>
+                <td><%= category._id %></td>
+                <td><%= category.name %></td>
+                <td>
+                  <button type="button" onclick="deleteCategory('<%= category._id %>')" class="btn btn-danger" id="deleteCategory">
+                 Remove Category
+                  </button>
+                </td>
+              </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      </div>
+</div>
+
+<script>
+      function deleteCategory(category) {
+      
+      fetch(`/admin/delete-category/${category}`,{method:'POST'})
+      .then(res => {
+        console.log('Deleted product');
+        if (res.ok) {
+          window.location.href = '/admin/dashboard';
+        }else{
+          console.log('failed to delete category');
+        }
+      })
+      .catch(error => console.log(error));
+        console.log(category , 'this is categoryyy');
+    }
+</script>

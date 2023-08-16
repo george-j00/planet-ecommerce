@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+  <%- include('../partials/header');%>
+  
+  <style>
+    .contents  {
+      display: none;
+    }
+  </style>
+
+  <body>
+  <div class="fixed">
+    <%- include('../partials/adminNavbar');%>
+  </div>
+
+
+  
+  
+      <div class="sidebar bg-light">
+        <div class="profile_info">
+          <h4 class="text-dark">Admin Panel</h4>
+        </div>
+        <a href="#dashboard" class="text-dark active">Dashboard</a>
+        <a href="#products" class="text-dark">Products</a>
+        <a href="#addProduct" class="text-dark">Add Product</a>
+        <a href="#category-content" class="text-dark">Category</a>
+        <a href="#banner" class="text-dark">Banner</a>
+        <a href="#users" class="text-dark">Users</a>
+        <a href="#orders" class="text-dark">Orders</a>
+        <a href="#enquiries" class="text-dark">Enquiries</a>
+        <a href="#" class="text-danger">Logout</a>
+      </div>
+
+        <div class="content">
+          
+
+          
+
+       <%- include('../partials/adminDashboard');%>
+
+       <%- include('../partials/adminProduct');%>
+
+       <%- include('../partials/adminAddProduct');%>
+
+       <%- include('../partials/adminBanner');%>
+
+       <%- include('../partials/adminUsers');%>
+
+       <%- include('../partials/category');%>
+
+      </div>
+    
+      <script>
+        document.addEventListener("DOMContentLoaded", function() {
+          const sidebarLinks = document.querySelectorAll(".sidebar a");
+          const contentSections = document.querySelectorAll(".contents");
+      
+          // Display the "Dashboard" content section initially
+          const dashboardSection = document.getElementById("dashboard");
+          dashboardSection.style.display = "block";
+      
+          sidebarLinks.forEach(link => {
+            link.addEventListener("click", event => {
+              event.preventDefault();
+      
+              // Hide all content sections
+              contentSections.forEach(section => {
+                section.style.display = "none";
+              });
+      
+              // Show the selected content section
+              const targetSectionId = link.getAttribute("href").substring(1);
+              const targetSection = document.getElementById(targetSectionId);
+              targetSection.style.display = "block";
+            });
+          });
+        });
+      </script>
+      
+      
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+  </body>
+</html>

@@ -3,52 +3,51 @@
 
 <%- include('../partials/header');%>
 
-<body class="bg-light">
-    
-    <form action="/signup" id="SignUpForm" method="POST" class="row g-3 needs-validation w-75 p-5 mb-5  text-dark rounded" style="max-width: 450px;">
-        <!-- Email input -->
-      <h2 class="d-flex justify-content-center fw-bold" style="font-family: 'Poppins', sans-serif; font-size: 2 rem; line-height: 2.75394rem; letter-spacing: -0.08813rem;">
-            Sign Up to Planet
-          </h2>
+<body>
 
-          <div class="form-outline mb-4 mt-3">
-            <input type="button" name="" id="googlebutton" class=" form-control-lg border-0" style="width: 100%; height: 48px;" value="Google" />
-          </div>
-          <p class="d-flex justify-content-center text-secondary">or</p>
-        <div class="form-outline mb-4">
-          <input type="text" name="name" id="nameSignup" placeholder="Name" class=" form-control-lg h-10  " style="width: 100%; height: 48px;" />
-        </div>
-        <div class="form-outline mb-4">
-            <input type="email" name="email" id="emailSignup" placeholder="Email" class=" form-control-lg h-10  " style="width: 100%; height: 48px;" />
-          </div>
+  <div class=" d-flex justify-content-center align-items-center" style="height: 100vh;">
+    <form action="/signup" id="SignUpForm" method="POST" class="bg-light w-100 p-5 text-dark rounded" style="max-width: 450px;">
+      <h2 class="text-center fw-bold mb-4" style="font-family: 'Poppins', sans-serif;"><b>Sign Up to Planet</b></h2>
 
-        <!-- Password input -->
-        <div class="form-outline mb-4">
-          <input type="password" name="password" id="passSignup" placeholder="password" class="form-control-lg" style="width: 100%; height: 48px;" />
-        </div>
-        
-        <div class="form-outline mb-4">
-          <input type="password" name="confirmPassword" id="confirmPassword" placeholder="Confirm password" class="form-control-lg" style="width: 100%; height: 48px;" />
-        </div>
+      <div class="mb-4">
+        <button type="button" name="" id="googlebutton" class="btn btn-lg btn-block btn-outline-secondary">
+          Sign Up with Google
+        </button>
+      </div>
 
-        <div class="row mb-4">
-        
-            <div class="col">
-              <!-- Simple link -->
-              <a class="d-flex justify-content-end text-decoration-none text-primary" href="#!">Forgot password?</a>
-            </div>
-          </div>
-        <!-- Submit button -->
-        <button type="submit"  class="btn rounded-lg btn-dark w-100 btn-block mb-4">Sign Up</button>
-      
-        <!-- Register buttons -->
-        <div class="text-center">
-          <p>Already have Accound ? <a class="text-dark text-decoration-none" href="/login">Sign In</a></p>
-        </div>
-      </form>
+      <p class="text-center text-secondary mb-4">or</p>
 
-      <script src="/js/signupValidate.js"></script>
-</body>   
+      <div class="mb-4">
+        <input type="text" name="name" id="nameSignup" placeholder="Name" class="form-control form-control-lg" />
+      </div>
+      <div class="mb-4">
+        <input type="email" name="email" id="emailSignup" placeholder="Email" class="form-control form-control-lg" />
+      </div>
 
+      <% if (typeof error !== 'undefined') { %>
+        <p class="text-danger"><%= error %></p>
+    <% } %>
+
+      <div class="mb-4">
+        <input type="password" name="password" id="passSignup" placeholder="Password" class="form-control form-control-lg" />
+      </div>
+
+      <div class="mb-4">
+        <input type="password" name="confirmPassword" id="confirmPassword" placeholder="Confirm Password"
+          class="form-control form-control-lg" />
+      </div>
+
+      <button type="submit" class="btn btn-dark btn-lg btn-block mb-4">Sign Up</button>
+
+      <div class="text-center">
+        <p>Already have an account? <a class="text-dark text-decoration-none" href="/login">Sign In</a></p>
+      </div>
+    </form>
+  </div>
+
+  <script src="/js/signupValidate.js"></script>
+  <%- include('../partials/footer');%>
+
+</body>
 
 </html>

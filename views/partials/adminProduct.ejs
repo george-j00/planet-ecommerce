@@ -1,0 +1,155 @@
+<div id="products" class="contents mt-4">
+    <form class="form-inline mb-4">
+      <input class="form-control mr-2 w-25 d-flex justify-content-center" type="search" placeholder="Search" aria-label="Search">
+      <button class="btn btn-dark" type="submit">Search</button>
+    </form>
+    
+    <div class="table-responsive">
+      <table class="table table-light">
+        <thead class="thead-light">
+          <tr>
+            <th scope="col">No.</th>
+            <th scope="col">Product ID</th>
+            <th scope="col">Product Title</th>
+            <th scope="col">Product Price</th>
+            <th scope="col">Product Image</th>
+            <th scope="col">Edit</th>
+            <th scope="col">Remove</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% products.forEach((product, index) => { %>
+            <tr>
+              <td scope="row"><%= index + 1 %></td>
+              <td><%= product._id %></td>
+              <td><%= product.productTitle %></td>
+              <td>$<%= product.productPrice.toFixed(2) %></td>
+              <td>
+                <img src="<%= product.productImage %>" alt="product image" style="max-width: 80px;">
+              </td>
+              <td>
+                <button type="button" onclick="editProduct('<%= product._id %>')" class="btn" data-bs-toggle="modal" data-bs-target="#editProductModal">
+                    <i class="fa-solid fa-pen-to-square"  style="color: #f0a400;"></i>
+                </button>
+              </td>
+              <td>
+                <button class="btn" onclick="deleteProduct('<%= product._id %>')">
+                  <i class="fa-solid fa-trash" style="color: #ff0b0b;"></i>
+                </button>
+              </td>
+            </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    </div>
+    
+     
+      <div class="modal fade" id="editProductModal" tabindex="-1" aria-labelledby="editProductModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="editProductModalLabel">Edit Product</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <form action="/admin/edit-product" method="POST" enctype="multipart/form-data">
+                <div class="mb-3">
+                  <label for="productTitle" class="form-label">Product Title</label>
+                  <input type="text" class="form-control" id="editProductTitle" name="productTitle" required>
+                </div>
+                <div class="mb-3">
+                  <label for="productPrice" class="form-label">Product Price</label>
+                  <input type="number" class="form-control" id="editProductPrice" name="productPrice" step="0.01" required>
+                </div>
+                <div class="mb-3">
+                  <label for="oldProductImage" class="form-label">Product Image</label>
+                  <!-- <input type="file" class="form-control" id="editProductImage" name="productImage"> -->
+                  <br><img style="max-width: 100px;" id="oldProductImage" src="" alt="product image">
+                </div>
+                <div class="mb-3">
+                    <label for="editProductImage" class="form-label">New Product Image</label>
+                    <input type="file" class="form-control" id="editProductImage" name="productImage" accept="image/*">
+
+                    <!-- <input type="file" class="form-control" id="editProductImage" name="productImage"> -->
+                </div>
+                <div class="mb-3">
+                  <label for="productDescription" class="form-label">Product Description</label>
+                  <textarea class="form-control" id="editProductDescription" name="productDescription" required></textarea>
+                </div>
+                <div class="mb-3">
+                  <label for="productCategory" class="form-label">Product Category</label>
+                  <input type="text" class="form-control" id="editProductCategory" name="productCategory" required>
+                </div>
+                <div class="mb-3">
+                  <label for="additionalInformation" class="form-label">Additional Information</label>
+                  <textarea class="form-control" id="editAdditionalInformation" name="additionalInformation"></textarea>
+                </div>
+                <div class="mb-3">
+                  <label for="totalQuantity" class="form-label">Total Quantity</label>
+                  <input type="number" class="form-control" id="editTotalQuantity" name="totalQuantity" required>
+                </div>
+                
+                <!-- for passing the id of the current product that user click.
+                dom will be updated in the below code . 
+                this field will be updated with the product id passing from the button on onclick -->
+                <input type="hidden" id="currentProduct" name="currentProduct" value="">
+                
+                <!-- for removing the image cloudinary id from the cloud we need to find that one . 
+                so we are adding the cloudinary id into the below field using the dom manipulation -->
+                <input type="hidden" id="currentImage" name="currentImage" value="">
+
+                <button type="submit" class="btn btn-warning">Edit Product</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    
+  </div>
+  
+
+  <script>
+      function editProduct(product) {
+      
+      fetch(`/admin/edit-product/${product}`)
+      .then(response => response.json())
+      .then(data => {
+        console.log( 'data in edit product',data);
+
+        document.getElementById('currentProduct').value = product;
+        document.getElementById('currentImage').value = data.cloudinary_id;
+
+        openModal(data)
+      })
+    }
+    function deleteProduct(product) {
+      
+      fetch(`/admin/delete-product/${product}`,{method:'POST'})
+      .then(res => {
+        console.log('Deleted product');
+        if (res.ok) {
+          window.location.href = '/admin/dashboard';
+        }else{
+          console.log('failed to delete product');
+        }
+      })
+      .catch(error => console.log(error));
+        // console.log(user);
+    }
+
+    function openModal(data) {
+
+document.getElementById('editProductTitle').value = data.productTitle
+document.getElementById('editProductPrice').value = data.productPrice
+// const imageUrl = 'https://www.example.com/image.jpg'; // Replace with your image URL
+const productImage = document.getElementById('oldProductImage');
+productImage.src = data.productImage;
+// document.getElementById('editProductImage') = data.productImage
+document.getElementById('editProductDescription').value = data.productDescription
+document.getElementById('editProductCategory').value = data.category
+document.getElementById('editAdditionalInformation').value = data.additionalInformation
+document.getElementById('editTotalQuantity').value = data.totalQuantity
+//  document.getElementById('editModal').classList.add('show');
+};
+
+  </script>

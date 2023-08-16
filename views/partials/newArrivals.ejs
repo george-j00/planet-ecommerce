@@ -1,0 +1,26 @@
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-12">
+            <div id="news-slider" class="owl-carousel">
+                <% products.forEach((product, index) => { %>
+                   <a href="/products/<%= product._id %>">
+                    <div class="post-slide">
+                        <div class="post-img ml-3">
+                            <img  src="<%= product.productImage %>" alt="product Image">
+                            <a href="/products/<%= product._id %>" class="over-layer"><i class="fa fa-link"></i></a>
+                        </div>
+                        <div class="post-content">
+                            <h3 class="post-title mt-3">
+                                <a href="#"><%= product.productTitle %></a>
+                            </h3>
+                            <span class="post-date">$ <%= product.productPrice %></span>
+                            <a href="#" class="read-more">Add to Cart</a>
+                        </div>
+                    </div>
+                   </a>
+                  <% }); %>
+            </div>
+        </div>
+    </div>
+</div>

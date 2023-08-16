@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<%- include('../partials/header');%>
+
+<body class="d-flex justify-content-center align-items-center" style="min-height: 100vh;">
+    
+    <form action="/admin/admin-login" method="POST" id="adminLogin" class="w-100 p-5 mb-5 bg-light text-dark rounded" style="max-width: 450px;">
+        <!-- Email input -->
+        <h2 class="text-center fw-bold mb-4" style="font-family: 'Poppins', sans-serif;">Admin Sign In</h2>
+
+
+        <div class="mb-4 mt-5">
+            <input type="email" name="email" id="adminEmail" placeholder="Email" class="form-control form-control-lg"
+                style="height: 48px;" />
+        </div>
+
+        <!-- Password input -->
+        <div class="mb-4">
+            <input type="password" name="password" id="adminPassword" placeholder="Password" class="form-control form-control-lg"
+                style="height: 48px;" />
+        </div>
+
+        <% if (typeof error !== 'undefined') { %>
+            <p class="text-danger"><%= error %></p>
+        <% } %>
+
+        <!-- Forgot password link -->
+        <!-- <div class="mb-4 text-end">
+            <a class="text-primary text-decoration-none" href="#!">Forgot password?</a>
+        </div> -->
+
+        <!-- Submit button -->
+        <button type="submit" class="btn btn-dark mt-5 btn-lg btn-block mb-4">Sign in</button>
+
+        <!-- Register buttons -->
+        <!-- <div class="text-center">
+            <p>Create New Account? <a class="text-dark text-decoration-none" href="/signup">Sign Up</a></p>
+        </div> -->
+    </form>
+</body>   
+
+<script src="../js/adminValidate.js"></script>
+</html>

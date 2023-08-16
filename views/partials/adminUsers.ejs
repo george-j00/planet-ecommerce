@@ -1,0 +1,65 @@
+<div id="users" class="contents mt-4">
+    <form class="form-inline mb-4">
+      <input class="form-control mr-2 w-25 d-flex justify-content-center" type="search" placeholder="Search" aria-label="Search">
+      <button class="btn btn-dark" type="submit">Search</button>
+    </form>
+  
+    <div class="table-responsive">
+      <table class="table table-light">
+        <thead class="thead-light">
+          <tr>
+            <th scope="col">No.</th>
+            <th scope="col">User Id</th>
+            <th scope="col">User Name</th>
+            <th scope="col">User Email</th>
+            <!-- <th scope="col">Status</th> -->
+            <th scope="col">Block/Unblock</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% users.forEach((user, index) => { %>
+            <tr>
+              <td scope="row"><%= index + 1 %></td>
+              <td><%= user._id %></td>
+              <td><%= user.name %></td>
+              <td><%= user.email %></td>
+              <!-- <td> <span class=""></span></td> -->
+              <td>
+                <button type="button" onclick="blockUser('<%= user._id %>')" class="btn <%= user.status ? 'btn-success' : 'btn-danger' %>" id="blockBtn">
+                  <span id="blockStatus"><%= user.status ? 'Unblock' : 'Block' %></span>
+                </button>
+              </td>
+            </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  
+  <script>
+    function blockUser(userId) {
+      fetch(`/admin/block-user/${userId}`, { method: 'POST' })
+        .then(res => res.json())
+        .then(data => {
+          if (data.blockStatus !== undefined) {
+            console.log(data.blockStatus, 'this is res. message');
+            const blockStatusSpan = document.getElementById('blockStatus');
+            blockStatusSpan.textContent = data.blockStatus ? 'Unblock' : 'Block';
+  
+            // const blockButton = document.getElementById('blockBtn');
+            // if (data.blockStatus) {
+            //   blockButton.classList.remove('btn-success');
+            //   blockButton.classList.add('btn-danger');
+            // } else {
+            //   blockButton.classList.remove('btn-danger');
+            //   blockButton.classList.add('btn-success');
+            // }
+            window.location.href = '/admin/dashboard';
+          } else {
+            console.log('Failed to block/unblock the user');
+          }
+        })
+        .catch(error => console.log(error));
+    }
+  </script>
+  

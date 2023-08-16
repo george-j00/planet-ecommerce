@@ -1,0 +1,32 @@
+const express = require('express');
+const router = express.Router();
+const adminController = require('../Controllers/admin.controllers');
+const authController = require('../Controllers/authController');
+const adminAuthenticated = require('../Middleware/adminAuthMiddleware');
+const upload = require("../services/multer");
+
+
+router.get('/admin-login' , authController.adminLogin); 
+router.post('/admin-login' , authController.adminLoginPost); 
+
+router.get('/dashboard' ,adminAuthenticated, adminController.dashboard); 
+//for testing purposes  
+// router.get('/get-products', adminController.getAllProducts); 
+ 
+
+// router.get('/dashboard', adminController.dashboard); 
+router.get('/add-product', adminController.addproductGet); 
+router.post('/add-product',upload.single("productImage"), adminController.addProduct); 
+
+router.post('/add-category',adminController.addCategory); 
+router.post('/delete-category/:categoryId',adminController.deleteCategory); 
+
+
+router.get('/edit-product/:productId', adminController.editProduct); 
+router.post('/edit-product',upload.single("productImage"), adminController.editProductPost); 
+router.post('/delete-product/:productId', adminController.deleteProduct);
+
+router.post('/block-user/:userId', adminController.blockAndUnblockUser);
+
+
+module.exports = router;
