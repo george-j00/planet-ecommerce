@@ -4,6 +4,9 @@ const User = require('../Models/users.schema');
 const Product = require('../Models/products.schema');
 const Otp = require('../Models/otp.schema');
 // const Admin = require('../Models/admin.schema');
+const jwt = require('jsonwebtoken')
+const mongoose = require('mongoose');
+const { ObjectId } = mongoose.Types; 
 
 const bcrypt = require("bcrypt")
 const saltRounds = 10
@@ -199,14 +202,19 @@ const passwordReset = async (req, res) => {
 };
 
 const homepage = async (req, res) => { 
+
+ 
   try {
     const products = await Product.find();
    
-    if (!products || products.length === 0 ) {
-      return res.status(404).send({ message: "No products!" });
-    }
+  //   if (!products || products.length === 0 ) {
+  //     return res.status(404).send({ message: "No products!" });
+  //   }
     // console.log(products);
    res.render('pages/home',{products});
+    // res.send('success');
+    // console.table(products);
+
   } catch (err) {
     console.log(err);
   }
@@ -226,6 +234,149 @@ const viewProduct = async (req, res) => {
   }  
 }
 
+const userProfile = async (req, res) => { 
+
+  const token = req.cookies.jwt;
+  const decodedTokens = jwt.decode(token);
+
+  try {
+    const userData = await User.findById(decodedTokens.id);
+
+    // console.log(userData, 'this is userData');
+   res.render('pages/profile', {userData});
+  //   console.log(decodedTokens.user , 'this is user profile');
+  } catch (error) {
+   res.send('no user found');
+  }
+}
+
+const profileUpdate = async (req, res) => { 
+
+  const { name, email, phone, userId } = req.body;
+
+  console.log(name, email, phone, userId);
+
+  await User.findByIdAndUpdate({_id : userId} , {phone: phone});
+
+  res.json({ message: 'Profile updated successfully' });
+}
+
+const addUserAddress = async (req, res) => {
+  const { country, streetAddress, city, state, pincodeValue, userId } = req.body;
+
+  const userAddress = {
+    country,
+    streetAddress,
+    city,
+    state,
+    pincode: pincodeValue,
+  };
+
+  try {
+   const addressData =  await User.findByIdAndUpdate(
+      { _id: userId },
+      { $push: { addresses: userAddress } }
+    );
+  //  res.json(addressData);
+
+  } catch (error) {
+    console.log("Error:", error);
+    return res.status(500).json({ message: 'Error adding address' });
+  }
+
+  return res.json({ message: 'Address added successfully' });
+};
+
+const editUserAddress = async (req, res) => {
+
+  const addressId = req.params.addressId
+  const token = req.cookies.jwt;
+  const decodedTokens = jwt.decode(token);
+  const userId = decodedTokens.id
+
+  // console.log(userId , addressId);
+
+  const  { addresses } = await User.findById({_id:userId},{addresses:1})
+  // console.log(addresses);
+
+  const data = addresses.find((address) => address._id == addressId)
+
+  res.json(data);
+
+  // console.log(data);
+
+}
+
+const editUserAddressPost = async (req, res) => {
+  const {country, streetAddress, city,state ,pincode ,userId ,editAddressId} = req.body;
+ await User.findOneAndUpdate(
+  { _id: userId, 'addresses._id': editAddressId },
+  {
+    $set: {
+      'addresses.$.country': country, 
+      'addresses.$.streetAddress': streetAddress,
+      'addresses.$.city': city,
+      'addresses.$.state': state,
+      'addresses.$.pincode': pincode,
+    },
+  }, 
+)
+res.json().status(200)
+
+//*************  the below query can also be used update the nested Object. by using js higorder methods.**************** 
+
+// User.findById(userId)
+//   .then(user => {
+//     if (user) {
+//       const addressToUpdate = user.addresses.find(address => address._id.toString() === editAddressId);
+//       if (addressToUpdate) {
+//         // Update address fields here
+//         addressToUpdate.country = 'New Country';
+//         // addressToUpdate.streetAddress = 'New Street Address';
+//         // Update other address fields as needed
+
+//         return user.save();
+//       } else {
+//         console.log('Address not found');
+//         return null;
+//       }
+//     } else {
+//       console.log('User not found');
+//       return null;
+//     }
+//   })
+//   .then(updatedUser => {
+//     if (updatedUser) {
+//       console.log('Updated user:', updatedUser);
+//     }
+//   })
+//   .catch(error => {
+//     console.error('Error updating user:', error);
+//   });
+
+
+  }
+
+const deleteUserAddressPost = async (req, res) => {
+
+  const token = req.cookies.jwt;
+  const decodedTokens = jwt.decode(token);
+  const userId = decodedTokens.id
+  const { addressId } = req.body;
+
+  await User.findOneAndUpdate(
+   { _id: userId, 'addresses._id': addressId },
+   {
+    $pull:{
+      addresses: {_id: addressId }
+    }
+   }, 
+ )
+ res.json().status(200)
+}
+
+
+
 
 module.exports = {
     signup,
@@ -239,5 +390,12 @@ module.exports = {
     emailVerifyFp,
     otpVerifyFp,
     passwordReset,
-    viewProduct
+    viewProduct,
+    userProfile,
+    profileUpdate,
+    addUserAddress,
+    editUserAddress,
+    editUserAddressPost,
+    deleteUserAddressPost
+    // addressUpdate
 };

@@ -7,7 +7,8 @@ const adminRoutes = require('./Routes/admin.routes');
 const cors = require("cors");
 const session = require('express-session');
 const cookieParser = require('cookie-parser');
-const adminGetProducts = require('./Controllers/admin.controllers');
+// const adminGetProducts = require('./Controllers/admin.controllers');
+// const redisClient = require('./config/redisClient');
 
 app.use(cookieParser());
 
@@ -27,6 +28,13 @@ app.use(
   })
 );
 
+// process.on('SIGINT', () => {
+//   redisClient.quit(() => {
+//     console.log('Redis client disconnected');
+//     process.exit(0);
+//   });
+// });
+
 app.use((req, res, next) => {
   res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
   res.setHeader('Pragma', 'no-cache');
@@ -39,8 +47,12 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(express.static("views"));
 
+
+
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
+
+
 
 // app.use("/admin/get-products" ,adminGetProducts.getAllProducts); 
 app.use("/" , userRoutes ); 

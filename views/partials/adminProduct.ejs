@@ -25,7 +25,7 @@
               <td><%= product.productTitle %></td>
               <td>$<%= product.productPrice.toFixed(2) %></td>
               <td>
-                <img src="<%= product.productImage %>" alt="product image" style="max-width: 80px;">
+                <img src="<%= product.productImages[0].secure_url %>" alt="product image" style="max-width: 80px;">
               </td>
               <td>
                 <button type="button" onclick="editProduct('<%= product._id %>')" class="btn" data-bs-toggle="modal" data-bs-target="#editProductModal">
@@ -96,7 +96,11 @@
                 
                 <!-- for removing the image cloudinary id from the cloud we need to find that one . 
                 so we are adding the cloudinary id into the below field using the dom manipulation -->
-                <input type="hidden" id="currentImage" name="currentImage" value="">
+                <!-- <input type="hidden" id="currentImage1" name="currentImage1" value=""> -->
+
+                <div id="cloudinaryIds"></div>
+                <!-- <input type="hidden" id="currentImage2" name="currentImage2" value=""> -->
+                <!-- <input type="hidden" id="currentImage3" name="currentImage3" value=""> -->
 
                 <button type="submit" class="btn btn-warning">Edit Product</button>
               </form>
@@ -117,8 +121,14 @@
         console.log( 'data in edit product',data);
 
         document.getElementById('currentProduct').value = product;
-        document.getElementById('currentImage').value = data.cloudinary_id;
+        
+        // document.getElementById('currentImage1').value = data.productImages[0].cloudinary_id;
+         // Create a comma-separated string of cloudinary_id values
+         const cloudinaryIds = data.productImages.map(image => image.cloudinary_id).join(', ');
 
+         // Update the content of the cloudinaryIds element
+          document.getElementById('cloudinaryIds').textContent = cloudinaryIds;
+        
         openModal(data)
       })
     }
@@ -143,7 +153,7 @@ document.getElementById('editProductTitle').value = data.productTitle
 document.getElementById('editProductPrice').value = data.productPrice
 // const imageUrl = 'https://www.example.com/image.jpg'; // Replace with your image URL
 const productImage = document.getElementById('oldProductImage');
-productImage.src = data.productImage;
+productImage.src = data.productImages[0].secure_url;
 // document.getElementById('editProductImage') = data.productImage
 document.getElementById('editProductDescription').value = data.productDescription
 document.getElementById('editProductCategory').value = data.category

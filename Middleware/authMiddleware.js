@@ -155,7 +155,7 @@ const isAuthenticated = (req, res, next) => {
     return res.redirect('/login');
     // Use "return" to ensure the function exits after the redirect
   }
-  
+
   const decodedTokens = jwt.decode(token);
   const userStatus = decodedTokens.status;
 
@@ -166,7 +166,7 @@ const isAuthenticated = (req, res, next) => {
       next();
       console.log("Verified user");
     } catch (error) {
-      return res.status(403).json({ message: 'Invalid token' });
+      return res.status(401).json({ message: 'Invalid token' });
     }
   } else {
     const message = 'You are blocked by Admin';

@@ -22,9 +22,15 @@ router.post('/forgot-password/emailVerification', userController.emailVerifyFp);
 router.post('/forgot-password/otpVerification', userController.otpVerifyFp); 
 router.post('/password-reset', userController.passwordReset);
 
-
 router.get('/products/:productId', isAuthenticated,  userController.viewProduct); 
+//user profiles
+router.get('/profile',isAuthenticated,  userController.userProfile); 
+router.post('/profile/update-profile',  userController.profileUpdate); 
 
+router.post('/profile/add-address',  userController.addUserAddress); 
+router.get('/profile/update-address/:addressId',  userController.editUserAddress); 
+router.post('/profile/update-address',  userController.editUserAddressPost); 
+router.post('/profile/delete-address',  userController.deleteUserAddressPost); 
 
 
 module.exports = router;

@@ -13,12 +13,15 @@
               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-              <form action="/admin/add-category" method="POST">
-                <div class="mb-3">
+              <form id="categoryForm">
+                <div id="catId" class="mb-3">
                   <label for="productTitle" class="form-label">Category Name</label>
                   <input type="text" class="form-control" id="categoryName" name="categoryName" required>
                 </div>
-               
+                
+                <div id="succesId" style="display: none;"><h2>Success</h2></div>
+
+                <p id="categoryError"></p>
                 <button type="submit" class="btn btn-success">Add Category</button>
               </form>
             </div>
@@ -54,19 +57,4 @@
       </div>
 </div>
 
-<script>
-      function deleteCategory(category) {
-      
-      fetch(`/admin/delete-category/${category}`,{method:'POST'})
-      .then(res => {
-        console.log('Deleted product');
-        if (res.ok) {
-          window.location.href = '/admin/dashboard';
-        }else{
-          console.log('failed to delete category');
-        }
-      })
-      .catch(error => console.log(error));
-        console.log(category , 'this is categoryyy');
-    }
-</script>
+<script src="../js/category.js"></script>

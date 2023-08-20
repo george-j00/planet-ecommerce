@@ -31,15 +31,19 @@ const productSchema = new mongoose.Schema({
   //     required: true 
   //     }
   // }],
-  productImage:{
-    type: String,
-},
-cloudinary_id: {
-  type: String,
-},
+  productImages: [
+    {
+      secure_url: { type: String },
+      cloudinary_id: { type: String }
+    }
+  ],
+  //  productImage: [{ type: String }], // This is the array of images
+// cloudinary_id: {
+//   type: String,
+// },
   category: {
     type: String,
-    enum: ["indoor", "outdoor"],
+    // enum: ["indoor", "outdoor"],
     required: true
 },
   additionalInformation: {

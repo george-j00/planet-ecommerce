@@ -79,10 +79,10 @@ const adminLoginPost = async (req, res) => {
     //   });
     // }
 
-    const isPasswordCorrect =  bcrypt.compare(
-      password,
-      existingAdmin.hashedPassword
-    );
+    // const isPasswordCorrect =  bcrypt.compare(
+    //   password,
+    //   existingAdmin.hashedPassword
+    // );
 
     const passwordMatch = await bcrypt.compare(password, existingAdmin.hashedPassword);
   

@@ -16,7 +16,7 @@ router.get('/dashboard' ,adminAuthenticated, adminController.dashboard);
 
 // router.get('/dashboard', adminController.dashboard); 
 router.get('/add-product', adminController.addproductGet); 
-router.post('/add-product',upload.single("productImage"), adminController.addProduct); 
+router.post('/add-product',upload.array("productImage"), adminController.addProduct); 
 
 router.post('/add-category',adminController.addCategory); 
 router.post('/delete-category/:categoryId',adminController.deleteCategory); 
@@ -27,6 +27,8 @@ router.post('/edit-product',upload.single("productImage"), adminController.editP
 router.post('/delete-product/:productId', adminController.deleteProduct);
 
 router.post('/block-user/:userId', adminController.blockAndUnblockUser);
+
+// router.get('/logout', adminController.logout);
 
 
 module.exports = router;

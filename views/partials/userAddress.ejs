@@ -1,0 +1,129 @@
+<div id="address" class="contents">
+  <% if (userData.addresses.length >= 3 ) { %>
+    <!-- Code to execute if condition is true -->
+    <button class=" btn btn-secondary mb-3 d-flex ml-auto ">Reached address limit </button>
+
+  <% } else { %>
+    <!-- Code to execute if condition is false -->
+    <button class=" btn btn-dark mb-3 d-flex ml-auto " data-bs-toggle="modal" data-bs-target="#addAddressModal"> Add new Address </button>
+
+  <% } %>
+    <div class="row">
+        <% userData.addresses.forEach((address, index) => { %>
+            <div class="col-md-6 mb-5">
+                <div class="addressCard border p-4 w-75">
+                    <div class="d-flex flex-column ">
+                        <h5 class="d-flex justify-content-center"><strong>Address <%= index + 1 %>   </strong></h5>
+                        <p class=""><strong>Name: </strong><%= userData.name %></p>
+                        <p class=""><strong>Country: </strong><%= address.country %></p>
+                        <p class=""><strong>Street Address: </strong><%= address.streetAddress %></p>
+                        <p class=""><strong>City: </strong><%= address.city %></p>
+                        <p class=""><strong>State: </strong><%= address.state %></p>
+                        <p class=""><strong>Pincode: </strong><%= address.pincode %></p>
+
+                        <div class=" ">
+                          <button id="editAddressBtn"  class="btn btn-secondary edit-address-btn" data-bs-toggle="modal" data-bs-target="#editAddressModal" data-address-id="<%= address._id %>">Edit</button>
+                          <button id="deleteAddressBtn"  class="btn btn-danger delete-address-btn" data-address-id="<%= address._id %>">Delete</button>
+                        </div>
+                       
+                    </div>
+                </div>
+            </div>
+        <% }); %>
+    </div>
+ 
+     <!-- user add address form -->
+     <div class="modal fade" id="addAddressModal" tabindex="-1" aria-labelledby="addAddressModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="addAddressModalLabel">Add Address</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="userAddAddressForm">
+                    <div class="mb-3">
+                      <label for="name" class="form-label">Name</label>
+                      <input type="text" class="form-control" id="name" name="name" value="<%= userData.name %>" required>
+                    </div>
+                    <div class="mb-3">
+                      <label for="country" class="form-label">Country</label>
+                      <input type="text" class="form-control" id="country" name="country" required>
+                    </div>
+                    <div class="mb-3">
+                      <label for="streetAddress" class="form-label">Street Address</label>
+                      <input type="text" class="form-control" id="streetAddress" name="streetAddress" required>
+                    </div>
+                    <div class="mb-3">
+                      <label for="city" class="form-label">City</label>
+                      <input type="text" class="form-control" id="city" name="city" required>
+                    </div>
+                    <div class="mb-3">
+                      <label for="state" class="form-label">State</label>
+                      <input type="text" class="form-control" id="state" name="state" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="pincode" class="form-label">Pincode</label>
+                        <input type="number" class="form-control" id="pincode" name="pincode" required >
+                        <p id="pincodeValidate" class="text-danger"></p>
+                      </div>
+
+                    <input type="hidden" id="userId" name="userId" value="<%= userData._id %>">
+    
+                    <button type="submit" class="btn btn-dark">Add Address</button>
+                  </form>
+            </div>
+          </div>
+        </div>
+      </div>
+  
+      <!-- user edit address form -->
+      <div class="modal fade" id="editAddressModal" tabindex="-1" aria-labelledby="editAddressModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editAddressModalLabel">Edit Address</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editAddressForm">
+                        <div class="mb-3">
+                            <label for="editName" class="form-label">Name</label>
+                            <input type="text" class="form-control" id="editName" name="editName" value="<%= userData.name %>" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editCountry" class="form-label">Country</label>
+                            <input type="text" class="form-control" id="editCountry" name="editCountry" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editStreetAddress" class="form-label">Street Address</label>
+                            <input type="text" class="form-control" id="editStreetAddress" name="editStreetAddress" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editCity" class="form-label">City</label>
+                            <input type="text" class="form-control" id="editCity" name="editCity" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editState" class="form-label">State</label>
+                            <input type="text" class="form-control" id="editState" name="editState" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editPincode" class="form-label">Pincode</label>
+                            <input type="number" class="form-control" id="editPincode" name="editPincode" required>
+                            <p id="editPincodeValidate" class="text-danger"></p>
+                        </div>
+                        <input type="hidden" id="editUserId" name="editUserId" value="<%= userData._id %>">
+      
+                        <input type="hidden" id="editAddressId" name="editAddressId" value="">
+                        
+                        <button type="submit" id="editAddressSubmitBtn" class="btn btn-dark">Update Address</button>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<script src="../js/updateAddress.js"></script>
+<script src="../js/addUserAddress.js"></script>
+</div>

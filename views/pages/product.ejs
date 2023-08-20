@@ -17,8 +17,25 @@
     <div class="container mt-3">
         <div class="row">
             <div class="col-md-6">
-                <img class="card-img-top" style="height: 80vh; cursor: pointer;" src="<%= product.productImage %>" alt="view product" data-toggle="modal" data-target="#imageModal">
-                <!-- <img class="card-img-top" style="height: 80vh;" src="<%= product.productImage %>" alt="view product"> -->
+                <div class="col-md-6">
+                    <div id="productCarousel" class="carousel slide" data-ride="carousel">
+                        <div class="carousel-inner" style="width: 25vw; height: 60vh;">
+                            <% product.productImages.forEach((image, index) => { %>
+                                <div class="carousel-item <%= index === 0 ? 'active' : '' %>">
+                                    <img class="d-block w-100 card-img-top" style=" width: 50vw; height: 55vh;" src="<%= image.secure_url %>" alt="View Product" data-toggle="modal" data-target="#imageModal">
+                                </div>
+                            <% }); %>
+                        </div>
+                        <a class="carousel-control-prev" href="#productCarousel" role="button" data-slide="prev">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                            <span class="sr-only">Previous</span>
+                        </a>
+                        <a class="carousel-control-next" href="#productCarousel" role="button" data-slide="next">
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                            <span class="sr-only">Next</span>
+                        </a>
+                    </div>
+                </div>
             </div>
             <div class="col-md-6">
                 <div class="d-flex flex-column justify-content-between h-100">
@@ -68,7 +85,7 @@
             <div class="modal-content">
                 <div class="modal-body">
                     <!-- Zoomed image here -->
-                    <img src="<%= product.productImage %>" alt="Zoomed Image" class="img-fluid">
+                    <img src="<%= product.productImages[0].secure_url %>" alt="Zoomed Image" class="img-fluid">
                 </div>
             </div>
         </div>
