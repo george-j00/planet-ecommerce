@@ -46,7 +46,7 @@
                        <span class="text-secondary"> <p>Category :  <%= product.category %></p></span>
                        <div class="mb-3">
                         <label for="quantity" class="mb-2 d-block">Quantity:</label>
-                        <div class="input-group mb-3">
+                        <!-- <div class="input-group mb-3">
                             <button class="btn btn-white border border-secondary rounded-left px-3" type="button" id="button-minus">
                                 <i class="fas fa-minus"></i>
                             </button>
@@ -54,6 +54,12 @@
                             <button class="btn btn-white border border-secondary rounded-right px-3" type="button" id="button-plus">
                                 <i class="fas fa-plus"></i>
                             </button>
+                        </div> -->
+
+                        <div class="input-group mt-3">
+                            <button class="btn btn-outline-dark" type="button" id="decrementButton">-</button>
+                            <input type="number" class="form-control" id="quantityInput" min="1" value="1" step="1">
+                            <button class="btn btn-outline-dark" type="button" id="incrementButton">+</button>
                         </div>
                     </div>
                         <button class="btn btn-dark w-100">Add to Cart</button>

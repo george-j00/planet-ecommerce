@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('../partials/header');%>
+
+
+<body>
+<div class="fixed">
+  <%- include('../partials/navbar');%>
+</div>
+
+<div class="container">
+    <h2 class="d-flex justify-content-center mb-5">
+     Cart
+    </h2>
+    <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr>
+              <th scope="col">No.</th>
+              <th scope="col">Product</th>
+              <th scope="col">Quantity</th>
+              <th scope="col">Price</th>
+              <th scope="col">Subtotal</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% populatedCart.cartItems.forEach((cartItem , index) => { %>
+              <tr>
+                <td><%= index+1 %></td>
+                <td>
+                  <div class="d-flex align-items-center">
+                    <img src="<%= cartItem.product.productImages[0].secure_url %>" style="width: 60px; height: 80px;" alt="">
+                    <p class="ml-3"><%= cartItem.product.productTitle %></p>
+                  </div>
+                </td>
+                <td>
+                  <div class="input-group mt-3">
+                    <button class="btn btn-outline-dark decrementButton" type="button">-</button>
+                    <input type="number" class="form-control quantityInput" style="max-width:50px;" min="1" value="<%= cartItem.quantity %>" step="1">
+                    <button class="btn btn-outline-dark incrementButton" type="button">+</button>
+                  </div>
+                </td>
+                <td class="pt-4 productPrice" data-price="<%= cartItem.product.productPrice %>">$ <%= cartItem.product.productPrice %></td>
+                <td class="pt-4 subTotal" data-subtotal ="<%= cartItem.product.productPrice * cartItem.quantity %>">$ <%= cartItem.product.productPrice * cartItem.quantity %></td>
+              </tr>
+            <% }); %>
+          </tbody>
+          
+        </table>
+      </div>
+
+      <div class="d-flex justify-content-center mt-1">
+        <p>Shop for <strong>$34</strong> more to enjoy FREE Shipping</p>
+      </div>
+
+      <div class="d-flex justify-content-center mt-5">
+        <div class="d-flex flex-column mr-5">
+            <p class="mb-1">Have a coupon?</p>
+            <p class="text-secondary mb-2">Add your code for an instant cart discount</p>
+            <input type="text" name="coupon" id="couponId" class="form-control mb-3" placeholder="Coupon code">
+        </div>
+        <div class="d-flex flex-column ml-5 border p-4 w-50">
+            <div class="mb-3">
+                <input type="radio" class="shipping" name="shipping" id="freeShipping" value="FreeShipping">
+                <label for="freeShipping" class="ml-2">Free Shipping</label>
+            </div>
+            <div class="mb-3">
+                <input type="radio" class="shipping" name="shipping" id="expressShipping" value="express">
+                <label for="expressShipping" class="ml-2">Express Shipping (+$15)</label>
+            </div>
+            <div class="d-flex flex-row justify-content-between mb-2">
+                <p class="mb-0">Subtotal</p>
+                <p class="mb-0" id="subTotalCheckout">$0.00</p>
+            </div>
+            <div class="d-flex flex-row justify-content-between mb-3">
+                <p class="mb-0">Total</p>
+                <p class="mb-0" id="totalCheckout">$0.00</p>
+            </div>
+            <div>
+                <button class="w-100 btn btn-dark text-light">Checkout</button>
+            </div>
+        </div>
+        
+    </div>
+    
+</div>
+
+
+  
+
+
+
+
+<script src="../js/cart.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+</body>
+</html>

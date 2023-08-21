@@ -2,13 +2,12 @@ const otpGenerator = require('otp-generator');
 const nodemailer = require('nodemailer');
 const User = require('../Models/users.schema');
 const Product = require('../Models/products.schema');
-const Otp = require('../Models/otp.schema');
-// const Admin = require('../Models/admin.schema');
 const jwt = require('jsonwebtoken')
-const mongoose = require('mongoose');
-const { ObjectId } = mongoose.Types; 
+const Cart = require('../Models/cart.schema');
 
-const bcrypt = require("bcrypt")
+
+
+const bcrypt = require("bcrypt");
 const saltRounds = 10
 
 //signup get function
@@ -205,16 +204,18 @@ const homepage = async (req, res) => {
 
  
   try {
+    const token = req.cookies.jwt;
+    const decodedTokens = jwt.decode(token);
+    const userId = decodedTokens.id
+    console.log(userId);
     const products = await Product.find();
-   
-  //   if (!products || products.length === 0 ) {
-  //     return res.status(404).send({ message: "No products!" });
-  //   }
-    // console.log(products);
-   res.render('pages/home',{products});
-    // res.send('success');
-    // console.table(products);
+    const cart = await Cart.find({user:userId});
 
+  if (cart || cart.cartItems ) {
+    const cartLength = cart[0].cartItems.length
+   res.render('pages/home',{products,cartLength});
+
+  }
   } catch (err) {
     console.log(err);
   }
@@ -238,12 +239,17 @@ const userProfile = async (req, res) => {
 
   const token = req.cookies.jwt;
   const decodedTokens = jwt.decode(token);
+  const userId = decodedTokens.id
+
+  const cart = await Cart.find({user:userId});
+
+const cartLength = cart[0].cartItems.length
 
   try {
-    const userData = await User.findById(decodedTokens.id);
+    const userData = await User.findById({_id : userId});
 
     // console.log(userData, 'this is userData');
-   res.render('pages/profile', {userData});
+   res.render('pages/profile', {userData,cartLength});
   //   console.log(decodedTokens.user , 'this is user profile');
   } catch (error) {
    res.send('no user found');
@@ -375,7 +381,79 @@ const deleteUserAddressPost = async (req, res) => {
  res.json().status(200)
 }
 
+const addToCart = async (req, res) => {
+  const { productId } = req.body;
+  const token = req.cookies.jwt;
+  const decodedTokens = jwt.decode(token);
+  const userId = decodedTokens.id;
 
+  try {
+    // Find the product using the provided productId
+    const product = await Product.findById(productId, { productTitle: 1, productPrice: 1 });
+
+    if (!product) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+
+    // Create a new cart item with the product details
+    const cartItem = {
+      product: productId,
+      quantity: 1,
+    };
+
+    // Find the user's cart or create a new cart if it doesn't exist
+    let userCart = await Cart.findOne({ user: userId });
+
+    if (!userCart) {
+      userCart = new Cart({ user: userId, cartItems: [] });
+    }
+
+    // Check if the product already exists in the cart, and update quantity if needed
+    const existingCartItemIndex = userCart.cartItems.findIndex(item => item.product.equals(productId));
+
+    if (existingCartItemIndex !== -1) {
+      userCart.cartItems[existingCartItemIndex].quantity += 1;
+    } else {
+      userCart.cartItems.push(cartItem);
+    }
+    //  console.log(userCart , 'this is pop');
+     console.log(data , 'this is pop');
+
+    // Save the updated cart
+    await data.save();
+
+    return res.status(201).json({ message: "Item added to cart"});
+  } catch (error) {
+    console.error("Error adding item to cart:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+const cart = async (req, res) => {
+
+  const token = req.cookies.jwt;
+  const decodedTokens = jwt.decode(token);
+  const userId = decodedTokens.id
+
+  // const cart = await Cart.find({user:userId});
+
+  // res.render('pages/cart',{cartLength , cart});
+
+  const userCart = await Cart.findOne({ user: userId }).populate("cartItems.product");
+  
+  const cartLength = userCart.cartItems.length
+  // console.log(cartLength + " cartlength = " );
+
+if (!userCart) {
+  // Handle case where cart doesn't exist
+  return res.status(404).json({ message: "Cart not found" });
+}
+
+const populatedCart = userCart.toObject(); // Convert to plain object for manipulation
+
+  res.render('pages/cart',{cartLength , populatedCart});
+
+}
 
 
 module.exports = {
@@ -396,6 +474,7 @@ module.exports = {
     addUserAddress,
     editUserAddress,
     editUserAddressPost,
-    deleteUserAddressPost
-    // addressUpdate
+    deleteUserAddressPost,
+    cart,
+    addToCart
 };

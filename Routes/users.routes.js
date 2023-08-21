@@ -25,12 +25,15 @@ router.post('/password-reset', userController.passwordReset);
 router.get('/products/:productId', isAuthenticated,  userController.viewProduct); 
 //user profiles
 router.get('/profile',isAuthenticated,  userController.userProfile); 
-router.post('/profile/update-profile',  userController.profileUpdate); 
+router.post('/profile/update-profile',isAuthenticated,  userController.profileUpdate); 
 
 router.post('/profile/add-address',  userController.addUserAddress); 
-router.get('/profile/update-address/:addressId',  userController.editUserAddress); 
-router.post('/profile/update-address',  userController.editUserAddressPost); 
-router.post('/profile/delete-address',  userController.deleteUserAddressPost); 
+router.get('/profile/update-address/:addressId',isAuthenticated,  userController.editUserAddress); 
+router.post('/profile/update-address',isAuthenticated,  userController.editUserAddressPost); 
+router.post('/profile/delete-address',isAuthenticated,  userController.deleteUserAddressPost); 
+//cart
+router.get('/cart',isAuthenticated, userController.cart);
+router.post('/add-to-cart',isAuthenticated , userController.addToCart); 
 
 
 module.exports = router;
