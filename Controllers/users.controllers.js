@@ -416,11 +416,7 @@ const addToCart = async (req, res) => {
     } else {
       userCart.cartItems.push(cartItem);
     }
-    //  console.log(userCart , 'this is pop');
-     console.log(data , 'this is pop');
-
-    // Save the updated cart
-    await data.save();
+    await userCart.save();
 
     return res.status(201).json({ message: "Item added to cart"});
   } catch (error) {
@@ -434,10 +430,6 @@ const cart = async (req, res) => {
   const token = req.cookies.jwt;
   const decodedTokens = jwt.decode(token);
   const userId = decodedTokens.id
-
-  // const cart = await Cart.find({user:userId});
-
-  // res.render('pages/cart',{cartLength , cart});
 
   const userCart = await Cart.findOne({ user: userId }).populate("cartItems.product");
   
@@ -453,6 +445,27 @@ const populatedCart = userCart.toObject(); // Convert to plain object for manipu
 
   res.render('pages/cart',{cartLength , populatedCart});
 
+}
+
+const deleteCartItem = async (req, res) => {
+  const { deleteItemId ,cartId } = req.body;
+
+  try {
+    await Cart.findOneAndUpdate(
+      { _id: cartId, 'cartItems._id': deleteItemId },
+      {
+       $pull:{
+        cartItems: {_id: deleteItemId }
+       }
+      }, 
+    )
+    res.status(200).json({ message: 'Deleted successfully' });
+
+  } catch (error) {
+    console.error('error deleting');
+    console.error(error);
+    res.status(500).json({ message: 'An error occurred while deleting the cart item' });
+  }
 }
 
 
@@ -476,5 +489,6 @@ module.exports = {
     editUserAddressPost,
     deleteUserAddressPost,
     cart,
-    addToCart
+    addToCart,
+    deleteCartItem
 };

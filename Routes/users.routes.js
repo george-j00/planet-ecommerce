@@ -34,6 +34,7 @@ router.post('/profile/delete-address',isAuthenticated,  userController.deleteUse
 //cart
 router.get('/cart',isAuthenticated, userController.cart);
 router.post('/add-to-cart',isAuthenticated , userController.addToCart); 
+router.post('/delete-cartItem',isAuthenticated , userController.deleteCartItem); 
 
 
 module.exports = router;

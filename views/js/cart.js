@@ -11,6 +11,10 @@ addToCartBtns.forEach(button => {
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({productId})
+        }).then(response => {
+          if (response.ok) {
+            window.location.reload();
+          }
         })
 
     })
@@ -29,8 +33,9 @@ incrementButtons.forEach((button, index) => {
     const subTotalElement = subTotalElements[index];
   
     quantityInput.value = parseInt(quantityInput.value) + 1;
-    subTotalElement.innerText = `$ ${(parseFloat(quantityInput.value) * productPrice).toFixed(2)}`;
-  
+    subtotalValue = `$ ${(parseFloat(quantityInput.value) * productPrice).toFixed(2)}`;
+    subTotalElement.innerText = subtotalValue;
+
     updateTotal(); // Call the function to update total
   });
 });
@@ -91,3 +96,31 @@ decrementButtons.forEach((button, index) => {
   updateTotal();
   
   
+const deleteBtns = document.querySelectorAll('.deleteCartItem')
+
+  deleteBtns.forEach(deleteBtn => {
+    deleteBtn.addEventListener('click', () =>{
+      const deleteItem = deleteBtn.getAttribute('data-delete');
+      const cartId = deleteBtn.getAttribute('cart-id');
+     deleteCartItem(deleteItem , cartId);
+    // console.log(deleteItem , 'lkjasdflkjasdf');
+    })
+  })
+
+
+  function deleteCartItem(deleteItemId , cartId) {
+    fetch('/delete-cartItem', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ deleteItemId,cartId })//passing the Id's of cart and product
+    })
+    .then(response => response.json())
+    .then(result => {
+      window.location.reload(); 
+    })
+    .catch(err => {
+      console.error(err);
+    });
+  }
