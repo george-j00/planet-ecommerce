@@ -25,28 +25,40 @@
             </tr>
           </thead>
           <tbody>
-            <% populatedCart.cartItems.forEach((cartItem , index) => { %>
+            <% populatedCart.cartItems.forEach((cartItem, index) => { %>
               <tr>
-                <td><%= index+1 %></td>
+                <td><%= index + 1 %></td>
                 <td>
                   <div class="d-flex align-items-center">
                     <img src="<%= cartItem.product.productImages[0].secure_url %>" style="width: 60px; height: 80px;" alt="">
-                    <p class="ml-3"><%= cartItem.product.productTitle %></p>
+                    <p product-data-id="<%= cartItem.product._id %>" class="ml-3 cartItemProduct"><%= cartItem.product.productTitle %></p>
                   </div>
                 </td>
                 <td>
-                  <div class="input-group mt-3">
-                    <button class="btn btn-outline-dark decrementButton" type="button">-</button>
-                    <input type="number" class="form-control quantityInput" style="max-width:50px;" min="1" value="<%= cartItem.quantity %>" step="1">
-                    <button class="btn btn-outline-dark incrementButton" type="button">+</button>
+                  
+                <div class="cart-item">
+                  
+                  <div class="d-flex flex-row align-items-center qty">
+                    <button class="btn btn-light"> 
+                      <i class="fa fa-minus mt-3 text-danger decreaseQty" data-product-id="<%= cartItem.product._id %>"></i>
+                    </button>
+                    <h5 class="text-grey mt-4 pl-4 pr-4 quantity"><%= cartItem.quantity %></h5>
+                    <button class="btn btn-light">
+                      <i class="fa fa-plus mt-3 text-success increaseQty" data-product-id="<%= cartItem.product._id %>"></i>
+                    </button>
                   </div>
+                  
+              
+               </td>
+                <td class="pt-4 productPrice" data-price="<%= cartItem.product.productPrice %>">$<%= cartItem.product.productPrice %></td>
+                <td class="pt-4 subTotal" data-subtotal="<%= cartItem.product.productPrice * cartItem.quantity %>">$<%= cartItem.product.productPrice * cartItem.quantity %></td>
+                <td>
+                  <button class="deleteCartItem btn btn-danger mt-3" data-delete="<%= cartItem._id %>" cart-id="<%= populatedCart._id %>">Remove</button>
                 </td>
-                <td class="pt-4 productPrice" data-price="<%= cartItem.product.productPrice %>">$ <%= cartItem.product.productPrice %></td>
-                <td class="pt-4  subTotal" data-subtotal ="<%= cartItem.product.productPrice * cartItem.quantity %>">$ <%= cartItem.product.productPrice * cartItem.quantity %></td>
-                <td> <button class="deleteCartItem btn btn-danger mt-3" data-delete = "<%= cartItem._id %>" cart-id="<%= populatedCart._id %>" >Remove </button> </td>
               </tr>
             <% }); %>
           </tbody>
+          
           
         </table>
       </div>
@@ -79,7 +91,7 @@
                 <p class="mb-0" id="totalCheckout">$0.00</p>
             </div>
             <div>
-                <button class="w-100 btn btn-dark text-light">Checkout</button>
+                <button class="w-100 btn btn-dark text-light" id="checkoutBtnId">Checkout</button>
             </div>
         </div>
         
@@ -92,6 +104,7 @@
 
 
 
+ 
 
 <script src="../js/cart.js"></script>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>

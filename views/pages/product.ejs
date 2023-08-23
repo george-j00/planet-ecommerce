@@ -57,12 +57,12 @@
                         </div> -->
 
                         <div class="input-group mt-3">
-                            <button class="btn btn-outline-dark" type="button" id="decrementButton">-</button>
-                            <input type="number" class="form-control" id="quantityInput" min="1" value="1" step="1">
+                            <button class="btn btn-outline-dark" type="button"  id="decrementButton">-</button>
+                            <input type="number" class="form-control" product-data-id="<%= product._id %>" id="quantityInput" min="1" value="1" step="1">
                             <button class="btn btn-outline-dark" type="button" id="incrementButton">+</button>
                         </div>
                     </div>
-                        <button class="btn btn-dark w-100">Add to Cart</button>
+                        <button class="btn btn-dark w-100" id="addToCartBtnId">Add to Cart</button>
                     </div>
                 </div>
             </div>
@@ -99,27 +99,72 @@
 
     <%- include('../partials/footer');%>
 
+    <script>
+
+document.addEventListener('DOMContentLoaded', () =>{
+const incrementButton = document.getElementById('incrementButton');
+const decrementButton = document.getElementById('decrementButton');
+const quantityInput = document.getElementById('quantityInput');
+let currentQuantity = parseInt(quantityInput.value);
+
+
+// const incrementButtons = document.querySelectorAll('.cartIncrementButton');
+// const decrementButtons = document.querySelectorAll('.cartDecrementButton');
+// const quantityInputs = document.querySelectorAll('.cartQuantityInput');
+
+
+const decreaseButtons = document.querySelectorAll('.decreaseQty');
+  const increaseButtons = document.querySelectorAll('.increaseQty');
+  const quantityElements = document.querySelectorAll('.quantity');
+
+
+
+incrementButton.addEventListener('click', () => {
+  currentQuantity++;
+  quantityInput.value = currentQuantity;
+});
+
+decrementButton.addEventListener('click', () => {
+  if (currentQuantity > 1) {
+    currentQuantity--;
+    quantityInput.value = currentQuantity;
+  }
+});
+const addToCartBtn = document.getElementById('addToCartBtnId');
+
+addToCartBtn.addEventListener('click', () => {
+  let quantity = currentQuantity;
+  let productId = quantityInput.getAttribute('product-data-id');
+
+  fetch('/add-to-cart', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ productId, quantity }),
+  })
+    .then(response => response.json())
+    .then(data => {
+      // Handle the response as needed
+      console.log('Added successfully');
+    })
+    .catch(error => {
+      console.error('Error adding to cart:', error);
+    });
+});
+});
+
+    </script>
+
     <!-- Include jQuery -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
 <!-- Include Bootstrap JavaScript -->
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
 
+
+
 </body>
 
-<script>
-    const quantityInput = document.getElementById('quantity');
-    const minusButton = document.getElementById('button-minus');
-    const plusButton = document.getElementById('button-plus');
-
-    minusButton.addEventListener('click', () => {
-        if (quantityInput.value > 1) {
-            quantityInput.value = parseInt(quantityInput.value) - 1;
-        }
-    });
-
-    plusButton.addEventListener('click', () => {
-        quantityInput.value = parseInt(quantityInput.value) + 1;
-    });
-</script>
+<!-- <script src="../js/cart.js"></script> -->
 </html>

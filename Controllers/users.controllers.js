@@ -382,14 +382,15 @@ const deleteUserAddressPost = async (req, res) => {
 }
 
 const addToCart = async (req, res) => {
-  const { productId } = req.body;
+  const { productId , quantity } = req.body;
+
   const token = req.cookies.jwt;
   const decodedTokens = jwt.decode(token);
   const userId = decodedTokens.id;
 
   try {
     // Find the product using the provided productId
-    const product = await Product.findById(productId, { productTitle: 1, productPrice: 1 });
+    const product = await Product.findById(productId);
 
     if (!product) {
       return res.status(404).json({ message: "Product not found" });
@@ -398,7 +399,7 @@ const addToCart = async (req, res) => {
     // Create a new cart item with the product details
     const cartItem = {
       product: productId,
-      quantity: 1,
+      quantity: quantity,
     };
 
     // Find the user's cart or create a new cart if it doesn't exist
@@ -409,10 +410,10 @@ const addToCart = async (req, res) => {
     }
 
     // Check if the product already exists in the cart, and update quantity if needed
-    const existingCartItemIndex = userCart.cartItems.findIndex(item => item.product.equals(productId));
+    const existingCartItemIndex =  userCart.cartItems.findIndex(item => item.product.equals(productId));
 
     if (existingCartItemIndex !== -1) {
-      userCart.cartItems[existingCartItemIndex].quantity += 1;
+      userCart.cartItems[existingCartItemIndex].quantity += quantity;
     } else {
       userCart.cartItems.push(cartItem);
     }
@@ -447,6 +448,73 @@ const populatedCart = userCart.toObject(); // Convert to plain object for manipu
 
 }
 
+// const updateQuantity = async (req, res) => {
+
+//   const { productId, quantity } = req.body;
+
+//   console.log(productId , quantity , 'kjasfd;lkjsaflkj');
+//   // const token = req.cookies.jwt;
+//   // const decodedTokens = jwt.decode(token);
+//   // const userId = decodedTokens.id;
+
+//   // try {
+//   //   await Cart.findOneAndUpdate(
+//   //     { user: userId, 'cartItems.product': productId },
+//   //     {
+//   //       $set: {
+//   //         'cartItems.$.quantity': quantity // Use the positional operator
+//   //       }
+//   //     }
+//   //   );
+
+//   //   res.status(200).json({ message: 'Quantity updated successfully' });
+//   // } catch (error) {
+//   //   console.error('Error updating quantity:', error);
+//   //   res.status(500).json({ message: 'An error occurred while updating the cart item' });
+//   // }
+
+  
+//     // try {
+//     //   const updatedCartItem = await CartItem.findByIdAndUpdate(cartItemId, { quantity }, { new: true });
+  
+//     //   if (!updatedCartItem) {
+//     //     return res.status(404).json({ message: 'Cart item not found' });
+//     //   }
+  
+//     //   return res.status(200).json({ message: 'Quantity updated successfully' });
+//     // } catch (error) {
+//     //   console.error('Error updating quantity:', error);
+//     //   return res.status(500).json({ message: 'Internal server error' });
+//     // }
+// }
+
+
+
+const updateQuantity = async (req, res) => {
+
+  const { productId, quantity } = req.body;
+
+  console.log(productId , quantity);
+
+  try {
+    // Find the cart item and update the quantity
+    const cartItem = await Cart.findOneAndUpdate(
+      { 'cartItems.product': productId },
+      { $set: { 'cartItems.$.quantity': quantity } }
+    );
+
+    if (!cartItem) {
+      return res.status(404).json({ message: 'Cart item not found' });
+    }
+
+    return res.status(200).json({ message: 'Quantity updated successfully' });
+  } catch (error) {
+    console.error('Error updating quantity:', error);
+    res.status(500).json({ message: 'An error occurred while updating the quantity' });
+  }
+};
+
+
 const deleteCartItem = async (req, res) => {
   const { deleteItemId ,cartId } = req.body;
 
@@ -466,6 +534,10 @@ const deleteCartItem = async (req, res) => {
     console.error(error);
     res.status(500).json({ message: 'An error occurred while deleting the cart item' });
   }
+}
+
+const checkout =  (req, res) => {
+  res.render('pages/checkout')
 }
 
 
@@ -489,6 +561,8 @@ module.exports = {
     editUserAddressPost,
     deleteUserAddressPost,
     cart,
+    updateQuantity ,
     addToCart,
-    deleteCartItem
+    deleteCartItem,
+    checkout
 };

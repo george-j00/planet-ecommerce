@@ -33,8 +33,11 @@ router.post('/profile/update-address',isAuthenticated,  userController.editUserA
 router.post('/profile/delete-address',isAuthenticated,  userController.deleteUserAddressPost); 
 //cart
 router.get('/cart',isAuthenticated, userController.cart);
+router.post('/update-quantity',isAuthenticated, userController.updateQuantity);
 router.post('/add-to-cart',isAuthenticated , userController.addToCart); 
 router.post('/delete-cartItem',isAuthenticated , userController.deleteCartItem); 
+
+router.get('/checkout',isAuthenticated , userController.checkout); 
 
 
 module.exports = router;
