@@ -4,6 +4,7 @@ const User = require('../Models/users.schema');
 const Product = require('../Models/products.schema');
 const jwt = require('jsonwebtoken')
 const Cart = require('../Models/cart.schema');
+const Order = require('../Models/orders.schema');
 
 
 
@@ -200,27 +201,27 @@ const passwordReset = async (req, res) => {
   }
 };
 
-const homepage = async (req, res) => { 
-
- 
+const homepage = async (req, res) => {
   try {
     const token = req.cookies.jwt;
     const decodedTokens = jwt.decode(token);
-    const userId = decodedTokens.id
+    const userId = decodedTokens.id;
     console.log(userId);
+
     const products = await Product.find();
-    const cart = await Cart.find({user:userId});
+    const cart = await Cart.find({ user: userId });
 
-  if (cart || cart.cartItems ) {
-    const cartLength = cart[0].cartItems.length
-   res.render('pages/home',{products,cartLength});
+    let cartLength = 0;
+    if (cart.length > 0 && cart[0].cartItems) {
+      cartLength = cart[0].cartItems.length;
+    }
 
-  }
+    res.render('pages/home', { products, cartLength });
   } catch (err) {
     console.log(err);
   }
-   
-}
+};
+
 
 const viewProduct = async (req, res) => {
   const productId = req.params.productId;
@@ -314,7 +315,7 @@ const editUserAddress = async (req, res) => {
 }
 
 const editUserAddressPost = async (req, res) => {
-  const {country, streetAddress, city,state ,pincode ,userId ,editAddressId} = req.body;
+  const {name ,country, streetAddress, city,state ,pincode ,userId ,editAddressId} = req.body;
  await User.findOneAndUpdate(
   { _id: userId, 'addresses._id': editAddressId },
   {
@@ -448,48 +449,6 @@ const populatedCart = userCart.toObject(); // Convert to plain object for manipu
 
 }
 
-// const updateQuantity = async (req, res) => {
-
-//   const { productId, quantity } = req.body;
-
-//   console.log(productId , quantity , 'kjasfd;lkjsaflkj');
-//   // const token = req.cookies.jwt;
-//   // const decodedTokens = jwt.decode(token);
-//   // const userId = decodedTokens.id;
-
-//   // try {
-//   //   await Cart.findOneAndUpdate(
-//   //     { user: userId, 'cartItems.product': productId },
-//   //     {
-//   //       $set: {
-//   //         'cartItems.$.quantity': quantity // Use the positional operator
-//   //       }
-//   //     }
-//   //   );
-
-//   //   res.status(200).json({ message: 'Quantity updated successfully' });
-//   // } catch (error) {
-//   //   console.error('Error updating quantity:', error);
-//   //   res.status(500).json({ message: 'An error occurred while updating the cart item' });
-//   // }
-
-  
-//     // try {
-//     //   const updatedCartItem = await CartItem.findByIdAndUpdate(cartItemId, { quantity }, { new: true });
-  
-//     //   if (!updatedCartItem) {
-//     //     return res.status(404).json({ message: 'Cart item not found' });
-//     //   }
-  
-//     //   return res.status(200).json({ message: 'Quantity updated successfully' });
-//     // } catch (error) {
-//     //   console.error('Error updating quantity:', error);
-//     //   return res.status(500).json({ message: 'Internal server error' });
-//     // }
-// }
-
-
-
 const updateQuantity = async (req, res) => {
 
   const { productId, quantity } = req.body;
@@ -536,9 +495,64 @@ const deleteCartItem = async (req, res) => {
   }
 }
 
-const checkout =  (req, res) => {
-  res.render('pages/checkout')
+const checkout =  async (req, res) => {
+
+  const token = req.cookies.jwt;
+  const decodedTokens = jwt.decode(token);
+  const userId = decodedTokens.id
+
+  try {
+    const userCart = await Cart.findOne({ user: userId })
+      .populate("user")
+      .populate("cartItems.product");
+      
+    res.render('pages/checkout', { userCart: userCart });
+  }catch (error) {
+    console.error('Error fetching cart data:', error);
+    res.status(500).json({ message: 'An error occurred while fetching cart data' });
+  }
+
 }
+
+const placeOrder = async (req, res) => {
+  const { orderData } = req.body;
+
+  try {
+    
+
+    // Create a new instance of the Order model with the orderData
+    const newOrder = new Order({
+      user: orderData.userId, // Use the populated user object
+      items: orderData.items.map(item => ({
+        productId: item.productId,
+        quantity: item.quantity,
+        price: item.productPrice
+      })),
+      shippingAddress: {
+        name: orderData.shippingAddress.name,
+        country: orderData.shippingAddress.country,
+        streetAddress: orderData.shippingAddress.streetAddress,
+        city: orderData.shippingAddress.city,
+        state: orderData.shippingAddress.state,
+        pincode: orderData.shippingAddress.pincode
+      },
+      paymentMethod: orderData.paymentMethod,
+      shippingCharge: orderData.shippingCharge,
+      subtotals: orderData.subtotal,
+      totalAmount: orderData.totalAmount
+    });
+
+    // Save the new order to the database
+    const savedOrder = await newOrder.save();
+
+    console.log('Order saved:', savedOrder);
+    res.status(201).json({ message: 'Order placed successfully' });
+  } catch (error) {
+    console.error('Error placing order:', error);
+    res.status(500).json({ message: 'Error placing order' });
+  }
+};
+
 
 
 module.exports = {
@@ -564,5 +578,6 @@ module.exports = {
     updateQuantity ,
     addToCart,
     deleteCartItem,
-    checkout
+    checkout,
+    placeOrder
 };

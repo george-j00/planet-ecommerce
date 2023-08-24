@@ -22,7 +22,7 @@
                         <p class=""><strong>Pincode: </strong><%= address.pincode %></p>
 
                         <div class=" ">
-                          <button id="editAddressBtn"  class="btn btn-secondary edit-address-btn" data-bs-toggle="modal" data-bs-target="#editAddressModal" data-address-id="<%= address._id %>">Edit</button>
+                          <button id="editAddressBtn"  class="btn btn-secondary edit-address-btn" data-bs-toggle="modal" data-bs-target="#editAddressModal" data-address-id ="<%= address._id %>">Edit</button>
                           <button id="deleteAddressBtn"  class="btn btn-danger delete-address-btn" data-address-id="<%= address._id %>">Delete</button>
                         </div>
                        
@@ -89,7 +89,7 @@
                     <form id="editAddressForm">
                         <div class="mb-3">
                             <label for="editName" class="form-label">Name</label>
-                            <input type="text" class="form-control" id="editName" name="editName" value="<%= userData.name %>" required>
+                            <input type="text" class="form-control" id="editName" name="editName" value="<%= userData.name %>" disabled>
                         </div>
                         <div class="mb-3">
                             <label for="editCountry" class="form-label">Country</label>
@@ -114,7 +114,7 @@
                         </div>
                         <input type="hidden" id="editUserId" name="editUserId" value="<%= userData._id %>">
       
-                        <input type="hidden" id="editAddressId" name="editAddressId" value="">
+                        <input type="hidden" id="editAddressId" name="editAddressId" value="" >
                         
                         <button type="submit" id="editAddressSubmitBtn" class="btn btn-dark">Update Address</button>
 

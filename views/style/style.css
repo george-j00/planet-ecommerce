@@ -1,4 +1,4 @@
-
+/* 
 
 .carousel {
   height: 60vh;
@@ -564,3 +564,26 @@ body {
   height: 110px;
   border-radius: 50%;
 }
+.addressCard {
+  border: 1px solid #f0ebeb;
+}
+
+/* Selected border color */
+.addressCard.selected {
+  border: 2px solid #007bff; /* You can use any color you prefer */
+}
+
+/* Custom CSS */
+.nav-link.text-dark.active {
+  background-color: #000; /* Black background */
+  color: #fff !important; /* White text */
+}
+
+.nav-link.text-dark {
+  color: #000 !important; /* Black text for non-active links */
+}
+
+
+
+
+
