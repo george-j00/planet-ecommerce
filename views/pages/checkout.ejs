@@ -6,6 +6,8 @@
   <div class="fixed">
     <%- include('../partials/navbar');%>
   </div>
+
+
   
   <section class=" py-3">
     <div class="container">
@@ -14,232 +16,143 @@
           <div class="card mb-4 border shadow-0 p-4">
                     <h4 class="text-center mb-3">Express Checkout</h4>
                     <button class="btn btn-light btn-block">Google Pay</button>
-                 </div>
+
+                    
+          </div>
           
-<!-- ******** ADDRESS SECTION ************  -->
+        <hr>
+        <p class="d-flex justify-content-center">or</p>
+
        <div class="border p-4 mb-4">
         <h4 class="d-flex justify-content-center">Select Address</h4>
-        <% if (userCart.user.addresses.length >= 3 ) { %>
-          <button class=" btn btn-secondary mb-3 d-flex ml-auto ">Reached address limit </button>
-      
-        <% } else { %>
-          <button class=" btn btn-dark mb-3 d-flex ml-auto " data-bs-toggle="modal" data-bs-target="#addAddressModal"> <i class="fa-solid fa-plus pr-3 pt-1"></i>Add Address </button>
-      
-        <% } %>
         <div class=" d-flex flex-row">
-          <% userCart.user.addresses.forEach((address, index) => { %>
-            <div class="col-md-4 mb-4">
-              <div class="addressCard p-3 select-address-card" data-user-id="<%= userCart.user._id %>"  data-address-id="<%= address._id %>">
-                <div class="d-flex flex-column">
-                  <h6 class="text-center mb-2"><strong>Address <%= index + 1 %></strong></h6>
-                  <p class="mb-2"><strong>Name: </strong><%= userCart.user.name %></p>
-                  <p class="mb-2"><strong>Country: </strong><%= address.country %></p>
-                  <p class="mb-2"><strong>Street Address: </strong><%= address.streetAddress %></p>
-                  <p class="mb-2"><strong>City: </strong><%= address.city %></p>
-                  <p class="mb-2"><strong>State: </strong><%= address.state %></p>
-                  <p class="mb-2"><strong>Pincode: </strong><%= address.pincode %></p>
-                  <div class="mt-auto">
-                    <button id="editAddressBtn" class="btn edit-address-btn" data-bs-toggle="modal" data-bs-target="#editAddressModal" data-address-id="<%= address._id %>"><i class="fa-solid fa-pencil"></i></button>
-                  </div>
-                </div>
+            <div class="card w-50">
+              <div class="card-body">
+                <h5 class="card-title">Card title</h5>
+                <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+                <a href="#" class="card-link">Card link</a>
+                <a href="#" class="card-link">Another link</a>
               </div>
             </div>
-          <% }); %>
-          
-          
-         <!-- user add address form -->
-     <div class="modal fade" id="addAddressModal" tabindex="-1" aria-labelledby="addAddressModalLabel" aria-hidden="true">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="addAddressModalLabel">Add Address</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body">
-              <form id="userAddAddressForm">
-                  <div class="mb-3">
-                    <label for="name" class="form-label">Name</label>
-                    <input type="text" class="form-control" id="name" name="name" value="<%= userCart.user.name %>" required>
-                  </div>
-                  <div class="mb-3">
-                    <label for="country" class="form-label">Country</label>
-                    <input type="text" class="form-control" id="country" name="country" required>
-                  </div>
-                  <div class="mb-3">
-                    <label for="streetAddress" class="form-label">Street Address</label>
-                    <input type="text" class="form-control" id="streetAddress" name="streetAddress" required>
-                  </div>
-                  <div class="mb-3">
-                    <label for="city" class="form-label">City</label>
-                    <input type="text" class="form-control" id="city" name="city" required>
-                  </div>
-                  <div class="mb-3">
-                    <label for="state" class="form-label">State</label>
-                    <input type="text" class="form-control" id="state" name="state" required>
-                  </div>
-                  <div class="mb-3">
-                      <label for="pincode" class="form-label">Pincode</label>
-                      <input type="number" class="form-control" id="pincode" name="pincode" required >
-                      <p id="pincodeValidate" class="text-danger"></p>
-                    </div>
-
-                  <input type="hidden" id="userId" name="userId" value="<%= userCart.user._id %>">
-  
-                  <button type="submit" class="btn btn-dark">Add Address</button>
-                </form>
-          </div>
-        </div>
-      </div>
-    </div>
-
-          <div class="modal fade" id="editAddressModal" tabindex="-1" aria-labelledby="editAddressModalLabel" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="editAddressModalLabel">Edit Address</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <form id="editAddressForm">
-                            <div class="mb-3">
-                                <label for="editName" class="form-label">Name</label>
-                                <input type="text" class="form-control" id="editName" name="editName" value="<%= userCart.user.name %>" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="editCountry" class="form-label">Country</label>
-                                <input type="text" class="form-control" id="editCountry" name="editCountry" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="editStreetAddress" class="form-label">Street Address</label>
-                                <input type="text" class="form-control" id="editStreetAddress" name="editStreetAddress" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="editCity" class="form-label">City</label>
-                                <input type="text" class="form-control" id="editCity" name="editCity" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="editState" class="form-label">State</label>
-                                <input type="text" class="form-control" id="editState" name="editState" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="editPincode" class="form-label">Pincode</label>
-                                <input type="number" class="form-control" id="editPincode" name="editPincode" required>
-                                <p id="editPincodeValidate" class="text-danger"></p>
-                            </div>
-                            <input type="hidden" id="editUserId" name="editUserId" value="<%= userCart.user._id %>">
-          
-                            <input type="hidden" id="editAddressId" name="editAddressId" value="<%= userCart.user._id %>">
-                            
-                            <button type="submit" id="editAddressSubmitBtn" class="btn btn-dark">Update Address</button>
-    
-                        </form>
-                    </div>
-                </div>
+            <div class="card w-50 ml-3">
+              <div class="card-body">
+                <h5 class="card-title">Card title</h5>
+                <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+                <a href="#" class="card-link">Card link</a>
+                <a href="#" class="card-link">Another link</a>
+              </div>
             </div>
-        </div>
-
           </div>
        </div>
-
-<!-- ************ END OF ADDRESS SECTION ********* -->
-       <hr>
-<!-- ************  PAYMENT  ********* -->
-
-<div class="border p-4 mb-4">
-      <div class="col-lg-12">
-         <div class="card">
-          <div class="card-header bg-light">
-              <ul class="nav nav-pills rounded nav-fill">
-                  <li class="nav-item ">
-                      <a data-toggle="pill" href="#credit-card" class="nav-link text-dark active btn btn-dark">
-                          <i class="fas fa-credit-card mr-2"></i> Credit Card
-                      </a>
-                  </li>
-                  <li class="nav-item">
-                      <a data-toggle="pill" href="#paypal" class="nav-link text-dark btn btn-dark">
-                          <i class="fab fa-paypal mr-2"></i> Paypal
-                      </a>
-                  </li>
-                  <li class="nav-item">
-                      <a data-toggle="pill" href="#COD" class="nav-link text-dark btn btn-dark">
-                          <i class="fas fa-mobile-alt mr-2"></i> COD
-                      </a>
-                  </li>
-              </ul>
-          </div>
-          <div class="card-body">
-              <div class="tab-content">
-
-                  <!-- ****** CARD  ****** -->
-                  <div id="credit-card" class="tab-pane fade show active">
-                      <form role="form">
-                          <div class="form-group">
-                              <label for="username">Card Owner</label>
-                              <input type="text" name="username" placeholder="Card Owner Name" required class="form-control">
-                          </div>
-                          <!-- Expiration Date and CVV fields... -->
-                          <button type="button" class="subscribe btn btn-dark btn-block shadow-sm confrimPayementBtn">Confirm Payment</button>
-                      </form>
+          <!-- Checkout -->
+          <div class="card shadow-0 border">
+            <div class="p-4">
+              <h5 class="card-title mb-3">Guest checkout</h5>
+              <div class="row">
+                <div class="col-6 mb-3">
+                  <p class="mb-0">Name</p>
+                  <div class="form-outline">
+                    <input type="text" id="typeText" placeholder="Type here" class="form-control" />
                   </div>
-                  <!-- ****** END OF CARD  ****** -->
-                  
-                  <!-- ****** PAYPAL ****** -->
-                  <div id="paypal" class="tab-pane fade pt-3">
-                    <form role="form">
-                      <div class="form-group">
-                        <h4>paypal account</h4>
+                </div>
+  
+                <div class="col-6 mb-3">
+                  <p class="mb-0">Phone</p>
+                  <div class="form-outline">
+                    <input type="tel" id="typePhone" value="" class="form-control" />
+                  </div>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-sm-4 mb-3">
+                  <p class="mb-0">Country</p>
+                  <select class="form-select">
+                    <option value="1">New York</option>
+                    <option value="2">Moscow</option>
+                    <option value="3">Samarqand</option>
+                  </select>
+                </div>
+  
+                <div class="col-sm-4 mb-3">
+                  <p class="mb-0">State</p>
+                  <div class="form-outline">
+                    <input type="text" id="typeText" placeholder="Type here" class="form-control" />
+                  </div>
+                </div>
+                <div class="col-sm-4 mb-3">
+                    <p class="mb-0">City</p>
+                    <div class="form-outline">
+                      <input type="text" id="typeText" placeholder="Type here" class="form-control" />
+                    </div>
+                  </div>
+  
+
+                <div class="col-sm-4 mb-3">
+                    <p class="mb-0">Street Address</p>
+                    <div class="form-outline">
+                      <input type="text" id="typeText" placeholder="Type here" class="form-control" />
+                    </div>
+                  </div>
+  
+                <div class="col-sm-4 col-6 mb-3">
+                  <p class="mb-0">Pin code</p>
+                  <div class="form-outline">
+                    <input type="text" id="typeText" class="form-control" />
+                  </div>
+                </div>
+              </div>
+              <hr>
+              <div class="border mt-2 p-4"> 
+                <div class="form-check mb-2">
+                    <input class="form-check-input" type="radio" name="paymentMethod" id="codPayment" checked>
+                    <label class="form-check-label" for="codPayment">Cash on Delivery (COD)</label>
+                  </div>
+                  <div class="form-check p-4 mb-1">
+                    <input class="form-check-input" type="radio" name="paymentMethod" id="cardPayment">
+                    <label class="form-check-label" for="cardPayment">Pay by Card</label>
+                    <div class="form-group mt-4">
+                      <label for="cardNumber">Card Number</label>
+                      <input type="text" class="form-control" id="cardNumber">
+                    </div>
+                    <div class="form-row">
+                      <div class="form-group col-md-6">
+                        <label for="expiryDate">Expiry Date</label>
+                        <input type="text" class="form-control" id="expiryDate">
                       </div>
-                      <!-- Expiration Date and CVV fields... -->
-                      <button type="button" class="subscribe btn btn-dark btn-block shadow-sm confrimPayementBtn">Confirm Payment</button>
-                  </form>
-                  </div>
-                  <!-- ****** END OF  PAYPAL ****** -->
-
-                  <!-- ****** COD ****** -->
-                  <div id="COD" class="tab-pane fade pt-3">
-                    <form role="form">
-                      <div class="form-group">
-                          <!-- <label for="username">Card Owner</label>
-                          <input type="text" name="username" placeholder="Card Owner Name" required class="form-control"> -->
+                      <div class="form-group col-md-6">
+                        <label for="cvcCode">CVC Code</label>
+                        <input type="text" class="form-control" id="cvcCode">
                       </div>
-                      <!-- Expiration Date and CVV fields... -->
-                      <button type="button" class="subscribe btn btn-dark btn-block shadow-sm confrimPayementBtn">Confirm Payment</button>
-                  </form>
+                    </div>
                   </div>
-                  <!-- ****** END OF  COD ****** -->
-
-              </div>
-          </div>
-           </div>
-      </div>
-</div>
-<!-- ************  END OF PAYMENT SECTION  ********* -->
-</div>
-
-        <!-- right side section -->
-        <div class="col-xl-4 col-lg-4 d-flex justify-content-center justify-content-lg-end">
-          <div class="ms-lg-4 mt-4 mt-lg-0" style="max-width: 320px;">
-            <h6 class="mb-3">Order Summary</h6>
-           
-            <div class="d-flex flex-column border p-4">
-              <div class="mb-3">
-                <input type="radio" class="shipping" name="shipping" id="checkoutFreeShipping" value="FreeShipping" checked>
-                <label for="chekoutFreeShipping" class="ml-2 ">Free Shipping</label>
-              </div>
-              <div class="mb-3">
-                <input type="radio" class="shipping" name="shipping" id="checkoutExpressShipping" value="express">
-                <label for="checkoutExpressShipping" class="ml-2">Express Shipping (+$15)</label>
-              </div>
-              <div class="d-flex flex-row justify-content-between mb-2">
-                <p class="mb-0">Subtotal</p>
-                <p class="mb-0" id="checkoutSubTotal">$0.00</p>
-              </div>
-              <div class="d-flex flex-row justify-content-between mb-3">
-                <p class="mb-0">Total</p>
-                <p class="mb-0" id="checkoutTotal">$0.00</p>
+                  <p>Your personal data will be used to process your order, support your experience throughout this website, and for other purposes described in our privacy policy.</p>
+                  <button class="btn btn-dark btn-block">Place Order</button>
               </div>
             </div>
-          
+          </div>
+          <!-- Checkout -->
+        </div>
+        <div class="col-xl-4 col-lg-4 d-flex justify-content-center justify-content-lg-end">
+          <div class="ms-lg-4 mt-4 mt-lg-0" style="max-width: 320px;">
+            <h6 class="mb-3">Summary</h6>
+            <div class="d-flex justify-content-between">
+              <p class="mb-2">Total price:</p>
+              <p class="mb-2">$195.90</p>
+            </div>
+            <div class="d-flex justify-content-between">
+              <p class="mb-2">Discount:</p>
+              <p class="mb-2 text-danger">- $60.00</p>
+            </div>
+            <div class="d-flex justify-content-between">
+              <p class="mb-2">Shipping cost:</p>
+              <p class="mb-2">+ $14.00</p>
+            </div>
+            <hr />
+            <div class="d-flex justify-content-between">
+              <p class="mb-2">Total price:</p>
+              <p class="mb-2 fw-bold">$149.90</p>
+            </div>
+  
             <div class="input-group mt-3 mb-4">
               <input type="text" class="form-control border" name="" placeholder="Promo code" />
               <button class="btn btn-light text-primary border">Apply</button>
@@ -247,43 +160,57 @@
   
             <hr />
             <h6 class="text-dark my-4">Items in cart</h6>
-            
-            <% userCart.cartItems.forEach((cartItem, index) => { %>
-          
-              <div class="d-flex align-items-center mb-4">
-                <div class="me-3 position-relative">
-                  <span class="dataQuantity position-absolute top-0 start-100 translate-middle badge rounded-pill badge-secondary" >
-                    <%= cartItem.quantity %>
-                  </span>
-                  <img src="<%= cartItem.product.productImages[0].secure_url %>" style="max-height: 96px; min-height: 96px; min-width: 96px; max-width: 96x;" class="img-sm rounded border" />
-                </div>
-                <div class="">
-                  <a href="#" class="nav-link">
-                    <%= cartItem.product.productTitle %>
-                  </a>
-                  <div class="price text-muted dataSubtotal"  >Sub Total : $<%= (cartItem.quantity * cartItem.product.productPrice).toFixed(2) %></div>
-                </div>
+  
+            <div class="d-flex align-items-center mb-4">
+              <div class="me-3 position-relative">
+                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill badge-secondary">
+                  1
+                </span>
+                <img src="https://bootstrap-ecommerce.com/bootstrap5-ecommerce/images/items/7.webp" style="height: 96px; width: 96x;" class="img-sm rounded border" />
               </div>
-              <p class="hidden checkoutProductData" data-product-id="<%= cartItem.product._id %>" data-product-price="<%= cartItem.product.productPrice %>" data-quantity="<%= cartItem.quantity %>"></p>
-
-            <% }); %>
-
-
-           
-          
+              <div class="">
+                <a href="#" class="nav-link">
+                  Gaming Headset with Mic <br />
+                  Darkblue color
+                </a>
+                <div class="price text-muted">Total: $295.99</div>
+              </div>
+            </div>
+  
+            <div class="d-flex align-items-center mb-4">
+              <div class="me-3 position-relative">
+                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill badge-secondary">
+                  1
+                </span>
+                <img src="https://bootstrap-ecommerce.com/bootstrap5-ecommerce/images/items/5.webp" style="height: 96px; width: 96x;" class="img-sm rounded border" />
+              </div>
+              <div class="">
+                <a href="#" class="nav-link">
+                  Apple Watch Series 4 Space <br />
+                  Large size
+                </a>
+                <div class="price text-muted">Total: $217.99</div>
+              </div>
+            </div>
+  
+            <div class="d-flex align-items-center mb-4">
+              <div class="me-3 position-relative">
+                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill badge-secondary">
+                  3
+                </span>
+                <img src="https://bootstrap-ecommerce.com/bootstrap5-ecommerce/images/items/1.webp" style="height: 96px; width: 96x;" class="img-sm rounded border" />
+              </div>
+              <div class="">
+                <a href="#" class="nav-link">GoPro HERO6 4K Action Camera - Black</a>
+                <div class="price text-muted">Total: $910.00</div>
+              </div>
+            </div>
           </div>
         </div>
-        <!-- end of right side section -->
-
-
       </div>
     </div>
   </section>
-
-  <script src="../js/orders.js"></script>
-  <script src="../js/addUserAddress.js"></script>
-  <script src="../js/checkout.js"></script>
-  <script src="../js/updateAddress.js"></script>
+  
   <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
 </body>
 </html>
