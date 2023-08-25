@@ -211,12 +211,13 @@ const homepage = async (req, res) => {
     const products = await Product.find();
     const cart = await Cart.find({ user: userId });
 
+
     let cartLength = 0;
     if (cart.length > 0 && cart[0].cartItems) {
       cartLength = cart[0].cartItems.length;
     }
 
-    res.render('pages/home', { products, cartLength });
+    res.render('pages/home', { products, cartLength});
   } catch (err) {
     console.log(err);
   }
@@ -243,15 +244,16 @@ const userProfile = async (req, res) => {
   const userId = decodedTokens.id
 
   const cart = await Cart.find({user:userId});
+  const orders = await Order.find({ user: userId }).populate('items.productId');
+
+  console.log(orders);
 
 const cartLength = cart[0].cartItems.length
 
   try {
     const userData = await User.findById({_id : userId});
-
-    // console.log(userData, 'this is userData');
-   res.render('pages/profile', {userData,cartLength});
-  //   console.log(decodedTokens.user , 'this is user profile');
+   res.render('pages/profile', {userData,cartLength,orders});
+    console.log(decodedTokens.user , 'this is user profile');
   } catch (error) {
    res.send('no user found');
   }
@@ -518,8 +520,6 @@ const placeOrder = async (req, res) => {
   const { orderData } = req.body;
 
   try {
-    
-
     // Create a new instance of the Order model with the orderData
     const newOrder = new Order({
       user: orderData.userId, // Use the populated user object
@@ -544,8 +544,14 @@ const placeOrder = async (req, res) => {
 
     // Save the new order to the database
     const savedOrder = await newOrder.save();
-
     console.log('Order saved:', savedOrder);
+    const userCart = await Cart.findOne({ user: orderData.userId });
+
+if (userCart) {
+  userCart.cartItems = []; // Clear the items array to remove cart items
+  await userCart.save(); // Save the changes to the cart
+}
+
     res.status(201).json({ message: 'Order placed successfully' });
   } catch (error) {
     console.error('Error placing order:', error);

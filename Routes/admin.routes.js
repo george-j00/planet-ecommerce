@@ -27,6 +27,7 @@ router.post('/edit-product',upload.single("productImage"), adminController.editP
 router.post('/delete-product/:productId', adminController.deleteProduct);
 
 router.post('/block-user/:userId', adminController.blockAndUnblockUser);
+router.post('/update-status/:orderId', adminController.adminOrderStaus);
 
 // router.get('/logout', adminController.logout);
 

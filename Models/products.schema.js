@@ -17,30 +17,13 @@ const productSchema = new mongoose.Schema({
     type: Number,
     required: true,
   },
-  // productImage: {
-  //   data: Buffer, // You can also store the image path or URL
-  //   ContentType: String, //
-  // },
-  // productImage: [{
-  //   filename: { 
-  //     type: String, 
-  //     required: true
-  //    },
-  //    data: {
-  //     type: Buffer,
-  //     required: true 
-  //     }
-  // }],
+  
   productImages: [
     {
       secure_url: { type: String },
       cloudinary_id: { type: String }
     }
   ],
-  //  productImage: [{ type: String }], // This is the array of images
-// cloudinary_id: {
-//   type: String,
-// },
   category: {
     type: String,
     // enum: ["indoor", "outdoor"],
@@ -50,6 +33,8 @@ const productSchema = new mongoose.Schema({
     type: String,
   },
 });
+
+
 
 const Product = mongoose.model('Product', productSchema);
 

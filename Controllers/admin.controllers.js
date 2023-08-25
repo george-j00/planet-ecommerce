@@ -3,6 +3,7 @@ const Product = require("../Models/products.schema");
 const User = require("../Models/users.schema");
 const cloudinary = require("../services/cloudinary")
 const redisClient = require('../config/redisClient');
+const Order = require("../Models/orders.schema");
 
 
 //signup get function
@@ -11,17 +12,54 @@ const dashboard = async (req,res) => {
       const products = await Product.find();
       const users = await User.find();
       const categories = await Category.find();
-  
-      // if (!products || products.length === 0 || !users || users.length === 0) {
-      //   return res.status(404).send({ message: "No products!" });
-      // }
-      // console.log(products);
-    res.render('pages/dashboard', {products , users ,categories});
+      const orders = await Order.find();
+      const totalProducts = await Product.countDocuments();
+    const totalOrders = await Order.countDocuments();
+    // Total Price (Sum of totalAmount in orders)
+    const totalSales = await Order.aggregate([
+      { $group: { _id: null, totalAmount: { $sum: '$totalAmount' } } }
+    ]);
+    // Today's Orders
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const todaysOrders = await Order.countDocuments({ createdOn: { $gte: today } });
+
+    // Perform aggregation to group orders by hour and calculate total amount
+const hourlySalesData = await Order.aggregate([
+  {
+    $project: {
+      hour: { $hour: "$createdOn" },
+      totalAmount: "$totalAmount"
+    }
+  },
+  {
+    $group: {
+      _id: "$hour",
+      totalAmount: { $sum: "$totalAmount" }
+    }
+  },
+  {
+    $sort: { _id: 1 }
+  }
+]);
+
+const totalQuantity = await Product.aggregate([
+  {
+    $group: {
+      _id: null,
+      totalQuantity: { $sum: '$totalQuantity' }
+    }
+  }
+]);
+
+        // console.log(hourlySalesData);
+    res.render('pages/dashboard', {products , users ,categories,orders, totalProducts, totalOrders, totalSales: totalSales[0].totalAmount,totalQuantity: totalQuantity[0].totalQuantity, todaysOrders,hourlySalesData});
      
     } catch (err) {
       console.log(err);
     }
 }
+
 const addproductGet = (req,res) => {
  res.redirect('/admin/dashboard');  
 }
@@ -244,8 +282,28 @@ const deleteCategory = async (req, res) => {
 //   return res.redirect('/admin/admin-login');
 // };
 
-const profile = async (req, res) => {
-  res.send('this is user profile')
+const adminOrderStaus = async (req, res) => {
+  try {
+    const orderId = req.params.orderId;
+    const newStatus = req.body.status;
+
+    // Find the order by ID and update the status
+    const updatedOrder = await Order.findByIdAndUpdate(
+      orderId,
+      { $set: { status: newStatus } },
+      { new: true } // Return the updated order
+    );
+
+    if (!updatedOrder) {
+      return res.status(404).json({ message: 'Order not found' });
+    }
+
+    res.status(200).json({ message: 'Order status updated', order: updatedOrder });
+    console.log('status updated');
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error' });
+  }
 }
 
 module.exports = {
@@ -258,5 +316,6 @@ module.exports = {
     blockAndUnblockUser,
     addCategory,
     deleteCategory,
+    adminOrderStaus
     // logout
 };

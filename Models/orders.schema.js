@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const Product = require('./products.schema');
 
 const orderSchema = new mongoose.Schema({
   user: {
@@ -39,13 +40,24 @@ const orderSchema = new mongoose.Schema({
   createdOn: { type: Date, default: Date.now },
   status: { type: String, enum: ['Pending', 'Shipped', 'Delivered'], default: 'Pending' },
   deliveredOn: { type: Date },
-  // subtotals: [
-  //   {
-  //     productId: { type: mongoose.Schema.Types.ObjectId, ref: 'Product', required: true },
-  //     subtotal: { type: Number, required: true }
-  //   }
-  // ]
+ 
+});
 
+// Define the pre middleware to update product quantities
+orderSchema.pre('save', async function (next) {
+  const itemsToUpdate = this.items; // Get the items from the order
+  const promises = itemsToUpdate.map(async item => {
+    const product = await Product.findById(item.productId);
+    if (product) {
+      product.totalQuantity -= item.quantity; // Reduce the product quantity
+      await product.save(); // Save the changes to the product
+    }else{
+      console.log('Insufficient items');
+    }
+  });
+
+  await Promise.all(promises); // Wait for all product updates to complete
+  next();
 });
 
 const Order = mongoose.model('Order', orderSchema);

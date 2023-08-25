@@ -1,0 +1,77 @@
+<div id="orders" class="contents">
+    <h2 class="text-center mb-4">Order Management</h2>
+   
+        <div class="container">
+            
+            <div class="table-responsive">
+              <table class="table ">
+                <thead>
+                  <tr>
+                    <th>Order ID</th>
+                    <th>User ID</th>
+                    <th>Product ID/ID's</th>
+                    <th>Order Date</th>
+                    <th>Status</th>
+                    <th>Amount</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                    <% orders.forEach(order => { %>
+                      <tr>
+                        <!-- Display Order ID -->
+                        <td><%= order.user._id.toString().substr(15) %></td>
+                        <td><%= order._id.toString().substr(15) %></td>
+                        
+                        <!-- Display Product Names -->
+                        <td>
+                          <ul class="list-unstyled">
+                            <% order.items.forEach(item => { %>
+                              <li><%= item.productId._id.toString().substr(15) %></li>
+                            <% }); %>
+                          </ul>
+                        </td>
+                        
+                        <!-- Display Formatted Order Date -->
+                        <td><%= order.createdOn.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) %></td>
+                        
+                        <!-- Display Order Status -->
+                        <td>
+                          <% if (order.status === 'Pending') { %>
+                            <span class="badge badge-warning"><%= order.status %></span>
+                          <% } else if (order.status === 'Shipped') { %>
+                            <span class="badge badge-primary"><%= order.status %></span>
+                          <% } else if (order.status === 'Delivered') { %>
+                            <span class="badge badge-success"><%= order.status %></span>
+                          <% } else { %>
+                            <span class="badge badge-secondary"><%= order.status %></span>
+                          <% } %>
+
+                          <!-- <button class="btn btn-light btn-sm"> <i class="fa-solid fa-pen-to-square" style="color: #f0a400;"></i></button> -->
+                          <div class="btn-group dropright">
+                            <button type="button" class="btn btn-light btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                              <i class="fa-solid fa-pen-to-square" style="color: #f0a400;"></i>
+                            </button>
+                            <div class="dropdown-menu">
+                              <a class="dropdown-item update-status" href="#" data-order-id="<%= order._id %>" data-status="Shipped">Shipped</a>
+                              <a class="dropdown-item update-status" href="#" data-order-id="<%= order._id %>" data-status="Delivered">Delivered</a>
+                            </div>
+                          </div>
+                          
+                        </td>
+                    
+                       
+                        <!-- Display Total Amount -->
+                        <td>$<%= order.totalAmount %></td>
+                        <td> <button class="btn btn-sm btn-outline-danger"> Cancel </button> </td>
+                      </tr>
+                    <% }); %>
+                  </tbody>
+                
+              </table>
+            </div>
+          </div>
+    
+    </div>
+
+    <script src="../js/adminOrder.js"></script>

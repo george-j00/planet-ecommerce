@@ -1,31 +1,150 @@
 <div id="dashboard" class="contents">
-    <div class="d-flex justify-content-center">
-      <h1>Admin Dashboard</h1>
+  <div class="d-flex justify-content-center mb-3">
+    <h2><strong>Admin Dashboard</strong></h2>
+  </div>
+
+  <div class="row justify-content-center">
+
+    <div class="col-md-6 col-lg-3 mb-4">
+      <div class="card shadow" style="background-color: #6aaaf2;">
+        <div class="card-body text-center">
+          <h5 class="card-title">Total Orders</h5>
+          <p class="card-text"><%= totalOrders %></p>
+        </div>
+      </div>
     </div>
 
-    <h3 class="mb-3">Overview</h3>
+    <div class="col-md-6 col-lg-3 mb-4">
+      <div class="card shadow" style="background-color: #6be5b2;">
+        <div class="card-body text-center">
+          <h5 class="card-title">Total Products</h5>
+          <p class="card-text"><%= totalProducts %></p>
+        </div>
+      </div>
+    </div>
 
-    <div class="d-flex flex-wrap justify-content-around w-100">
-      <div class="card flex-grow-1 mx-2" style="background-color: #6aaaf2;">
-        <div class="card-body d-flex justify-content-center">
-          <h5 class="card-title">Statistic 1</h5>
+    <div class="col-md-6 col-lg-3 mb-4">
+      <div class="card shadow" style="background-color: #FDD393;">
+        <div class="card-body text-center">
+          <h5 class="card-title">Total Sales</h5>
+          <p class="card-text">$ <%= totalSales %></p>
         </div>
       </div>
+    </div>
 
-      <div class="card  flex-grow-1 mx-2" style="background-color: #6be5b2;">
-        <div class="card-body d-flex justify-content-center">
-          <h5 class="card-title">Statistic 2</h5>
-        </div>
-      </div>
-      <div class="card  flex-grow-1 mx-2" style="background-color: #FDD393;">
-        <div class="card-body d-flex justify-content-center">
-          <h5 class="card-title">Statistic 3</h5>
-        </div>
-      </div>
-      <div class="card flex-grow-1 mx-2" style="background-color: #f47c82;">
-        <div class="card-body d-flex justify-content-center">
-          <h5 class="card-title">Statistic 4</h5>
+    <div class="col-md-6 col-lg-3 mb-4">
+      <div class="card shadow" style="background-color: #f47c82;">
+        <div class="card-body text-center">
+          <h5 class="card-title">Today's Orders</h5>
+          <p class="card-text"><%= todaysOrders %></p>
         </div>
       </div>
     </div>
   </div>
+
+  <div class="card shadow mb-5 bg-white rounded w-30 d-flex">
+    <div class="card-body">
+      <div class="d-flex flex-row align-items-center">
+        <h5 class="card-title" style="font-size: 16px;">Total Inventories/Stocks</h5>
+        <p class="card-text" style="font-size: 28px;"><strong><%= totalQuantity %></strong></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="w-75">
+    <h5>Sales Overview</h5>
+    <div id="chart">
+    </div>
+  </div>
+
+</div>
+
+  
+
+
+
+<script>
+  var options = {
+  chart: {
+    height: 350,
+    type: "line",
+    stacked: false
+  },
+  dataLabels: {
+    enabled: false
+  },
+  colors: ['#99C2A2', '#C5EDAC', '#66C7F4'],
+  series: [
+    
+   
+    
+    {
+      name: "Sales",
+      type: 'column',
+      data: [10, 19, 27, 26, 34, 35, 40]
+    },
+    {
+      name: "Line C",
+      type: 'line',
+      data: [1.4, 2, 2.5, 1.5, 2.5, 2.8, 3.8, 4.6]
+    },
+  ],
+  stroke: {
+    width: [4, 4, 4]
+  },
+  plotOptions: {
+    bar: {
+      columnWidth: "20%"
+    }
+  },
+  xaxis: {
+    categories: ['MON' ,'TUE' ,'WED', 'THU','FRI','SAT','SUN']
+  },
+  yaxis: [
+    {
+      seriesName: 'Column A',
+      axisTicks: {
+        show: true
+      },
+      axisBorder: {
+        show: true,
+      },
+      title: {
+        text: "Sales"
+      }
+    },
+    {
+      seriesName: 'Column A',
+      show: false
+    }, {
+      opposite: true,
+      seriesName: 'Growth rate',
+      axisTicks: {
+        show: true
+      },
+      axisBorder: {
+        show: true,
+      },
+      title: {
+        text: "Orders"
+      }
+    }
+  ],
+  tooltip: {
+    shared: false,
+    intersect: true,
+    x: {
+      show: false
+    }
+  },
+  legend: {
+    horizontalAlign: "left",
+    offsetX: 40
+  }
+};
+
+var chart = new ApexCharts(document.querySelector("#chart"), options);
+
+chart.render();
+
+</script>

@@ -1,3 +1,58 @@
 <div id="order" class="contents">
-    <h1>user orders</h1>
-</div> 
+    <h2 class="text-center mb-4">Your Orders</h2>
+  <div class="container">
+      
+      <div class="table-responsive">
+        <table class="table ">
+          <thead>
+            <tr>
+              <th>Order ID</th>
+              <th>Product Name</th>
+              <th>Order Date</th>
+              <th>Status</th>
+              <th>Amount</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <% orders.forEach(order => { %>
+              <tr>
+                <!-- Display Order ID -->
+                <td>ID : <%= order._id %></td>
+                
+                <!-- Display Product Names -->
+                <td>
+                  <ul class="list-unstyled">
+                    <% order.items.forEach(item => { %>
+                      <li><%= item.productId.productTitle %></li>
+                    <% }); %>
+                  </ul>
+                </td>
+                
+                <!-- Display Formatted Order Date -->
+                <td><%= order.createdOn.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) %></td>
+                
+                <!-- Display Order Status -->
+                <td>
+                  <% if (order.status === 'Pending') { %>
+                    <span class="badge badge-warning"><%= order.status %></span>
+                  <% } else if (order.status === 'Delivered') { %>
+                    <span class="badge badge-success"><%= order.status %></span>
+                  <% } else { %>
+                    <span class="badge badge-secondary"><%= order.status %></span>
+                  <% } %>
+                </td>
+                
+                <!-- Display Total Amount -->
+                <td>$<%= order.totalAmount %></td>
+                <td> <button class="btn btn-sm btn-outline-danger"> Cancel </button> </td>
+              </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    
+    
+    </div>
+    
