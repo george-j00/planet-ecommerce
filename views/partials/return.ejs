@@ -1,0 +1,45 @@
+<div class="container">
+    <h3 class="d-flex justify-content-center"><strong>Return Requests</strong></h3>
+    <div class="table-responsive">
+      <table class="table mt-3">
+        <thead>
+          <tr>
+            <th>Order ID</th>
+            <!-- <th>Product Id</th> -->
+            <th>Order Date</th>
+            <th>Reason</th>
+            <th>Status</th>
+            <th>Approval</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% returnData.forEach(returnRequest => { %>
+            <tr>
+              <td><%= returnRequest.orderId %></td>
+              <td><%= returnRequest.createdAt.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) %></td>
+              <td><%= returnRequest.returnReason %></td>
+              <td>
+                <% if (returnRequest.status === 'Pending') { %>
+                  <span class="badge badge-warning"><%= returnRequest.status %></span>
+                <% } else if (returnRequest.status === 'Approved') { %>
+                  <span class="badge badge-success"><%= returnRequest.status %></span>
+                <% } else { %>
+                  <span class="badge badge-danger"><%= returnRequest.status %></span>
+                <% } %>
+              </td>
+              <td>
+                <% if (returnRequest.status === 'Pending') { %>
+                  <button type="button" data-return-id="<%= returnRequest._id %>" class="btn btn-sm btn-success approveBtn">Approve</button>
+                  <button type="button" data-return-id="<%= returnRequest._id %>" class="btn btn-sm btn-danger rejectBtn">Reject</button>
+                <% } else { %>
+                  N/A   
+                <% } %>
+              </td>
+            </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  
+  <script src="../js/returnAdmin.js"></script>

@@ -38,9 +38,9 @@ const orderSchema = new mongoose.Schema({
   subtotals: { type: Number, required: true },
   totalAmount: { type: Number, required: true },
   createdOn: { type: Date, default: Date.now },
-  status: { type: String, enum: ['Pending', 'Shipped', 'Delivered'], default: 'Pending' },
+  status: { type: String, enum: ['Pending', 'Shipped', 'Delivered','Canceled'], default: 'Pending' },
   deliveredOn: { type: Date },
- 
+  razorpayOrderId:{type: String}
 });
 
 // Define the pre middleware to update product quantities

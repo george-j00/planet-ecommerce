@@ -12,6 +12,8 @@ const orderData = {
   deliveredOn: null, 
 };
 
+// var rzp1
+
 // Get references to the HTML elements
 const shippingRadios = document.querySelectorAll('.shipping');
 const subtotalElement = document.getElementById('checkoutSubTotal');
@@ -26,11 +28,59 @@ const confirmPaymentButtons = document.querySelectorAll('.confrimPayementBtn');
 const FREE_SHIPPING_CHARGE = 0;
 const EXPRESS_SHIPPING_CHARGE = 15;
 
+var options = {
+  "key":"rzp_test_VMpJagMb9qPo7c" , // Enter the Key ID generated from the Dashboard
+  "amount":"",                
+  "currency": "INR",
+  "name": "Planet ecommerce Pvt.Ltd",
+  "description": "Test Transaction",
+  "image": "https://example.com/your_logo",
+  "order_id": "", //This is a sample Order ID. Pass the `id` obtained in the response of Step 1
+  "handler": function (response){
+      //alert(response.razorpay_payment_id);
+      //alert(response.razorpay_order_id);
+      //alert(response.razorpay_signature)
+      // console.log(response);
+      paymentVerificationFunc(response)
+  },
+  "prefill": {
+      "name": "Gaurav Kumar",
+      "email": "gaurav.kumar@example.com",
+      "contact": "9000090000"
+  },
+  "notes": {
+      "address": "Razorpay Corporate Office"
+  },
+  "theme": {
+      "color": "#000000"
+  }
+};
+
+
 confirmPaymentButtons.forEach(button => {
-  button.addEventListener('click', () => {
-   if ( handleConfirmPayment()) {
-    sendOrderData();
-   }
+  button.addEventListener('click', (e) => {
+    if (handleConfirmPayment()) {
+      sendOrderData()
+        .then(orderData => {
+          if (orderData.flag === true) {
+            console.log('COD success');
+            // Handle COD success, like redirecting to a success page
+          } else {
+            console.log(orderData.amount);
+
+            options.amount = String(orderData.amount);
+            options.order_id = String(orderData.id);
+
+            // Open the Razorpay payment window
+            rzp1 = new Razorpay(options);
+            rzp1.open();
+          }
+        })
+        .catch(error => {
+          console.error(error);
+        });
+      e.preventDefault();
+    }
   });
 });
 
@@ -132,21 +182,42 @@ function getPaymentDetails(){
 
 }
 
+async function sendOrderData() {
+  try {
+    const response = await fetch('/place-order', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ orderData })
+    });
 
- function sendOrderData(){
+    const responseData = await response.json();
+    return responseData;
+  } catch (error) {
+    throw error;
+  }
+}
 
-  // console.log(orderData , 'orderData');
-  fetch('/place-order', {
+function paymentVerificationFunc (paymentData){
+  console.log(paymentData.razorpay_payment_id);
+  console.log(paymentData.razorpay_order_id);
+  console.log(paymentData.razorpay_signature);
+
+  fetch('/verify-payment', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
     },
-    body: JSON.stringify({orderData})
+    body: JSON.stringify(paymentData)
   })
-  .then((response) => {
-    if (response.ok) {
-      console.log('order send succees');
-    }
-  })
-  .catch((error) => console.log(error));
+    .then(response => {
+      if (response.ok) {
+       console.log('payment data send successfylly');
+      }
+    })
+    .catch(error => {
+      console.error('Error verifying payment:', error);
+      // Handle the error
+    });
 }

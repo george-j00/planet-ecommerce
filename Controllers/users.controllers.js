@@ -5,10 +5,15 @@ const Product = require('../Models/products.schema');
 const jwt = require('jsonwebtoken')
 const Cart = require('../Models/cart.schema');
 const Order = require('../Models/orders.schema');
+const razorpay = require('razorpay');
 
-
+const instance = new razorpay({
+  key_id:process.env.RAZORPAY_ID,
+  key_secret:process.env.RAZORPAY_SECRET_KEY,
+});
 
 const bcrypt = require("bcrypt");
+const OrderReturn = require('../Models/return.schema');
 const saltRounds = 10
 
 //signup get function
@@ -169,7 +174,7 @@ const otpVerifyFp = async (req,res) => {
     // res.redirect('/otp-verification');
   }
 
-}
+};
 
 const passwordReset = async (req, res) => {
   const { password } = req.body;
@@ -206,7 +211,7 @@ const homepage = async (req, res) => {
     const token = req.cookies.jwt;
     const decodedTokens = jwt.decode(token);
     const userId = decodedTokens.id;
-    console.log(userId);
+    // console.log(userId);
 
     const products = await Product.find();
     const cart = await Cart.find({ user: userId });
@@ -223,7 +228,6 @@ const homepage = async (req, res) => {
   }
 };
 
-
 const viewProduct = async (req, res) => {
   const productId = req.params.productId;
   try {
@@ -235,29 +239,31 @@ const viewProduct = async (req, res) => {
     console.error(err , '****** this is error ********');
     res.status(500).json({ error: 'Error fetching product data.' });
   }  
-}
+};
 
-const userProfile = async (req, res) => { 
-
+const userProfile = async (req, res) => {
   const token = req.cookies.jwt;
   const decodedTokens = jwt.decode(token);
-  const userId = decodedTokens.id
-
-  const cart = await Cart.find({user:userId});
-  const orders = await Order.find({ user: userId }).populate('items.productId');
-
-  console.log(orders);
-
-const cartLength = cart[0].cartItems.length
+  const userId = decodedTokens.id;
 
   try {
-    const userData = await User.findById({_id : userId});
-   res.render('pages/profile', {userData,cartLength,orders});
-    console.log(decodedTokens.user , 'this is user profile');
+    const userData = await User.findById(userId);
+    const cart = await Cart.findOne({ user: userId });
+    const orders = await Order.find({ user: userId }).populate('items.productId');
+
+    const orderReturns = await OrderReturn.find({ orderId: { $in: orders.map(order => order._id) } });
+
+    // console.log(orderReturns);
+
+    const cartLength = cart.cartItems.length;
+
+    res.render('pages/profile', { userData, cartLength, orders,orderReturns });
   } catch (error) {
-   res.send('no user found');
+    console.error(error);
+    res.send('An error occurred while fetching user data');
   }
-}
+};
+
 
 const profileUpdate = async (req, res) => { 
 
@@ -268,7 +274,7 @@ const profileUpdate = async (req, res) => {
   await User.findByIdAndUpdate({_id : userId} , {phone: phone});
 
   res.json({ message: 'Profile updated successfully' });
-}
+};
 
 const addUserAddress = async (req, res) => {
   const { country, streetAddress, city, state, pincodeValue, userId } = req.body;
@@ -475,7 +481,6 @@ const updateQuantity = async (req, res) => {
   }
 };
 
-
 const deleteCartItem = async (req, res) => {
   const { deleteItemId ,cartId } = req.body;
 
@@ -518,46 +523,165 @@ const checkout =  async (req, res) => {
 
 const placeOrder = async (req, res) => {
   const { orderData } = req.body;
-
   try {
-    // Create a new instance of the Order model with the orderData
-    const newOrder = new Order({
-      user: orderData.userId, // Use the populated user object
-      items: orderData.items.map(item => ({
-        productId: item.productId,
-        quantity: item.quantity,
-        price: item.productPrice
-      })),
-      shippingAddress: {
-        name: orderData.shippingAddress.name,
-        country: orderData.shippingAddress.country,
-        streetAddress: orderData.shippingAddress.streetAddress,
-        city: orderData.shippingAddress.city,
-        state: orderData.shippingAddress.state,
-        pincode: orderData.shippingAddress.pincode
-      },
-      paymentMethod: orderData.paymentMethod,
-      shippingCharge: orderData.shippingCharge,
-      subtotals: orderData.subtotal,
-      totalAmount: orderData.totalAmount
-    });
 
-    // Save the new order to the database
-    const savedOrder = await newOrder.save();
-    console.log('Order saved:', savedOrder);
-    const userCart = await Cart.findOne({ user: orderData.userId });
+    const paymentMethod = orderData.paymentMethod;
 
-if (userCart) {
-  userCart.cartItems = []; // Clear the items array to remove cart items
-  await userCart.save(); // Save the changes to the cart
-}
+    if (paymentMethod === 'COD') {
 
-    res.status(201).json({ message: 'Order placed successfully' });
+      const newOrder = new Order({
+        user: orderData.userId, // Use the populated user object
+        items: orderData.items.map(item => ({
+          productId: item.productId,
+          quantity: item.quantity,
+          price: item.productPrice
+        })),
+        shippingAddress: {
+          name: orderData.shippingAddress.name,
+          country: orderData.shippingAddress.country,
+          streetAddress: orderData.shippingAddress.streetAddress,
+          city: orderData.shippingAddress.city,
+          state: orderData.shippingAddress.state,
+          pincode: orderData.shippingAddress.pincode
+        },
+        paymentMethod: orderData.paymentMethod,
+        shippingCharge: orderData.shippingCharge,
+        subtotals: orderData.subtotal,
+        totalAmount: orderData.totalAmount
+      });
+  
+      // Save the new order to the database
+      const savedOrder = await newOrder.save();
+      console.log('Order saved:', savedOrder);
+      const userCart = await Cart.findOne({ user: orderData.userId });
+  
+  if (userCart) {
+    userCart.cartItems = []; // Clear the items array to remove cart items
+    await userCart.save(); // Save the changes to the cart
+  }
+       
+      res.status(201).json({ message: 'success cod' , flag : true });
+    }
+    else{
+      // Create a new instance of the Order model with the orderData
+      const newOrder = new Order({
+        user: orderData.userId,
+        items: orderData.items.map(item => ({
+          productId: item.productId,
+          quantity: item.quantity,
+          price: item.productPrice,
+        })),
+        shippingAddress: {
+          name: orderData.shippingAddress.name,
+          country: orderData.shippingAddress.country,
+          streetAddress: orderData.shippingAddress.streetAddress,
+          city: orderData.shippingAddress.city,
+          state: orderData.shippingAddress.state,
+          pincode: orderData.shippingAddress.pincode,
+        },
+        paymentMethod: orderData.paymentMethod,
+        shippingCharge: orderData.shippingCharge,
+        subtotals: orderData.subtotal,
+        totalAmount: orderData.totalAmount,
+      
+      });
+
+      // // Save the new order to the database
+      const savedOrder = await newOrder.save();
+      console.log('Order saved with Razorpay:', savedOrder);
+
+      const userCart = await Cart.findOne({ user: orderData.userId });
+      //empty the cart after order
+      if (userCart) {
+        userCart.cartItems = [];
+        await userCart.save();
+      }
+
+      const orderAmount = orderData.totalAmount * 100; // Convert to paise
+      const options = {
+        amount: orderAmount,
+        currency: 'INR',
+        receipt: "orderId",
+        payment_capture: 1,
+      };
+      
+      instance.orders.create(options, function(err, order) {
+        if (err) {
+          console.log(err);
+        }else{
+          // console.log(order);
+          res.json(order)
+
+        }
+      });
+    }
   } catch (error) {
     console.error('Error placing order:', error);
     res.status(500).json({ message: 'Error placing order' });
   }
 };
+
+const verifyPayment = async (req, res) => {
+
+}
+
+const orderCancel = async (req, res) => {
+  const { orderId } = req.body; 
+  try {
+    const cancelOrder = await Order.findByIdAndUpdate(
+      orderId,
+      { status: 'Canceled' }, // Update the status to 'Canceled'
+      { new: true } // Return the updated document
+    );
+
+    if (!cancelOrder) {
+      return res.status(404).json({ message: 'Order not found' });
+    }
+    res.json({ message: 'Order canceled successfully' });
+  } catch (error) {
+    console.error('Error canceling order:', error);
+    res.status(500).json({ message: 'Error canceling order' });
+  }
+
+}
+
+const orederReturnRequest = async (req, res) => {
+
+  try {
+    const orderId = req.params.orderId;
+    const { returnProduct, returnReason } = req.body;
+
+    let productsArray = [];
+    let isWholeOrder = false;
+
+    if (returnProduct === 'all') {
+      isWholeOrder = true;
+    } else {
+      productsArray.push({ productId: returnProduct,  productReason: returnReason });
+    }
+
+    const orderReturn = new OrderReturn({
+      
+      orderId,
+      isWholeOrder,
+      products: productsArray,
+      // returnReason: isWholeOrder ? '' : returnReason,
+      returnReason,
+      status: 'Pending'
+    });
+
+    await orderReturn.save();
+    console.log('added to the return ');
+
+    // res.status(200).json({ message: 'Return request submitted successfully.' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'An error occurred while submitting the return request.' });
+  }
+
+}
+
+
 
 
 
@@ -585,5 +709,9 @@ module.exports = {
     addToCart,
     deleteCartItem,
     checkout,
-    placeOrder
+    placeOrder,
+    orderCancel,
+    orederReturnRequest,
+    verifyPayment
+
 };

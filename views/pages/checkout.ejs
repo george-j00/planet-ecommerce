@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <%- include('../partials/header');%>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
 <body>
   <div class="fixed">
@@ -152,14 +153,14 @@
               <ul class="nav nav-pills rounded nav-fill">
                   <li class="nav-item ">
                       <a data-toggle="pill" href="#credit-card" class="nav-link text-dark active btn btn-dark">
-                          <i class="fas fa-credit-card mr-2"></i> Credit Card
+                          <i class="fas fa-credit-card mr-2"></i> Online
                       </a>
                   </li>
-                  <li class="nav-item">
+                  <!-- <li class="nav-item">
                       <a data-toggle="pill" href="#paypal" class="nav-link text-dark btn btn-dark">
                           <i class="fab fa-paypal mr-2"></i> Paypal
                       </a>
-                  </li>
+                  </li> -->
                   <li class="nav-item">
                       <a data-toggle="pill" href="#COD" class="nav-link text-dark btn btn-dark">
                           <i class="fas fa-mobile-alt mr-2"></i> COD
@@ -173,10 +174,10 @@
                   <!-- ****** CARD  ****** -->
                   <div id="credit-card" class="tab-pane fade show active">
                       <form role="form">
-                          <div class="form-group">
+                          <!-- <div class="form-group">
                               <label for="username">Card Owner</label>
                               <input type="text" name="username" placeholder="Card Owner Name" required class="form-control">
-                          </div>
+                          </div> -->
                           <!-- Expiration Date and CVV fields... -->
                           <button type="button" class="subscribe btn btn-dark btn-block shadow-sm confrimPayementBtn">Confirm Payment</button>
                       </form>
@@ -184,15 +185,14 @@
                   <!-- ****** END OF CARD  ****** -->
                   
                   <!-- ****** PAYPAL ****** -->
-                  <div id="paypal" class="tab-pane fade pt-3">
+                  <!-- <div id="paypal" class="tab-pane fade pt-3">
                     <form role="form">
                       <div class="form-group">
                         <h4>paypal account</h4>
                       </div>
-                      <!-- Expiration Date and CVV fields... -->
                       <button type="button" class="subscribe btn btn-dark btn-block shadow-sm confrimPayementBtn">Confirm Payment</button>
                   </form>
-                  </div>
+                  </div> -->
                   <!-- ****** END OF  PAYPAL ****** -->
 
                   <!-- ****** COD ****** -->
@@ -203,8 +203,9 @@
                           <input type="text" name="username" placeholder="Card Owner Name" required class="form-control"> -->
                       </div>
                       <!-- Expiration Date and CVV fields... -->
+                      <!-- <button type="button" class="subscribe btn btn-dark btn-block shadow-sm confrimPayementBtn">Confirm Payment</button> -->
                       <button type="button" class="subscribe btn btn-dark btn-block shadow-sm confrimPayementBtn">Confirm Payment</button>
-                  </form>
+                    </form>
                   </div>
                   <!-- ****** END OF  COD ****** -->
 
@@ -279,6 +280,28 @@
       </div>
     </div>
   </section>
+
+  <script>
+    const paymentSuccessMessage = document.getElementById('payment-success-message');
+  const confirmPaymentButton = document.querySelector('.confrimPayementBtn');
+
+  // Function to show the payment success message
+  function showPaymentSuccessMessage() {
+    paymentSuccessMessage.style.display = 'block';
+    setTimeout(function() {
+      paymentSuccessMessage.style.opacity = '1';
+    }, 100);
+    setTimeout(function() {
+      paymentSuccessMessage.style.opacity = '0';
+    }, 3000);
+    setTimeout(function() {
+      paymentSuccessMessage.style.display = 'none';
+    }, 3500);
+  }
+
+  // Add event listener to the payment confirmation button
+  confirmPaymentButton.addEventListener('click', showPaymentSuccessMessage);
+  </script>
 
   <script src="../js/orders.js"></script>
   <script src="../js/addUserAddress.js"></script>

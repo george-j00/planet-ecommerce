@@ -29,6 +29,8 @@ router.post('/delete-product/:productId', adminController.deleteProduct);
 router.post('/block-user/:userId', adminController.blockAndUnblockUser);
 router.post('/update-status/:orderId', adminController.adminOrderStaus);
 
+router.post('/update-return-status', adminController.updateReturnStatus);
+
 // router.get('/logout', adminController.logout);
 
 

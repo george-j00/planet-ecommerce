@@ -1,7 +1,7 @@
 <div id="order" class="contents">
     <h2 class="text-center mb-4">Your Orders</h2>
   <div class="container">
-      
+    
       <div class="table-responsive">
         <table class="table ">
           <thead>
@@ -16,7 +16,7 @@
           </thead>
           <tbody>
             <% orders.forEach(order => { %>
-              <tr>
+              <tr <% if (order.status === 'Canceled') { %>class="table-secondary"<% } %> >
                 <!-- Display Order ID -->
                 <td>ID : <%= order._id %></td>
                 
@@ -38,21 +38,104 @@
                     <span class="badge badge-warning"><%= order.status %></span>
                   <% } else if (order.status === 'Delivered') { %>
                     <span class="badge badge-success"><%= order.status %></span>
+                  <% } else if (order.status === 'Shipped') { %>
+                    <span class="badge badge-primary"><%= order.status %></span>
                   <% } else { %>
                     <span class="badge badge-secondary"><%= order.status %></span>
                   <% } %>
                 </td>
-                
+               
                 <!-- Display Total Amount -->
                 <td>$<%= order.totalAmount %></td>
-                <td> <button class="btn btn-sm btn-outline-danger"> Cancel </button> </td>
+                <td>
+                  <% if (order.status === 'Delivered' && order.paymentMethod !== 'COD') { %>
+                    <button data-toggle="modal" data-target="#orderReturn<%= order._id %>" class="btn btn-sm btn-outline-secondary">Return</button>
+                    <div class="modal fade" id="orderReturn<%= order._id %>" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+                      <div class="modal-dialog modal-dialog-centered" role="document">
+                        <div class="modal-content">
+                          <div class="modal-header">
+                            <h5 class="modal-title" id="exampleModalLongTitle">Order Return</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                              <span aria-hidden="true">&times;</span>
+                            </button>
+                          </div>
+                          <div class="modal-body">
+                            <form action="/return-request/<%= order._id %>" method="POST">
+                              <div class="form-group">
+                                <label for="returnProductSelect<%= order._id %>">Select Product to Return:</label>
+                                <select class="form-control" id="returnProductSelect<%= order._id %>" name="returnProduct" required>
+                                  <option value="all">All Products</option>
+                                  <% order.items.forEach(item => { %>
+                                    <option value="<%= item.productId._id %>"><%= item.productId.productTitle %></option>
+                                  <% }); %>
+                                </select>
+                              </div>
+                              <div class="form-group">
+                                <label for="reasonInput<%= order._id %>">Enter the reason for return:</label>
+                                <input type="text" name="returnReason" class="form-control" id="reasonInput<%= order._id %>" required>
+                              </div>
+                              <p class="text-info">Note: Your return request will be considered only within a business day</p>
+                              <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                <button type="submit" class="btn btn-danger orderReturnBtn">Return Product</button>
+                              </div>
+                              <input type="hidden" name="userId" value="<%= order.user._id %>">
+                            </form>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  <% } else if (order.status === 'Canceled') { %>
+                    <p class="text-muted">Order Canceled</p>
+                  <% } else if (order.status === 'Pending' || order.status === 'Shipped') { %>
+                    <button type="button" data-order-id="<%= order._id %>" data-toggle="modal" data-target="#orderCancel<%= order._id %>" class="btn btn-sm btn-outline-danger">Cancel</button>
+                  <% } %>
+                
+                  <div class="modal fade" id="orderCancel<%= order._id %>" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered" role="document">
+                      <div class="modal-content">
+                        <div class="modal-header">
+                          <h5 class="modal-title" id="exampleModalLongTitle">Order Cancel</h5>
+                          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                          </button>
+                        </div>
+                        <div class="modal-body">
+                          <h5 class="text-danger text-sm">Are you sure about the order cancel</h5>
+                        </div>
+                        <div class="modal-footer">
+                          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                          <button data-order-id="<%= order._id %>" data-user-id="<%= order.user %>"  type="button" class="btn btn-danger orderCancelBtn">Cancel Order</button>
+                        </div>
+                      </div>
+                    </div>
+
+                  </div>
+                </td>
+                
               </tr>
             <% }); %>
           </tbody>
+          
         </table>
       </div>
     </div>
-    
-    
     </div>
+
+
+    <script src="../js/cancelOrder.js"></script>
+    <!-- <script>
+      function shouldShowReturnButton(orderCreationDate) {
+        const currentDate = new Date();
+        const orderDate = new Date(orderCreationDate);
+        const timeDifference = currentDate - orderDate;
+        return timeDifference <= 7 * 24 * 60 * 60 * 1000; // 7 days in milliseconds
+      }
+    </script> -->
     
+   
+
+  
+    
+
+   

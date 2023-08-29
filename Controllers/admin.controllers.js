@@ -4,6 +4,7 @@ const User = require("../Models/users.schema");
 const cloudinary = require("../services/cloudinary")
 const redisClient = require('../config/redisClient');
 const Order = require("../Models/orders.schema");
+const OrderReturn = require("../Models/return.schema");
 
 
 //signup get function
@@ -25,7 +26,7 @@ const dashboard = async (req,res) => {
     const todaysOrders = await Order.countDocuments({ createdOn: { $gte: today } });
 
     // Perform aggregation to group orders by hour and calculate total amount
-const hourlySalesData = await Order.aggregate([
+    const hourlySalesData = await Order.aggregate([
   {
     $project: {
       hour: { $hour: "$createdOn" },
@@ -41,19 +42,20 @@ const hourlySalesData = await Order.aggregate([
   {
     $sort: { _id: 1 }
   }
-]);
+    ]);
 
-const totalQuantity = await Product.aggregate([
+    const totalQuantity = await Product.aggregate([
   {
     $group: {
       _id: null,
       totalQuantity: { $sum: '$totalQuantity' }
     }
   }
-]);
+    ]);
 
+    const returnData = await OrderReturn.find();
         // console.log(hourlySalesData);
-    res.render('pages/dashboard', {products , users ,categories,orders, totalProducts, totalOrders, totalSales: totalSales[0].totalAmount,totalQuantity: totalQuantity[0].totalQuantity, todaysOrders,hourlySalesData});
+    res.render('pages/dashboard', {products , users ,categories,orders, totalProducts, totalOrders, totalSales: totalSales[0].totalAmount,totalQuantity: totalQuantity[0].totalQuantity, todaysOrders,hourlySalesData ,returnData});
      
     } catch (err) {
       console.log(err);
@@ -306,6 +308,43 @@ const adminOrderStaus = async (req, res) => {
   }
 }
 
+const updateReturnStatus = async (req, res) => {
+  try {
+    const {returnId, status} = req.body;
+
+    const updatedReturn = await OrderReturn.findByIdAndUpdate(
+      returnId,
+      { $set: { status: status } },
+      { new: true }
+    );
+
+    if (!updatedReturn) {
+      return res.status(404).json({ message: 'Return not found' });
+    }
+
+    if (status === 'Approved') {
+      for (const product of updatedReturn.products) {
+        const returnedQuantity = product.productReason === 'baad' ? 1 : 0; // Check if it's a whole order or partial
+        const existingProduct = await Product.findById(product.productId);
+        if (existingProduct) {
+          existingProduct.totalQuantity += returnedQuantity; // Increment the product quantity
+          await existingProduct.save(); // Save the changes to the product
+        }
+      }
+    }
+    console.log('updated quantity');
+    // console.log(updatedReturn ,'update return productss');
+    res.status(200).json({ message: `Return status updated ` });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'An error occurred while updating return status' });
+  }
+};
+
+
+
+
+
 module.exports = {
     dashboard ,
     addproductGet,
@@ -316,6 +355,8 @@ module.exports = {
     blockAndUnblockUser,
     addCategory,
     deleteCategory,
-    adminOrderStaus
+    adminOrderStaus,
+    updateReturnStatus
+  
     // logout
 };

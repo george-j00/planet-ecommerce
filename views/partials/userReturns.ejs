@@ -1,0 +1,38 @@
+<div id="returns" class="contents">
+    <h2 class="text-center mb-4">Your Orders</h2>
+    <div class="container">
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Return Id</th>
+              <th>Order Id</th>
+              <th>Order Date</th>
+              <th>Return Date</th>
+              <th>Return Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% orderReturns.forEach(orderReturn => { %>
+              <tr <% if (orderReturn.status === 'Canceled') { %>class="table-secondary"<% } %> >
+                <td>ID : <%= orderReturn._id %></td>
+                <td><%= orderReturn.orderId %></td>
+                <td><%= orderReturn.createdAt.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) %></td>
+                <td><%= orderReturn.createdAt.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) %></td>
+                <td>
+                  <% if (orderReturn.status === 'Pending') { %>
+                    <span class="badge badge-warning"><%= orderReturn.status %></span>
+                  <% } else if (orderReturn.status === 'Approved') { %>
+                    <span class="badge badge-success"><%= orderReturn.status %></span>
+                  <% } else { %>
+                    <span class="badge badge-danger"><%= orderReturn.status %></span>
+                  <% } %>
+                </td>
+              </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  
