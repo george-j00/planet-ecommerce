@@ -40,6 +40,8 @@
                     <span class="badge badge-success"><%= order.status %></span>
                   <% } else if (order.status === 'Shipped') { %>
                     <span class="badge badge-primary"><%= order.status %></span>
+                    <% } else if (order.status === 'Placed') { %>
+                      <span class="badge badge-info"><%= order.status %></span>
                   <% } else { %>
                     <span class="badge badge-secondary"><%= order.status %></span>
                   <% } %>
@@ -87,7 +89,7 @@
                     </div>
                   <% } else if (order.status === 'Canceled') { %>
                     <p class="text-muted">Order Canceled</p>
-                  <% } else if (order.status === 'Pending' || order.status === 'Shipped') { %>
+                  <% } else if (order.status === 'Pending' || order.status === 'Shipped' || order.status === 'Placed') { %>
                     <button type="button" data-order-id="<%= order._id %>" data-toggle="modal" data-target="#orderCancel<%= order._id %>" class="btn btn-sm btn-outline-danger">Cancel</button>
                   <% } %>
                 

@@ -12,8 +12,6 @@ const orderData = {
   deliveredOn: null, 
 };
 
-// var rzp1
-
 // Get references to the HTML elements
 const shippingRadios = document.querySelectorAll('.shipping');
 const subtotalElement = document.getElementById('checkoutSubTotal');
@@ -22,7 +20,6 @@ const confrimPayementBtns = document.querySelectorAll('.confrimPayementBtn');
 const checkoutProductData = document.querySelectorAll('.checkoutProductData');
 const addressCards = document.querySelectorAll('.addressCard');
 const confirmPaymentButtons = document.querySelectorAll('.confrimPayementBtn');
-
 
 // Define shipping charges
 const FREE_SHIPPING_CHARGE = 0;
@@ -56,16 +53,19 @@ var options = {
   }
 };
 
-
 confirmPaymentButtons.forEach(button => {
   button.addEventListener('click', (e) => {
     if (handleConfirmPayment()) {
       sendOrderData()
         .then(orderData => {
           if (orderData.flag === true) {
-            console.log('COD success');
+            console.log('Cod payment success');
             // Handle COD success, like redirecting to a success page
-          } else {
+          }
+          else if (orderData.flagWallet === true) {
+            console.log('wallet payment success');
+          }
+          else {
             console.log(orderData.amount);
 
             options.amount = String(orderData.amount);
@@ -112,7 +112,6 @@ function validateAddress() {
 shippingRadios.forEach(shippingRadio => {
   shippingRadio.addEventListener('change', updateOrderSummary);
 });
-
 
 function updateOrderSummary() {
   const selectedShipping = document.querySelector('.shipping:checked');
@@ -198,18 +197,14 @@ async function sendOrderData() {
     throw error;
   }
 }
-
+//sending the payment data to the server for payment confirmation 
 function paymentVerificationFunc (paymentData){
-  console.log(paymentData.razorpay_payment_id);
-  console.log(paymentData.razorpay_order_id);
-  console.log(paymentData.razorpay_signature);
-
   fetch('/verify-payment', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
     },
-    body: JSON.stringify(paymentData)
+    body: JSON.stringify({paymentData})
   })
     .then(response => {
       if (response.ok) {

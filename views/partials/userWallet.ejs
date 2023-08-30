@@ -1,0 +1,25 @@
+<div id="wallet" class="contents">
+  <div class="container mt-5">
+    <div class="card p-4 w-75">
+      <h4 class="card-title">Your Wallet</h4>
+
+      <div class="d-flex flex-row">
+        <div>
+          <h6 class="">Balance:</h6>
+        </div>
+       <h1 class="d-flex ml-auto mr-5 pb-3"> <strong>$<%= balanceValue %></strong></h1>
+
+      </div>
+      <div class="d-grid gap-2">
+        <button class="btn btn-dark" id="purchaseBtn">Purchase</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const purchaseBtn = document.getElementById('purchaseBtn');
+  purchaseBtn.addEventListener('click', () => {
+    window.location.href = '/';
+  })
+</script>

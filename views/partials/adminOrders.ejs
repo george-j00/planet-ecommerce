@@ -41,6 +41,8 @@
                             <span class="badge badge-warning"><%= order.status %></span>
                           <% } else if (order.status === 'Shipped') { %>
                             <span class="badge badge-primary"><%= order.status %></span>
+                          <% } else if (order.status === 'Placed') { %>
+                              <span class="badge badge-info"><%= order.status %></span> 
                           <% } else if (order.status === 'Delivered') { %>
                             <span class="badge badge-success"><%= order.status %></span>
                           <% } else { %>

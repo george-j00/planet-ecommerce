@@ -6,6 +6,8 @@ const jwt = require('jsonwebtoken')
 const Cart = require('../Models/cart.schema');
 const Order = require('../Models/orders.schema');
 const razorpay = require('razorpay');
+const crypto = require('crypto');
+
 
 const instance = new razorpay({
   key_id:process.env.RAZORPAY_ID,
@@ -14,6 +16,7 @@ const instance = new razorpay({
 
 const bcrypt = require("bcrypt");
 const OrderReturn = require('../Models/return.schema');
+const Wallet = require('../Models/wallet.schema');
 const saltRounds = 10
 
 //signup get function
@@ -250,20 +253,22 @@ const userProfile = async (req, res) => {
     const userData = await User.findById(userId);
     const cart = await Cart.findOne({ user: userId });
     const orders = await Order.find({ user: userId }).populate('items.productId');
+    const wallet = await Wallet.find({userId: userId},{_id:0 , balance:1});
 
     const orderReturns = await OrderReturn.find({ orderId: { $in: orders.map(order => order._id) } });
 
-    // console.log(orderReturns);
+    const balanceValue = wallet[0].balance;
+    // console.log(balanceValue); 
 
+    
     const cartLength = cart.cartItems.length;
 
-    res.render('pages/profile', { userData, cartLength, orders,orderReturns });
+    res.render('pages/profile', { userData, cartLength, orders,orderReturns,balanceValue});
   } catch (error) {
     console.error(error);
     res.send('An error occurred while fetching user data');
   }
 };
-
 
 const profileUpdate = async (req, res) => { 
 
@@ -527,7 +532,8 @@ const placeOrder = async (req, res) => {
 
     const paymentMethod = orderData.paymentMethod;
 
-    if (paymentMethod === 'COD') {
+    //payment method cod
+    if (paymentMethod === 'COD' ) {
 
       const newOrder = new Order({
         user: orderData.userId, // Use the populated user object
@@ -547,7 +553,8 @@ const placeOrder = async (req, res) => {
         paymentMethod: orderData.paymentMethod,
         shippingCharge: orderData.shippingCharge,
         subtotals: orderData.subtotal,
-        totalAmount: orderData.totalAmount
+        totalAmount: orderData.totalAmount,
+        status:'Placed'
       });
   
       // Save the new order to the database
@@ -561,8 +568,46 @@ const placeOrder = async (req, res) => {
   }
        
       res.status(201).json({ message: 'success cod' , flag : true });
-    }
-    else{
+    }else if (paymentMethod === 'wallet') {
+       // Check if user has sufficient balance in their wallet
+       const userWallet = await Wallet.findOne({ userId: orderData.userId });
+       if (!userWallet || userWallet.balance < orderData.totalAmount) {
+         return res.status(400).json({ message: 'Insufficient wallet balance' });
+       }
+ 
+       // Create a new instance of the Order model
+       const newOrder = new Order({
+         user: orderData.userId,
+         items: orderData.items.map(item => ({
+           productId: item.productId,
+           quantity: item.quantity,
+           price: item.productPrice,
+         })),
+         shippingAddress: orderData.shippingAddress,
+         paymentMethod: 'wallet',
+         shippingCharge: orderData.shippingCharge,
+         subtotals: orderData.subtotal,
+         totalAmount: orderData.totalAmount,
+         status: 'Placed',
+       });
+ 
+       // Save the new order to the database
+     const savedOrder =  await newOrder.save();
+       
+       console.log(savedOrder);
+       // Update the user's wallet balance
+       userWallet.balance -= orderData.totalAmount;
+       await userWallet.save();
+ 
+       // Clear the user's cart
+       const userCart = await Cart.findOne({ user: orderData.userId });
+       if (userCart) {
+         userCart.cartItems = [];
+         await userCart.save();
+       }
+ 
+       res.status(201).json({ message: 'Success Wallet Payment', flagWallet: true });
+    }else{
       // Create a new instance of the Order model with the orderData
       const newOrder = new Order({
         user: orderData.userId,
@@ -605,13 +650,14 @@ const placeOrder = async (req, res) => {
         payment_capture: 1,
       };
       
-      instance.orders.create(options, function(err, order) {
+      instance.orders.create(options, async function(err, order) {
         if (err) {
           console.log(err);
         }else{
-          // console.log(order);
-          res.json(order)
 
+          savedOrder.set({ razorpayOrderId: order.id });
+          await savedOrder.save();
+          res.json(order)
         }
       });
     }
@@ -622,28 +668,77 @@ const placeOrder = async (req, res) => {
 };
 
 const verifyPayment = async (req, res) => {
+  const { paymentData } = req.body;
+  
+  // console.log(razorpay_payment_id,razorpay_order_id,razorpay_signature);          
+  // /// Creating hmac object
+  const hmac = crypto.createHmac('sha256', process.env.RAZORPAY_SECRET_KEY);
+  //   // Passing the data to be hashed
+    hmac.update(paymentData.razorpay_order_id + '|' + paymentData.razorpay_payment_id);
+
+    // Creating the hmac in the required format
+  const generated_signature = hmac.digest('hex');
+
+  if (paymentData.razorpay_signature === generated_signature) {
+    try {
+      // Find the order by razorpayOrderId
+      const order = await Order.findOne({ razorpayOrderId: paymentData.razorpay_order_id });
+
+      if (order) {
+        // Update the status of the order to "Placed"
+        order.status = 'Placed';
+        await order.save();
+
+        console.log('Order status updated to "Placed"');
+      } else {
+        console.log('Order not found with razorpayOrderId:', paymentData.razorpay_order_id);
+      }
+    } catch (error) {
+      console.error('Error updating order status:', error);
+    }
+  } else {
+    console.log('payment failed');
+    // res.json({ success: false, message: 'Payment verification failed' });
+  }
 
 }
 
 const orderCancel = async (req, res) => {
-  const { orderId } = req.body; 
+  const { orderId } = req.body;
+
   try {
     const cancelOrder = await Order.findByIdAndUpdate(
       orderId,
-      { status: 'Canceled' }, // Update the status to 'Canceled'
-      { new: true } // Return the updated document
+      { status: 'Canceled' },
+      { new: true }
     );
 
     if (!cancelOrder) {
       return res.status(404).json({ message: 'Order not found' });
     }
+
+    const canceledAmount = cancelOrder.totalAmount;
+    const userId = cancelOrder.user;
+
+    let wallet = await Wallet.findOne({ userId });
+
+    if (!wallet) {
+      // If wallet doesn't exist, create one
+      wallet = new Wallet({ userId, balance: canceledAmount, transactions: [] });
+      wallet.transactions.push({ type: 'deposit', amount: canceledAmount, orderId, timestamp: new Date() });
+    } else {
+      wallet.balance += canceledAmount;
+      wallet.transactions.push({ type: 'deposit', amount: canceledAmount, orderId, timestamp: new Date() });
+    }
+
+    await Promise.all([wallet.save(), cancelOrder.save()]); // Perform both operations in a transactional manner
+
     res.json({ message: 'Order canceled successfully' });
   } catch (error) {
     console.error('Error canceling order:', error);
     res.status(500).json({ message: 'Error canceling order' });
   }
-
-}
+};
 
 const orederReturnRequest = async (req, res) => {
 
