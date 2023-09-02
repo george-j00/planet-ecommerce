@@ -29,7 +29,7 @@ const loginUserPost = async (req, res) => {
 
       const payload = {
         id: user._id,
-        email: user.email,
+        email: user.email,  
         user: user.name,
         status: user.status // Assuming you have a 'status' field in your user model
       };

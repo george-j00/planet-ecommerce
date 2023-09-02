@@ -54,5 +54,4 @@ router.get('/search-product', isAuthenticated, userController.searchProduct);
 router.get('/order-placed', isAuthenticated, userController.orderPlacedAnimation);
 
 
-
 module.exports = router;

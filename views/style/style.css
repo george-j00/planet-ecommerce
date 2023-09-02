@@ -552,8 +552,25 @@ body {
   color: #000 !important; /* Black text for non-active links */
 }
 
+.hidden {
+  display: none;
+}
 
+/* CSS for the floating animation */
+.float-animation {
+  position: fixed;
+  bottom: 30vh; /* Adjust the vertical position as needed */
+  left: 72%; /* Center horizontally */
+  transform: translateX(-100%);
+  opacity: 0;
+  transition: transform 0.5s, opacity 0.5s;
+}
 
+/* CSS to reveal the element and start the animation */
+.float-animation.show {
+  opacity: 1;
+  transform: translateX(-70%) translateY(-20px); /* Adjust the floating height */
+}
 
 
 

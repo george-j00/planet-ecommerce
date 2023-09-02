@@ -447,7 +447,7 @@ const addToCart = async (req, res) => {
       userCart.cartItems.push(cartItem);
     }
     await userCart.save();
-
+    req.flash('success', 'Item added to the cart successfully.');
     return res.status(201).json({ message: "Item added to cart"});
   } catch (error) {
     console.error("Error adding item to cart:", error);
@@ -680,7 +680,8 @@ const placeOrder = async (req, res) => {
 
           savedOrder.set({ razorpayOrderId: order.id });
           await savedOrder.save();
-          res.json(order)
+          console.log(order);
+          // res.json(order)
         }
       });
     }

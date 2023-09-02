@@ -46,16 +46,6 @@
                        <span class="text-secondary"> <p>Category :  <%= product.category %></p></span>
                        <div class="mb-3">
                         <label for="quantity" class="mb-2 d-block">Quantity:</label>
-                        <!-- <div class="input-group mb-3">
-                            <button class="btn btn-white border border-secondary rounded-left px-3" type="button" id="button-minus">
-                                <i class="fas fa-minus"></i>
-                            </button>
-                            <input type="number" id="quantity" class="form-control text-center border-secondary" style="border-radius: 0;" placeholder="1" min="1" aria-label="Quantity">
-                            <button class="btn btn-white border border-secondary rounded-right px-3" type="button" id="button-plus">
-                                <i class="fas fa-plus"></i>
-                            </button>
-                        </div> -->
-
                         <div class="input-group mt-3">
                             <button class="btn btn-outline-dark" type="button"  id="decrementButton">-</button>
                             <input type="number" class="form-control" product-data-id="<%= product._id %>" id="quantityInput" min="1" value="1" step="1">
@@ -63,6 +53,8 @@
                         </div>
                     </div>
                         <button class="btn btn-dark w-100" id="addToCartBtnId">Add to Cart</button>
+                        <div id="addedToCartDiv" class="hidden pt-3 text-success float-animation"><strong>Added to cart</strong></div>
+
                     </div>
                 </div>
             </div>
@@ -106,7 +98,7 @@ const incrementButton = document.getElementById('incrementButton');
 const decrementButton = document.getElementById('decrementButton');
 const quantityInput = document.getElementById('quantityInput');
 let currentQuantity = parseInt(quantityInput.value);
-
+const addedToCartDiv = document.getElementById('addedToCartDiv');
 
 // const incrementButtons = document.querySelectorAll('.cartIncrementButton');
 // const decrementButtons = document.querySelectorAll('.cartDecrementButton');
@@ -147,6 +139,22 @@ addToCartBtn.addEventListener('click', () => {
     .then(data => {
       // Handle the response as needed
       console.log('Added successfully');
+       // Remove the "hidden" class to show the <div> when the response indicates success
+    addedToCartDiv.classList.remove('hidden');
+
+     // Use setTimeout to add the "show" class after a delay
+     setTimeout(() => {
+      addedToCartDiv.classList.add('show');
+    }, 100);
+    
+    setTimeout(() => {
+      addedToCartDiv.style.display = 'none';
+    }, 2000);
+
+// You can also hide the <div> after a certain duration if desired
+setTimeout(() => {
+  addedToCartDiv.style.display = 'none';
+}, 5000); 
     })
     .catch(error => {
       console.error('Error adding to cart:', error);
