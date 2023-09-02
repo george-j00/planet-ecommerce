@@ -5,6 +5,7 @@ const cloudinary = require("../services/cloudinary")
 const redisClient = require('../config/redisClient');
 const Order = require("../Models/orders.schema");
 const OrderReturn = require("../Models/return.schema");
+const Coupon = require("../Models/coupon.schema");
 
 
 //signup get function
@@ -26,23 +27,51 @@ const dashboard = async (req,res) => {
     const todaysOrders = await Order.countDocuments({ createdOn: { $gte: today } });
 
     // Perform aggregation to group orders by hour and calculate total amount
-    const hourlySalesData = await Order.aggregate([
-  {
-    $project: {
-      hour: { $hour: "$createdOn" },
-      totalAmount: "$totalAmount"
+  //   const hourlySalesData = await Order.aggregate([
+  // {
+  //   $project: {
+  //     hour: { $hour: "$createdOn" },
+  //     totalAmount: "$totalAmount"
+  //   }
+  // },
+  // {
+  //   $group: {
+  //     _id: "$hour",
+  //     totalAmount: { $sum: "$totalAmount" }
+  //   }
+  // },
+  // {
+  //   $sort: { _id: 1 }
+  // }
+  //   ]);
+
+
+  
+  // Create an array for the entire week (Monday to Sunday)
+  const weeklySalesData = await Order.aggregate([
+    {
+      $project: {
+        dayOfWeek: { $dayOfWeek: "$createdOn" }, // Get the day of the week (1 = Sunday, 2 = Monday, ..., 7 = Saturday)
+        totalAmount: "$totalAmount"
+      }
+    },
+    {
+      $group: {
+        _id: "$dayOfWeek",
+        totalAmount: { $sum: "$totalAmount" }
+      }
     }
-  },
-  {
-    $group: {
-      _id: "$hour",
-      totalAmount: { $sum: "$totalAmount" }
-    }
-  },
-  {
-    $sort: { _id: 1 }
-  }
-    ]);
+  ]);
+  
+  // Create an array to represent sales data for each day (0 for Sunday, 1 for Monday, ..., 6 for Saturday)
+  const weeklySales = Array(7).fill(0);
+  
+  // Iterate over the weeklySalesData and populate the weeklySales array
+  weeklySalesData.forEach(data => {
+    const dayOfWeek = data._id - 1; // Subtract 1 to adjust for JavaScript's 0-based index
+    weeklySales[dayOfWeek] = data.totalAmount;
+  });
+  
 
     const totalQuantity = await Product.aggregate([
   {
@@ -54,8 +83,12 @@ const dashboard = async (req,res) => {
     ]);
 
     const returnData = await OrderReturn.find();
-        // console.log(hourlySalesData);
-    res.render('pages/dashboard', {products , users ,categories,orders, totalProducts, totalOrders, totalSales: totalSales[0].totalAmount,totalQuantity: totalQuantity[0].totalQuantity, todaysOrders,hourlySalesData ,returnData});
+
+    const coupons = await Coupon.find();
+
+
+        // console.log(weeklySalesData);
+    res.render('pages/dashboard', {products , users ,categories,orders, totalProducts, totalOrders, totalSales: totalSales[0].totalAmount,totalQuantity: totalQuantity[0].totalQuantity, todaysOrders,weeklySales ,returnData,coupons});
      
     } catch (err) {
       console.log(err);
@@ -120,7 +153,6 @@ const editProduct = async (req,res) => {
     }  
    }
 
-
 const editProductPost = async (req, res) => {
   const { currentImage1 } = req.body;
 
@@ -172,7 +204,6 @@ const editProductPost = async (req, res) => {
     console.log('Error while updating:', error);
   }
 };
-
 
 const deleteProduct = async (req, res) => { 
   const productId = req.params.productId;
@@ -322,16 +353,16 @@ const updateReturnStatus = async (req, res) => {
       return res.status(404).json({ message: 'Return not found' });
     }
 
-    if (status === 'Approved') {
-      for (const product of updatedReturn.products) {
-        const returnedQuantity = product.productReason === 'baad' ? 1 : 0; // Check if it's a whole order or partial
-        const existingProduct = await Product.findById(product.productId);
-        if (existingProduct) {
-          existingProduct.totalQuantity += returnedQuantity; // Increment the product quantity
-          await existingProduct.save(); // Save the changes to the product
-        }
-      }
-    }
+    // if (status === 'Approved') {
+    //   for (const product of updatedReturn.products) {
+    //     const returnedQuantity = product.productReason === 'baad' ? 1 : 0; // Check if it's a whole order or partial
+    //     const existingProduct = await Product.findById(product.productId);
+    //     if (existingProduct) {
+    //       existingProduct.totalQuantity += returnedQuantity; // Increment the product quantity
+    //       await existingProduct.save(); // Save the changes to the product
+    //     }
+    //   }
+    // }
     console.log('updated quantity');
     // console.log(updatedReturn ,'update return productss');
     res.status(200).json({ message: `Return status updated ` });
@@ -341,6 +372,28 @@ const updateReturnStatus = async (req, res) => {
   }
 };
 
+const couponManagement = async (req, res) => {
+  try {
+    const { couponCode, discountAmount, minPurchase, expiryDate } = req.body;
+
+    // Create a new coupon instance using the Mongoose schema
+    const newCoupon = new Coupon({
+      couponCode,
+      discountAmount,
+      minPurchase,
+      expiryDate: new Date(expiryDate),
+    });
+
+    // Save the coupon to the database
+    const savedCoupon = await newCoupon.save();
+
+    res.status(201).json(savedCoupon); // Return the saved coupon as JSON
+  } catch (error) {
+    console.error('Error creating coupon:', error);
+    res.status(500).json({ message: 'Error creating coupon' });
+  }
+
+}
 
 
 
@@ -356,7 +409,8 @@ module.exports = {
     addCategory,
     deleteCategory,
     adminOrderStaus,
-    updateReturnStatus
+    updateReturnStatus,
+    couponManagement
   
     // logout
 };

@@ -45,6 +45,14 @@ router.post('/order-cancel',isAuthenticated , userController.orderCancel);
  
 router.post('/return-request/:orderId', isAuthenticated, userController.orederReturnRequest);
 
+router.post('/apply-coupon', isAuthenticated, userController.applyCoupon);
+
+router.get('/products', isAuthenticated, userController.products);
+
+router.get('/search-product', isAuthenticated, userController.searchProduct);
+
+router.get('/order-placed', isAuthenticated, userController.orderPlacedAnimation);
+
 
 
 module.exports = router;

@@ -31,6 +31,8 @@ router.post('/update-status/:orderId', adminController.adminOrderStaus);
 
 router.post('/update-return-status', adminController.updateReturnStatus);
 
+router.post('/create-coupon', adminController.couponManagement);
+
 // router.get('/logout', adminController.logout);
 
 

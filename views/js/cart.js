@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
   decreaseButtons.forEach((decreaseButton, index) => {
     decreaseButton.addEventListener('click', async () => {
       let currentQuantity = parseInt(quantityElements[index].textContent);
-      if (currentQuantity > 0) {
+      if (currentQuantity > 1) {
         currentQuantity--;
         quantityElements[index].textContent = currentQuantity;
         await updateQuantityInDatabase(decreaseButton.getAttribute('data-product-id'), currentQuantity);

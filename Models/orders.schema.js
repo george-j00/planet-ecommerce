@@ -40,8 +40,13 @@ const orderSchema = new mongoose.Schema({
   createdOn: { type: Date, default: Date.now },
   status: { type: String, enum: ['Pending','Placed', 'Shipped', 'Delivered','Canceled'], default: 'Pending' },
   deliveredOn: { type: Date },
-  razorpayOrderId:{type: String}
+  razorpayOrderId:{type: String},
+  isCouponApplied: {
+    type: Boolean,
+    default : false,
+  }
 });
+
 
 // Define the pre middleware to update product quantities
 orderSchema.pre('save', async function (next) {
@@ -49,16 +54,40 @@ orderSchema.pre('save', async function (next) {
   const promises = itemsToUpdate.map(async item => {
     const product = await Product.findById(item.productId);
     if (product) {
-      product.totalQuantity -= item.quantity; // Reduce the product quantity
+      if (this.status === 'Placed') {
+        product.totalQuantity -= item.quantity; // Reduce the product quantity on order placement
+        if (product.totalQuantity < 0) {
+          // Handle case where there are insufficient products
+          console.log('Insufficient products for order:', this._id);
+          throw new Error('Insufficient products');
+        }
+      } else if (this.status === 'Canceled' || this.status === 'Approved') {
+        let returnedQuantity = 0;
+        if (this.status === 'Canceled') {
+          returnedQuantity = item.quantity; // Increment the product quantity on order cancellation
+        } else if (this.status === 'Approved' && item.productReason === 'baad') {
+          returnedQuantity = 1; // Increment the product quantity on return approval
+        }
+
+        product.totalQuantity += returnedQuantity;
+      }
+
       await product.save(); // Save the changes to the product
-    }else{
-      console.log('Insufficient items');
+    } else {
+      console.log('Product not found for item:', item.productId);
+      throw new Error('Product not found');
     }
   });
 
-  await Promise.all(promises); // Wait for all product updates to complete
-  next();
+  try {
+    await Promise.all(promises); // Wait for all product updates to complete
+    next();
+  } catch (error) {
+    console.error('Error updating product quantities:', error);
+    // Handle the error here (e.g., send an error response to the client)
+  }
 });
+
 
 const Order = mongoose.model('Order', orderSchema);
 

@@ -1,0 +1,70 @@
+<div id="coupon" class="contents">
+    <h2 class="text-center ">Your Orders</h2>
+    <button type="button" class="btn btn-success d-flex mr-3 ml-auto" data-toggle="modal" data-target="#exampleModalCenter">
+        Add Coupon
+    </button>
+    <div class="container">
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Coupon code</th>
+                        <th>Amount</th>
+                        <th>Expiry Date</th>
+                        <th>Min purchase</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% coupons.forEach(coupon => { %>
+                        <tr>
+                            <td><%= coupon.couponCode %></td>
+                            <td>$ <%= coupon.discountAmount %></td>
+                            <td><%= coupon.expiryDate.toISOString().substring(0, 10) %></td>
+                            <td>$ <%= coupon.minPurchase %></td>
+                        </tr>
+                    <% }); %>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLongTitle">Coupon Management</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="couponForm">
+                    <div class="form-group">
+                        <label for="couponCode">Coupon Code</label>
+                        <input type="text" class="form-control" id="couponCode" placeholder="Enter coupon code" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="discountAmount">Discount Amount</label>
+                        <input type="number" class="form-control" id="discountAmount" placeholder="Enter discount amount" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="minPurchase">Minimum Purchase Amount</label>
+                        <input type="number" class="form-control" id="minPurchase" placeholder="Enter minimum purchase amount" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="expiryDate">Expiry Date</label>
+                        <input type="date" class="form-control" id="expiryDate" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="saveCouponBtn">Save Coupon</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="../js/coupon.js"></script>

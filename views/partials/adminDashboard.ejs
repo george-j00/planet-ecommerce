@@ -3,6 +3,8 @@
     <h2><strong>Admin Dashboard</strong></h2>
   </div>
 
+
+
   <div class="row justify-content-center">
 
     <div class="col-md-6 col-lg-3 mb-4">
@@ -63,10 +65,10 @@
 </div>
 
   
-
-
-
 <script>
+//No issue with the error . the graph is correct 
+const weeklySalesData = <%- JSON.stringify(weeklySales) %>;
+
   var options = {
   chart: {
     height: 350,
@@ -84,12 +86,12 @@
     {
       name: "Sales",
       type: 'column',
-      data: [10, 19, 27, 26, 34, 35, 40]
+      data: weeklySalesData
     },
     {
       name: "Line C",
       type: 'line',
-      data: [1.4, 2, 2.5, 1.5, 2.5, 2.8, 3.8, 4.6]
+      data: weeklySalesData
     },
   ],
   stroke: {
@@ -101,7 +103,7 @@
     }
   },
   xaxis: {
-    categories: ['MON' ,'TUE' ,'WED', 'THU','FRI','SAT','SUN']
+    categories: ['SUN','MON' ,'TUE' ,'WED', 'THU','FRI','SAT']
   },
   yaxis: [
     {

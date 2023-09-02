@@ -1,53 +1,5 @@
-<!-- <div class="container-fluid">
-    <div class="row">
-
-        <% products.forEach((product, index) => { %>
-            <div class="col-md-4 col-sm-6 col-12 mb-4">
-                <a href="/products/<%= product._id %>" class="text-decoration-none text-dark ">
-                  <div class="card">
-                    <img class="card-img-top" style="height: 50vh;" src="<%= product.productImage %>" alt="Card image cap">
-                    <div class="card-body d-flex justify-content-between flex-column">
-                      <div>
-                        <h6 class="card-title text-xl"><%= product.productTitle %></h6>
-                        <p class="text-secondary">$ <%= product.productPrice %> <span class="text-muted"><strike>$150</strike></span></p>
-                      </div>
-                      <button class="btn btn-dark mt-auto">Add To Cart</button>
-                    </div>
-                  </div>
-                </a>
-              </div>
-              
-        <% }); %>
-    </div>
-</div> -->
-
-
-<!-- <div class="container-fluid">
-  <div class="row">
-
-      <% products.forEach((product, index) => { %>
-          
-          <div class="col-lg-3 col-sm-6 d-flex flex-column align-items-center justify-content-center product-item my-3">
-        <a href="/products/<%= product._id %>" class="text-decoration-none text-dark ">
-            <div class="product"> <img src="<%= product.productImage %>" alt="">
-                <ul class="d-flex align-items-center justify-content-center list-unstyled icons">
-                    <li class="icon"><span class="fas fa-expand-arrows-alt"></span></li>
-                    <li class="icon mx-3"><span class="far fa-heart"></span></li>
-                    <li class="icon"><span class="fas fa-shopping-bag"></span></li>
-                </ul>
-            </div>
-            <div class="tag bg-red">Best Selling</div>
-            <div class="title pt-4 pb-1"><%= product.productTitle %></div>
-            <div class="price">$ <%= product.productPrice %>.0</div>
-          </a>
-          </div>
-        
-      <% }); %>
-  </div>
-</div> -->
-
-
 <div class="container-fluid">
+
   <div class="row">
     <% products.forEach((product, index) => { %>
       <div class="col-lg-3 col-sm-6 d-flex flex-column align-items-center justify-content-center product-item my-3">
@@ -56,11 +8,11 @@
             <img src="<%= product.productImages[0].secure_url %>" alt=""> <!-- Display the first image URL -->
             <ul class="d-flex align-items-center justify-content-center list-unstyled icons">
               <li class="icon"><span class="fas fa-expand-arrows-alt"></span></li>
-              <li class="icon mx-3"><span class="far fa-heart"></span></li>
-              <li class="icon"><span class="fas fa-shopping-bag"></span></li>
+              <!-- <li class="icon mx-3"><span class="far fa-heart"></span></li> -->
+              <li class="icon ml-3"><span class="fas fa-shopping-bag"></span></li>
             </ul>
           </div>
-          <div class="tag bg-red">Best Selling</div>
+          <!-- <div class="tag bg-red">Best Selling</div> -->
           <div class="title pt-4 pb-1"><%= product.productTitle %></div>
           <div class="price">$ <%= product.productPrice %>.0</div>
         </a>
@@ -68,8 +20,5 @@
     <% }); %>
   </div>
 </div>
-
-<!-- <%= products %> -->
-
 
 

@@ -7,6 +7,8 @@ const adminRoutes = require('./Routes/admin.routes');
 const cors = require("cors");
 const session = require('express-session');
 const cookieParser = require('cookie-parser');
+const flash = require('express-flash');
+
 // const adminGetProducts = require('./Controllers/admin.controllers');
 // const redisClient = require('./config/redisClient');
 
@@ -27,6 +29,8 @@ app.use(
     }
   })
 );
+
+app.use(flash());
 
 // process.on('SIGINT', () => {
 //   redisClient.quit(() => {

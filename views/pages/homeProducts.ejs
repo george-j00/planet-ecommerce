@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('../partials/header'); %>
+
+<body>
+    <%- include('../partials/navbar'); %>
+    <div class="container mt-5">
+
+        <div class="mt-5">
+            <form class="form-inline d-flex justify-content-center mb-3 pt-5" id="searchForm">
+                <input class="form-control mr-2 w-25 d-flex justify-content-center" type="search" placeholder="Search"
+                    aria-label="Search" id="searchInput">
+                <button class="btn btn-dark" type="submit">Search</button>
+
+                <div class="dropdown ml-2">
+                    <button class="btn btn-secondary dropdown-toggle" type="button" id="categoryDropdown" data-toggle="dropdown"
+                        aria-haspopup="true" aria-expanded="false">
+                        Filter by Category
+                    </button>
+                    <div class="dropdown-menu" aria-labelledby="categoryDropdown">
+                        <% categories.forEach(category => { %>
+                            <a class="dropdown-item categoryLink" href="#" data-category="<%= category.name %>"><%= category.name %></a>
+                        <% }); %>
+                    </div>
+                </div>
+                
+            </form>
+            <div class="container-fluid d-flex" id="productContainer">
+                <div class="row">
+                    <% products.forEach((product, index) => { %>
+                    <div class="col-lg-3 col-sm-6 d-flex flex-column align-items-center justify-content-center product-item my-3">
+                        <a href="/products/<%= product._id %>" class="text-decoration-none text-dark ">
+                            <div class="product">
+                                <img src="<%= product.productImages[0].secure_url %>" alt="">
+                                <ul class="d-flex align-items-center justify-content-center list-unstyled icons">
+                                    <li class="icon"><span class="fas fa-expand-arrows-alt"></span></li>
+                                    <li class="icon mx-3"><span class="far fa-heart"></span></li>
+                                    <li class="icon"><span class="fas fa-shopping-bag"></span></li>
+                                </ul>
+                            </div>
+                            <div class="title pt-4 pb-1"><%= product.productTitle %></div>
+                            <div class="price">$ <%= product.productPrice %>.0</div>
+                        </a>
+                    </div>
+                    <% }); %>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const productContainer = document.getElementById('productContainer');
+        const searchForm = document.getElementById('searchForm');
+        const searchInput = document.getElementById('searchInput');
+        const categoryLinks = document.querySelectorAll('.categoryLink');
+      
+        async function displaySearchResults(searchTerm,category) {
+          try {
+           
+            let url = `/search-product?searchTerm=${encodeURIComponent(searchTerm)}`;
+    
+            if (category) {
+               url += `&category=${encodeURIComponent(category)}`;
+             }
+
+             const response = await fetch(url);
+            // Send a GET request to the server with the search term
+            const filteredProducts = await response.json();
+
+            productContainer.querySelector('.row').innerHTML = '';
+            filteredProducts.forEach(product => {
+              const productHTML = `
+              <div class="col-lg-4 col-md-6 col-sm-6">
+    <div class="d-flex flex-column align-items-center justify-content-center product-item my-3">
+        <a href="/products/${product._id}" class="text-decoration-none text-dark">
+            <div class="product">
+                <img src="${product.productImages[0].secure_url}" alt="" style="max-width: 100%;">
+                <ul class="d-flex align-items-center justify-content-center list-unstyled icons">
+                    <li class="icon"><span class="fas fa-expand-arrows-alt"></span></li>
+                    <li class="icon mx-3"><span class="far fa-heart"></span></li>
+                    <li class="icon"><span class="fas fa-shopping-bag"></span></li>
+                </ul>
+            </div>
+            <div class="title pt-4 pb-1 text-center">${product.productTitle}</div>
+            <div class="price text-center">$ ${product.productPrice}.0</div>
+        </a>
+    </div>
+</div>
+
+              `;
+              productContainer.querySelector('.row').insertAdjacentHTML('beforeend', productHTML);
+            });
+
+            // Clear existing products and display filtered products
+          } catch (error) {
+            console.error('Error fetching search results:', error);
+          }
+        }
+        
+    
+    searchForm.addEventListener('submit', async event => {
+    event.preventDefault();
+    const searchValue = searchInput.value.trim().toLowerCase();
+    await displaySearchResults(searchValue);
+  });
+
+  categoryLinks.forEach(categoryLink => {
+    categoryLink.addEventListener('click', async event => {
+      event.preventDefault();
+      const selectedCategory = categoryLink.getAttribute('data-category');
+    //   console.log(selectedCategory , 'category');
+      await displaySearchResults('', selectedCategory); // Pass an empty string for search term when selecting a category
+    });
+  });
+      
+      </script>
+      
+</body>
+</html>

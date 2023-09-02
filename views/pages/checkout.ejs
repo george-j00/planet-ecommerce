@@ -12,10 +12,10 @@
     <div class="container">
       <div class="row">
         <div class="col-xl-8 col-lg-8 mb-4">
-          <div class="card mb-4 border shadow-0 p-4">
+          <!-- <div class="card mb-4 border shadow-0 p-4">
                     <h4 class="text-center mb-3">Express Checkout</h4>
                     <button class="btn btn-light btn-block">Google Pay</button>
-                 </div>
+                 </div> -->
           
 <!-- ******** ADDRESS SECTION ************  -->
        <div class="border p-4 mb-4">
@@ -208,7 +208,7 @@
 </div>
 
         <!-- right side section -->
-        <div class="col-xl-4 col-lg-4 d-flex justify-content-center justify-content-lg-end">
+        <div class="col-xl-4 col-lg-4 d-flex justify-content-center justify-content-lg-end mt-4">
           <div class="ms-lg-4 mt-4 mt-lg-0" style="max-width: 320px;">
             <h6 class="mb-3">Order Summary</h6>
            
@@ -225,17 +225,25 @@
                 <p class="mb-0">Subtotal</p>
                 <p class="mb-0" id="checkoutSubTotal">$0.00</p>
               </div>
+              <div class="d-flex flex-row justify-content-between mb-2">
+                <p class="mb-0 text-danger">Discount</p>
+                <p class="mb-0 text-danger" id="discountCouponId">- 0.00</p>
+              </div>
               <div class="d-flex flex-row justify-content-between mb-3">
                 <p class="mb-0">Total</p>
                 <p class="mb-0" id="checkoutTotal">$0.00</p>
               </div>
             </div>
-          
-            <div class="input-group mt-3 mb-4">
-              <input type="text" class="form-control border" name="" placeholder="Promo code" />
-              <button class="btn btn-light text-primary border">Apply</button>
+
+            <div class="d-flex flex-column mr-5">
+              <div class="input-group mt-3 mb-4">
+                <p class="mb-1">Have a coupon?</p>
+                <p class="text-secondary mb-2">Add your code for an instant discount</p>
+                <input type="text" class="form-control border" id="couponCode" name="" placeholder="Have a code" />
+                <button class="btn btn-light text-primary border" id="couponApplyBtn">Apply</button>
+              </div>
             </div>
-  
+                       
             <hr />
             <h6 class="text-dark my-4">Items in cart</h6>
             
@@ -293,6 +301,7 @@
   confirmPaymentButton.addEventListener('click', showPaymentSuccessMessage);
   </script>
 
+  <script src="../js/coupon.js"></script>
   <script src="../js/orders.js"></script>
   <script src="../js/addUserAddress.js"></script>
   <script src="../js/checkout.js"></script>

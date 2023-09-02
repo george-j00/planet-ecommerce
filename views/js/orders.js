@@ -39,6 +39,7 @@ var options = {
       //alert(response.razorpay_signature)
       // console.log(response);
       paymentVerificationFunc(response)
+      window.location.href = '/';
   },
   "prefill": {
       "name": "Gaurav Kumar",
@@ -60,13 +61,15 @@ confirmPaymentButtons.forEach(button => {
         .then(orderData => {
           if (orderData.flag === true) {
             console.log('Cod payment success');
+            window.location.href = '/order-placed';
+           
             // Handle COD success, like redirecting to a success page
           }
-          else if (orderData.flagWallet === true) {
+          else if (orderData.flag === false) {
             console.log('wallet payment success');
           }
           else {
-            console.log(orderData.amount);
+            // console.log(orderData.amount);
 
             options.amount = String(orderData.amount);
             options.order_id = String(orderData.id);
@@ -74,6 +77,7 @@ confirmPaymentButtons.forEach(button => {
             // Open the Razorpay payment window
             rzp1 = new Razorpay(options);
             rzp1.open();
+            
           }
         })
         .catch(error => {
