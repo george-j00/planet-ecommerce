@@ -680,8 +680,8 @@ const placeOrder = async (req, res) => {
 
           savedOrder.set({ razorpayOrderId: order.id });
           await savedOrder.save();
-          console.log(order);
-          // res.json(order)
+          // console.log(order);
+          res.json(order)
         }
       });
     }

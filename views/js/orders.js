@@ -57,7 +57,7 @@ var options = {
 confirmPaymentButtons.forEach(button => {
   button.addEventListener('click', (e) => {
     if (handleConfirmPayment()) {
-      sendOrderData()
+      sendOrderData() 
         .then(orderData => {
           if (orderData.flag === true) {
             console.log('Cod payment success');

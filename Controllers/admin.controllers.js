@@ -10,9 +10,21 @@ const Coupon = require("../Models/coupon.schema");
 
 //signup get function
 const dashboard = async (req,res) => {
+
+  const itemsPerPage = 5;
+  const page = parseInt(req.query.page) || 1;
+
+  // Calculate the skip value to skip items based on the page number
+  const skip = (page - 1) * itemsPerPage;
+
     try {
       const products = await Product.find();
-      const users = await User.find();
+      const users = await User.find().skip(skip).limit(itemsPerPage);
+
+      const totalUsers = await User.countDocuments();
+      const totalPages = Math.ceil(totalUsers / itemsPerPage);
+      
+
       const categories = await Category.find();
       const orders = await Order.find();
       const totalProducts = await Product.countDocuments();
@@ -26,27 +38,6 @@ const dashboard = async (req,res) => {
     today.setHours(0, 0, 0, 0);
     const todaysOrders = await Order.countDocuments({ createdOn: { $gte: today } });
 
-    // Perform aggregation to group orders by hour and calculate total amount
-  //   const hourlySalesData = await Order.aggregate([
-  // {
-  //   $project: {
-  //     hour: { $hour: "$createdOn" },
-  //     totalAmount: "$totalAmount"
-  //   }
-  // },
-  // {
-  //   $group: {
-  //     _id: "$hour",
-  //     totalAmount: { $sum: "$totalAmount" }
-  //   }
-  // },
-  // {
-  //   $sort: { _id: 1 }
-  // }
-  //   ]);
-
-
-  
   // Create an array for the entire week (Monday to Sunday)
   const weeklySalesData = await Order.aggregate([
     {
@@ -88,7 +79,17 @@ const dashboard = async (req,res) => {
 
 
         // console.log(weeklySalesData);
-    res.render('pages/dashboard', {products , users ,categories,orders, totalProducts, totalOrders, totalSales: totalSales[0].totalAmount,totalQuantity: totalQuantity[0].totalQuantity, todaysOrders,weeklySales ,returnData,coupons});
+    res.render('pages/dashboard', {
+      products ,
+      users ,
+      categories,
+      orders,
+      totalProducts, totalOrders, totalSales: totalSales[0].totalAmount,totalQuantity: totalQuantity[0].totalQuantity, todaysOrders,weeklySales ,
+      returnData,
+      coupons,
+      currentPage: page,
+      totalPages,
+    });
      
     } catch (err) {
       console.log(err);

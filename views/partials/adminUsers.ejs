@@ -35,6 +35,31 @@
         </tbody>
       </table>
     </div>
+  
+    <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center">
+              <% if (currentPage > 1) { %>
+                <li class="page-item">
+                  <a class="page-link" href="?page=<%= currentPage - 1 %>" aria-label="Previous">
+                    <span aria-hidden="true">&laquo;</span>
+                    <span class="sr-only">Previous</span>
+                  </a>
+                </li>
+              <% } %>
+              <li class="page-item disabled">
+                <span class="page-link">Page <%= currentPage %> of <%= totalPages %></span>
+              </li>
+              <% if (currentPage < totalPages) { %>
+                <li class="page-item">
+                  <a class="page-link" href="?page=<%= currentPage + 1 %>" aria-label="Next">
+                    <span aria-hidden="true">&raquo;</span>
+                    <span class="sr-only">Next</span>
+                  </a>
+                </li>
+              <% } %>
+            </ul>
+          </nav>
+
   </div>
   
   <script>
@@ -47,14 +72,6 @@
             const blockStatusSpan = document.getElementById('blockStatus');
             blockStatusSpan.textContent = data.blockStatus ? 'Unblock' : 'Block';
   
-            // const blockButton = document.getElementById('blockBtn');
-            // if (data.blockStatus) {
-            //   blockButton.classList.remove('btn-success');
-            //   blockButton.classList.add('btn-danger');
-            // } else {
-            //   blockButton.classList.remove('btn-danger');
-            //   blockButton.classList.add('btn-success');
-            // }
             window.location.href = '/admin/dashboard';
           } else {
             console.log('Failed to block/unblock the user');
