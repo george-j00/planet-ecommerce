@@ -218,7 +218,7 @@ const homepage = async (req, res) => {
     const userId = decodedTokens.id;
     // console.log(userId);
 
-    const products = await Product.find();
+    const products = await Product.find({ status: 'active' });
     const cart = await Cart.find({ user: userId });
 
 

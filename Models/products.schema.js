@@ -26,9 +26,13 @@ const productSchema = new mongoose.Schema({
   ],
   category: {
     type: String,
-    // enum: ["indoor", "outdoor"],
     required: true
-},
+  },
+  status: {
+    type: String,
+    enum: ["active", "deleted"],
+    default: "active"
+  },
   additionalInformation: {
     type: String,
   },

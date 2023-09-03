@@ -19,7 +19,7 @@ router.get('/add-product', adminController.addproductGet);
 router.post('/add-product',upload.array("productImage"), adminController.addProduct); 
 
 router.post('/add-category',adminController.addCategory); 
-router.post('/delete-category/:categoryId',adminController.deleteCategory); 
+router.post('/delete-category',adminController.deleteCategory); 
 
 
 router.get('/edit-product/:productId', adminController.editProduct); 

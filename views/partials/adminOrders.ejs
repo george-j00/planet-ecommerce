@@ -69,12 +69,35 @@
                       </tr>
                     <% }); %>
                   </tbody>
-                
               </table>
             </div>
           </div>
     
-          
+          <!-- pagination  -->
+            <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center">
+              <% if (currentPage > 1) { %>
+                <li class="page-item">
+                  <a class="page-link" href="?page=<%= currentPage - 1 %>" aria-label="Previous">
+                    <span aria-hidden="true">&laquo;</span>
+                    <span class="sr-only">Previous</span>
+                  </a>
+                </li>
+              <% } %>
+              <li class="page-item disabled">
+                <span class="page-link">Page <%= currentPage %> of <%= totalOrderPages %></span>
+              </li>
+              <% if (currentPage < totalOrderPages) { %>
+                <li class="page-item">
+                  <a class="page-link" href="?page=<%= currentPage + 1 %>" aria-label="Next">
+                    <span aria-hidden="true">&raquo;</span>
+                    <span class="sr-only">Next</span>
+                  </a>
+                </li>
+              <% } %>
+            </ul>
+          </nav>
+
     </div>
 
     <script src="../js/adminOrder.js"></script>

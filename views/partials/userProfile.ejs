@@ -15,8 +15,8 @@
                     </div>
                     <div class="mb-3">
                         <label for="phoneNumber" class="form-label">Phone Number</label>
-                        <input type="number" class="form-control" id="phoneNumber" name="phoneNumber" value="<%= userData.phone %>"
-                               pattern="[0-9]{10}" title="Please enter a 10-digit phone number" required>
+                        <input type="number" class="form-control" id="phoneNumber" name="phoneNumber" value="<%= userData.phone %>" required>
+                        <p id="phoneNumberValidate" class="text-danger text-sm"></p>
                     </div>
                      <input type="hidden" id="userId" name="userId" value="<%= userData._id %>">
 
@@ -29,5 +29,20 @@
     <!-- <%= userData.phone %> -->
 </div>
 
+<script>
+const phoneNumber = document.getElementById('phoneNumber');
+const phoneNumberValidate = document.getElementById('phoneNumberValidate');
+
+phoneNumber.addEventListener('input',  () => {
+    if (phoneNumber.value.length >  10 ) {
+        phoneNumber.value = pincode.value.slice(0, 10);
+        phoneNumber.disable = true;
+        phoneNumberValidate.textContent = "Enter correct phone number"
+    }else{
+        phoneNumber.disable = false;
+        phoneNumberValidate.textContent = ""
+    }
+})
+</script>
 
 <script src="../js/profileForm.js"></script>

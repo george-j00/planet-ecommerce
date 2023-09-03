@@ -11,24 +11,28 @@ const Coupon = require("../Models/coupon.schema");
 //signup get function
 const dashboard = async (req,res) => {
 
-  const itemsPerPage = 5;
+  const itemsPerPage = 6;
   const page = parseInt(req.query.page) || 1;
 
   // Calculate the skip value to skip items based on the page number
   const skip = (page - 1) * itemsPerPage;
 
     try {
-      const products = await Product.find();
-      const users = await User.find().skip(skip).limit(itemsPerPage);
+      const products = await Product.find({ status: 'active' });
+      const totalProducts = await Product.countDocuments({ status: 'active' });
+      
 
+
+      const users = await User.find().skip(skip).limit(itemsPerPage);
       const totalUsers = await User.countDocuments();
       const totalPages = Math.ceil(totalUsers / itemsPerPage);
       
-
       const categories = await Category.find();
-      const orders = await Order.find();
-      const totalProducts = await Product.countDocuments();
-    const totalOrders = await Order.countDocuments();
+
+      const orders = await Order.find().skip(skip).limit(itemsPerPage);
+      const totalOrders = await Order.countDocuments();
+      const totalOrderPages = Math.ceil(totalOrders / itemsPerPage);
+
     // Total Price (Sum of totalAmount in orders)
     const totalSales = await Order.aggregate([
       { $group: { _id: null, totalAmount: { $sum: '$totalAmount' } } }
@@ -89,6 +93,7 @@ const dashboard = async (req,res) => {
       coupons,
       currentPage: page,
       totalPages,
+      totalOrderPages,
     });
      
     } catch (err) {
@@ -127,7 +132,8 @@ const addProduct =  async (req, res) => {
       category:req.body.category,
       additionalInformation: req.body.additionalInformation,
       // productImage: result.secure_url,
-      productImages: uploadedImages 
+      productImages: uploadedImages ,
+      status : "active"
       // cloudinary_id: result.public_id,
     });
     console.table(product);
@@ -210,18 +216,23 @@ const deleteProduct = async (req, res) => {
   const productId = req.params.productId;
   
   try {
-    const deletedUser = await Product.findByIdAndDelete(productId);
+    const updatedProduct = await Product.findByIdAndUpdate(
+      productId,
+      { status: 'deleted' },
+      { new: true }
+    );
 
-    if (!deletedUser) {
-      return res.status(404).send('User not found'); // Return an error if the user is not found
+    if (!updatedProduct) {
+      return res.status(404).send('Product not found');
     }
-    res.send('successsssss');
+
+    res.send('Product has been marked as deleted');
 
   } catch (error) {
-    console.log('Error while deleting user:', error);
-    res.status(500).send('Error while deleting user');
+    console.log('Error while marking product as deleted:', error);
+    res.status(500).send('Error while marking product as deleted');
   } 
-}
+};
 
 const blockAndUnblockUser = async (req, res) => {
   const userId = req.params.userId;
@@ -248,62 +259,56 @@ const blockAndUnblockUser = async (req, res) => {
 
 const addCategory = async (req, res) => {
 
-const data = req.body.categoryName;
-
-
   try {
     const query = req.body.categoryName;
 
-    
-    const uniqueness = await Category.findOne({name:query});
+    // Use a case-insensitive regex to perform the query
+    const uniqueness = await Category.findOne({ name: { $regex: new RegExp(`^${query}$`, 'i') } });
 
-    // const value = uniqueness.name ;
-    // console.log(uniqueness.name );
-
-    if ( uniqueness ) {
-
+    if (uniqueness) {
       const message = 'Category exists';
-
       console.log(message);
       return res.json(message); // Return the error message as JSON
-    }
-    else{
-      
+    } else {
       let category = new Category({
         name: req.body.categoryName,
       });
-  
-      // Save user
+
+      // Save the category
       await category.save();
-      console.log('successsfully added category data');
-    //  return res.status(200).json({success: 'success'});
-    const success = 'success';
-    return res.json(success)  
-         // res.redirect('/admin/dashboard');
-  
+      console.log('Successfully added category data');
+      const success = 'success';
+      return res.json(success);
     }
-    
   } catch (err) {
     console.log(err);
-}
-}
+  }
+};
 
 const deleteCategory = async (req, res) => {
-  const categoryId = req.params.categoryId;
-  
-  try {
-    const deletedCategory = await Category.findByIdAndDelete(categoryId);
+  const { categoryName, categoryId } = req.body;
 
+  try {
+    // Update all products with the given category name to set their status to "deleted"
+    const productData = await Product.updateMany({
+      category: { $in: [categoryName] },
+    }, {
+      status: 'deleted',
+    });
+    // const products = await Product.find({ category: categoryName });
+    // // Delete the category by its ID
+    const deletedCategory = await Category.findByIdAndDelete(categoryId);
+    console.log('success' , productData);
     if (!deletedCategory) {
-      return res.status(404).send('Cannot delete'); // Return an error if the user is not found
+      return res.status(404).send('Category not found'); // Return an error if the category is not found
     }
     res.send('successsssss');
-
   } catch (error) {
-    console.log('Error while deleting user:', error);
-    res.status(500).send('Error while deleting user');
+    console.log('Error while deleting category and updating products:', error);
+    res.status(500).send('Error while deleting category and updating products');
   }
 }
+
 
 // const logout = async (req, res) => {
 //   const token = req.cookies.adminJwt;
@@ -395,8 +400,6 @@ const couponManagement = async (req, res) => {
   }
 
 }
-
-
 
 
 module.exports = {

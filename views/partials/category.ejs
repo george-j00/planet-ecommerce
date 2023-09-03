@@ -46,7 +46,7 @@
                 <td><%= category._id %></td>
                 <td><%= category.name %></td>
                 <td>
-                  <button type="button" onclick="deleteCategory('<%= category._id %>')" class="btn btn-danger" id="deleteCategory">
+                  <button type="button" onclick="deleteCategory('<%= category.name %>','<%= category._id %>')" class="btn btn-danger" id="deleteCategory">
                  Remove Category
                   </button>
                 </td>

@@ -21,7 +21,6 @@ categoryForm.addEventListener('submit', async (event) => {
     }
 
     const data = await response.json();
-    console.log(data, 'this is response message');
     document.getElementById('categoryError').innerHTML = data ; 
     if (data == 'success') {
         const modal =   document.getElementById('addUserModal') ;
@@ -42,9 +41,15 @@ categoryForm.addEventListener('submit', async (event) => {
 
 
 
-function deleteCategory(category) {
+function deleteCategory(categoryName, categoryId) {
       
-    fetch(`/admin/delete-category/${category}`,{method:'POST'})
+    fetch(`/admin/delete-category`,{
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ categoryName , categoryId })  
+    })
     .then(res => {
       console.log('Deleted product');
       if (res.ok) {
@@ -54,5 +59,4 @@ function deleteCategory(category) {
       }
     })
     .catch(error => console.log(error));
-      console.log(category , 'this is categoryyy');
 }
