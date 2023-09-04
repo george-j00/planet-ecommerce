@@ -19,29 +19,40 @@ const loginUserPost = async (req, res) => {
     const user = await User.findOne({ email: email });
 
     if (!user) {
-      const error = 'create accound';
+      const error = 'create account';
       return res.render('pages/login', { error });
     }
 
     const passwordMatch = await bcrypt.compare(password, user.hashedPassword);
 
     if (passwordMatch) {
-
       const payload = {
         id: user._id,
-        email: user.email,  
+        email: user.email,
         user: user.name,
-        status: user.status // Assuming you have a 'status' field in your user model
+        status: user.status, // Assuming you have a 'status' field in your user model
       };
-      
-      const secretKey = process.env.JWT_SECRET; // Load secret key from .env
-      const token = jwt.sign(payload, secretKey, { expiresIn: '1h' });
 
-      res.cookie('jwt', token, { httpOnly: true, maxAge: 3600000 }); // Set the cookie
+      // Create an access token with a short expiration time (e.g., 15 minutes)
+      const secretKey = process.env.JWT_SECRET;
+      const accessToken = jwt.sign(payload, secretKey, { expiresIn: '15m' });
 
-      // res.send('success')
+      // Create a refresh token with a longer expiration time (e.g., 7 days)
+      const refreshToken = jwt.sign(payload, process.env.REFRESH_TOKEN_SECRET, {
+        expiresIn: '7d',
+      });
+
+      // Set both tokens in cookies
+      res.cookie('jwt', accessToken, {
+        httpOnly: true,
+        maxAge: 15 * 60 * 1000, // 15 minutes
+      });
+      res.cookie('refreshToken', refreshToken, {
+        httpOnly: true,
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      });
+
       res.redirect('/');
-
     } else {
       const error = 'Password is incorrect';
       res.render('pages/login', { error });

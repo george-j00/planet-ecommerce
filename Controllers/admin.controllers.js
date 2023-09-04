@@ -6,6 +6,7 @@ const redisClient = require('../config/redisClient');
 const Order = require("../Models/orders.schema");
 const OrderReturn = require("../Models/return.schema");
 const Coupon = require("../Models/coupon.schema");
+const Banner = require("../Models/banner.schema");
 
 
 //signup get function
@@ -308,8 +309,6 @@ const deleteCategory = async (req, res) => {
     res.status(500).send('Error while deleting category and updating products');
   }
 }
-
-
 // const logout = async (req, res) => {
 //   const token = req.cookies.adminJwt;
 
@@ -401,6 +400,39 @@ const couponManagement = async (req, res) => {
 
 }
 
+const bannerManagement = async (req, res) => {
+  const files = req.files; // Access the uploaded files
+  const { bannerTitle, bannerFeaturedTitle } = req.body;
+
+  try {
+    // Upload images to Cloudinary and collect their secure URLs and IDs
+    const uploadedImages = await Promise.all(files.map(async (file) => {
+      const result = await cloudinary.uploader.upload(file.path);
+      return {
+        secure_url: result.secure_url,
+        cloudinary_id: result.public_id
+      };
+    }));
+
+    // Delete the existing banners (if any)
+    await Banner.deleteMany();
+
+    const newBanner = new Banner({
+      bannerTitle,
+      bannerFeaturedTitle,
+      bannerImages: uploadedImages,
+    });
+
+    await newBanner.save();
+    console.log('Added successfully');
+    // res.status(201).json(newBanner); // Return the saved banner as JSON
+  } catch (error) {
+    console.error('Error creating banner:', error);
+    res.status(500).json({ message: 'Error creating banner' });
+  }
+};
+
+
 
 module.exports = {
     dashboard ,
@@ -414,7 +446,6 @@ module.exports = {
     deleteCategory,
     adminOrderStaus,
     updateReturnStatus,
-    couponManagement
-  
-    // logout
+    couponManagement,
+    bannerManagement,
 };

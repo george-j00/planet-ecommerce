@@ -26,7 +26,7 @@
   <a href="#order" class="text-dark">Orders</a>
   <a href="#returns" class="text-dark">Returns</a>
   <a href="#wallet" class="text-dark">Wallet</a>
-  <button type="button" class="btn btn-danger ml-4 mt-1" data-bs-toggle="modal" data-bs-target="#logoutModal">Logout</button>
+  <button type="button" id="logoutButton" class="btn btn-danger ml-4 mt-1" >Logout</button>
 </div>
 
 <div class="content">
@@ -36,8 +36,22 @@
   <%- include('../partials/userOrders');%>
   <%- include('../partials/userReturns');%>
   <%- include('../partials/userWallet');%>
+  <!-- logout modal -->
+  <div class="modal fade" id="logoutModal" tabindex="-1" aria-labelledby="editProductModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="editProductModalLabel">Logout</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <p> Are you sure you want to log out ?</p>
+         <button type="button" id="modalLogoutBtn" class="btn btn-danger ml-4 mt-1 btn-logout">Logout</button>
 
-
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -65,8 +79,30 @@
       });
     });
   });
-</script>
+  
+  const logoutButton = document.getElementById('logoutButton');
+  const modalLogoutBtn = document.getElementById('modalLogoutBtn');
+  const logoutModal = new bootstrap.Modal(document.getElementById('logoutModal'));
 
+logoutButton.addEventListener('click', function () {
+  logoutModal.show();
+});
+modalLogoutBtn.addEventListener('click',async function () {
+  try {
+    const response = await fetch('/logout', {
+      method: 'POST',
+    });
+    if (response.ok) {
+      // Redirect or perform any additional client-side logout actions
+      window.location.href = '/login';
+    }
+  } catch (error) {
+    console.error('Logout failed:', error);
+  }
+});
+
+  
+</script>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
 </body>
 </html>

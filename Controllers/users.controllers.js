@@ -19,6 +19,7 @@ const OrderReturn = require('../Models/return.schema');
 const Wallet = require('../Models/wallet.schema');
 const Coupon = require('../Models/coupon.schema');
 const Category = require('../Models/productCategories');
+const Banner = require('../Models/banner.schema');
 const saltRounds = 10
 
 //signup get function
@@ -220,14 +221,15 @@ const homepage = async (req, res) => {
 
     const products = await Product.find({ status: 'active' });
     const cart = await Cart.find({ user: userId });
-
+    const banners = await Banner.find();
+    const bannerTitle = banners[0].bannerTitle;
+    const featuredTitle = banners[0].bannerFeaturedTitle;
 
     let cartLength = 0;
     if (cart.length > 0 && cart[0].cartItems) {
       cartLength = cart[0].cartItems.length;
     }
-
-    res.render('pages/home', { products, cartLength});
+    res.render('pages/home', { products, cartLength,banners ,bannerTitle, featuredTitle});
   } catch (err) {
     console.log(err);
   }
@@ -884,7 +886,16 @@ const orderPlacedAnimation = async (req, res) => {
  res.render('pages/orderPlace');
 }
 
+const userLogout = async (req, res) => { 
+  // Clear the access token cookie
+  res.clearCookie('jwt');
+  
+  // Clear the refresh token cookie
+  res.clearCookie('refreshToken');
 
+  // Redirect to the login page or any other appropriate page
+  res.redirect('/login');
+}
 
 module.exports = {
     signup,
@@ -917,6 +928,7 @@ module.exports = {
     applyCoupon,
     products,
     searchProduct,
-    orderPlacedAnimation
+    orderPlacedAnimation,
+    userLogout
 
 };

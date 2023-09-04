@@ -1,26 +1,18 @@
 <div id="banner" class="contents">
     <div class="container">
         <h2 class="mb-4">Add Banner</h2>
-        <form>
+        <form id="bannerForm" action="/admin/banner" method="POST" enctype="multipart/form-data">
           <div class="mb-3">
-            <label for="productTitle" class="form-label">Banner Title</label>
-            <input type="text" class="form-control" id="productTitle" name="productTitle" required>
+            <label for="bannerTitle" class="form-label">Banner Title</label>
+            <input type="text" class="form-control" id="bannerTitle" name="bannerTitle" required>
           </div>
           <div class="mb-3">
-            <label for="productDescription" class="form-label">Featured Title</label>
-            <textarea class="form-control" id="productDescription" name="productDescription" rows="3" required></textarea>
+            <label for="bannerFeaturedTitle" class="form-label">Featured Title</label>
+            <textarea class="form-control" id="bannerFeaturedTitle" name="bannerFeaturedTitle" rows="3" required></textarea>
           </div>
           <div class="mb-3">
-            <label for="productImage" class="form-label">Banner Image 1 </label>
-            <input type="file" class="form-control" id="productImage" name="productImage" accept="image/*" required>
-          </div>
-          <div class="mb-3">
-            <label for="productImage" class="form-label">Banner Image 2</label>
-            <input type="file" class="form-control" id="productImage" name="productImage" accept="image/*" required>
-          </div>
-          <div class="mb-3">
-            <label for="productImage" class="form-label">Banner Image 3</label>
-            <input type="file" class="form-control" id="productImage" name="productImage" accept="image/*" required>
+            <label for="bannerImages" class="form-label">Banner Images </label>
+            <input type="file" class="form-control" id="bannerImages" name="bannerImages" accept="image/*" required multiple>
           </div>
           <button type="submit" class="btn btn-primary">Add Banner</button>
         </form>

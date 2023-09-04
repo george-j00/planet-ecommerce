@@ -53,5 +53,7 @@ router.get('/search-product', isAuthenticated, userController.searchProduct);
 
 router.get('/order-placed', isAuthenticated, userController.orderPlacedAnimation);
 
+router.post('/logout', isAuthenticated, userController.userLogout);
+
 
 module.exports = router;

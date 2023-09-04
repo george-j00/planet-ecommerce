@@ -33,6 +33,8 @@ router.post('/update-return-status', adminController.updateReturnStatus);
 
 router.post('/create-coupon', adminController.couponManagement);
 
+router.post('/banner',upload.array("bannerImages"), adminController.bannerManagement);
+
 // router.get('/logout', adminController.logout);
 
 
