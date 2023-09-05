@@ -22,7 +22,7 @@
         <h4 class="d-flex justify-content-center">Select Address</h4>
         <% if (userCart.user.addresses.length >= 3 ) { %>
           <button class=" btn btn-secondary mb-3 d-flex ml-auto ">Reached address limit </button>
-      
+          
         <% } else { %>
           <button class=" btn btn-dark mb-3 d-flex ml-auto " data-bs-toggle="modal" data-bs-target="#addAddressModal"> <i class="fa-solid fa-plus pr-3 pt-1"></i>Add Address </button>
       
@@ -226,7 +226,7 @@
                 <p class="mb-0" id="checkoutSubTotal">$0.00</p>
               </div>
               <div class="d-flex flex-row justify-content-between mb-2">
-                <p class="mb-0 text-danger">Discount</p>
+                <p class="mb-0 text-danger">Total Discount</p>
                 <p class="mb-0 text-danger" id="discountCouponId">- 0.00</p>
               </div>
               <div class="d-flex flex-row justify-content-between mb-3">
@@ -235,14 +235,16 @@
               </div>
             </div>
 
-            <div class="d-flex flex-column mr-5">
-              <div class="input-group mt-3 mb-4">
-                <p class="mb-1">Have a coupon?</p>
-                <p class="text-secondary mb-2">Add your code for an instant discount</p>
-                <input type="text" class="form-control border" id="couponCode" name="" placeholder="Have a code" />
-                <button class="btn btn-light text-primary border" id="couponApplyBtn">Apply</button>
-              </div>
-            </div>
+                <div class="couponcontainer" id="couponSection">
+                  <div class="d-flex flex-column mr-5" >
+                    <div class="input-group mt-3 mb-4">
+                      <p class="mb-1">Have a coupon?</p>
+                      <p class="text-secondary mb-2">Add your code for an instant discount</p>
+                      <input type="text" class="form-control border" id="couponCode" name="" placeholder="Have a code" />
+                      <button class="btn btn-light text-primary border" id="couponApplyBtn">Apply</button>
+                    </div>
+                  </div>
+                </div>
                        
             <hr />
             <h6 class="text-dark my-4">Items in cart</h6>
@@ -260,7 +262,17 @@
                   <a href="#" class="nav-link">
                     <%= cartItem.product.productTitle %>
                   </a>
-                  <div class="price text-muted dataSubtotal"  >Sub Total : $<%= (cartItem.quantity * cartItem.product.productPrice).toFixed(2) %></div>
+                  <% if (typeof cartItem.product.offers[0] !== 'undefined') { %>
+                    <% const discountPercentage = cartItem.product.offers[0].discountPercentage; %>
+                    <% const subtotal = (cartItem.quantity * cartItem.product.productPrice).toFixed(2); %>
+                    <% const discountAmount = (subtotal * (discountPercentage / 100)).toFixed(2); %>
+                    <div class="price text-muted dataSubtotal">Total: $<%= subtotal %></div>
+                    <div class="price text-muted dataDiscount">Discount: $<%= discountAmount %></div>
+                    <div class="price text-muted ">Subtotal: $<%= (subtotal - discountAmount).toFixed(2) %></div>
+                  <% } else { %>
+                    <div class="price text-muted dataSubtotal">Total: $<%= (cartItem.quantity * cartItem.product.productPrice).toFixed(2) %></div>
+                  <% } %>
+                  
                 </div>
               </div>
               <p class="hidden checkoutProductData" data-product-id="<%= cartItem.product._id %>" data-product-price="<%= cartItem.product.productPrice %>" data-quantity="<%= cartItem.quantity %>"></p>

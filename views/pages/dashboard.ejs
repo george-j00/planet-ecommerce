@@ -28,7 +28,7 @@
         <a href="#users" class="text-dark">Users</a>
         <a href="#orders" class="text-dark">Orders</a>
         <a href="#coupon" class="text-dark">Coupons</a>
-        <button type="button" class="btn btn-danger ml-4 mt-1" data-bs-toggle="modal" data-bs-target="#logoutModal"> Logout</button>
+        <button type="button" class="btn btn-danger ml-4 mt-1" id="logoutButton"> Logout</button>
 
       </div>
 
@@ -53,9 +53,48 @@
 
 
       </div>
+
+      <div class="modal fade" id="logoutModal" tabindex="-1" aria-labelledby="editProductModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="editProductModalLabel">Logout</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p> Are you sure you want to log out ?</p>
+             <button type="button" id="modalLogoutBtn" class="btn btn-danger ml-4 mt-1 btn-logout">Logout</button>
     
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
       <script>
         document.addEventListener("DOMContentLoaded", function() {
+
+      const logoutButton = document.getElementById('logoutButton');
+      const modalLogoutBtn = document.getElementById('modalLogoutBtn');
+      const logoutModal = new bootstrap.Modal(document.getElementById('logoutModal'));
+    
+    logoutButton.addEventListener('click', function () {
+      logoutModal.show();
+    });
+    modalLogoutBtn.addEventListener('click',async function () {
+      try {
+        const response = await fetch('/logout', {
+          method: 'POST',
+        });
+        if (response.ok) {
+          // Redirect or perform any additional client-side logout actions
+          window.location.href = '/admin/admin-login';
+        }
+      } catch (error) {
+        console.error('Logout failed:', error);
+      }
+    });
+
           const sidebarLinks = document.querySelectorAll(".sidebar a");
           const contentSections = document.querySelectorAll(".contents");
       

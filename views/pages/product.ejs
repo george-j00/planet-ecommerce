@@ -17,12 +17,18 @@
     <div class="container mt-5">
         <div class="row">
             <div class="col-md-6">
-                <div class="col-md-6">
+                <div class="col-md-6 mt-5">
+                    
                     <div id="productCarousel" class="carousel slide" data-ride="carousel">
                         <div class="carousel-inner" style="width: 25vw; height: 60vh;">
                             <% product.productImages.forEach((image, index) => { %>
                                 <div class="carousel-item <%= index === 0 ? 'active' : '' %>">
-                                    <img class="d-block w-100 card-img-top" style=" width: 50vw; height: 55vh;" src="<%= image.secure_url %>" alt="View Product" data-toggle="modal" data-target="#imageModal">
+                                    <% if (product.offers && product.offers.length > 0) { %>
+                                        <div class="tag bg-info text-light position-absolute" style="top: 10px; left: 10px;">
+                                            Offer - <%= product.offers[0].discountPercentage %>% off
+                                        </div>
+                                    <% } %>
+                                    <img class="d-block w-100 card-img-top" style="width: 50vw; height: 55vh;" src="<%= image.secure_url %>" alt="View Product" data-toggle="modal" data-target="#imageModal">
                                 </div>
                             <% }); %>
                         </div>
@@ -89,6 +95,8 @@
         </div>
     </div>
 
+    
+
     <%- include('../partials/footer');%>
 
     <script>
@@ -99,10 +107,6 @@ const decrementButton = document.getElementById('decrementButton');
 const quantityInput = document.getElementById('quantityInput');
 let currentQuantity = parseInt(quantityInput.value);
 const addedToCartDiv = document.getElementById('addedToCartDiv');
-
-// const incrementButtons = document.querySelectorAll('.cartIncrementButton');
-// const decrementButtons = document.querySelectorAll('.cartDecrementButton');
-// const quantityInputs = document.querySelectorAll('.cartQuantityInput');
 
 
 const decreaseButtons = document.querySelectorAll('.decreaseQty');

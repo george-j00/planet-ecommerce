@@ -1,4 +1,3 @@
-const redisClient = require('../config/redisClient');
 const Admin = require('../Models/admin.schema');
 const User = require('../Models/users.schema');
 const bcrypt = require("bcrypt")

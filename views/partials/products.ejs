@@ -7,11 +7,12 @@
             <img src="<%= product.productImages[0].secure_url %>" alt=""> <!-- Display the first image URL -->
             <ul class="d-flex align-items-center justify-content-center list-unstyled icons">
               <li class="icon"><span class="fas fa-expand-arrows-alt"></span></li>
-              <!-- <li class="icon mx-3"><span class="far fa-heart"></span></li> -->
               <li class="icon ml-3"><span class="fas fa-shopping-bag"></span></li>
             </ul>
           </div>
-          <!-- <div class="tag bg-red">Best Selling</div> -->
+          <% if (product.offers && product.offers.length > 0 && product.offers[0]) { %>
+            <div class="tag bg-info text-light"> Offer - <%= product.offers[0].discountPercentage %>% off</div>
+          <% } %>
           <div class="title pt-4 pb-1"><%= product.productTitle %></div>
           <div class="price">$ <%= product.productPrice %>.0</div>
         </a>
@@ -19,5 +20,3 @@
     <% }); %>
   </div>
 </div>
-
-

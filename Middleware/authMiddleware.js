@@ -1,5 +1,4 @@
 const jwt = require('jsonwebtoken')
-const redisClient = require('../config/redisClient');
 const User = require('../Models/users.schema');
 require('dotenv').config();
 

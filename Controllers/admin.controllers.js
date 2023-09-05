@@ -2,14 +2,12 @@ const Category = require("../Models/productCategories");
 const Product = require("../Models/products.schema");
 const User = require("../Models/users.schema");
 const cloudinary = require("../services/cloudinary")
-const redisClient = require('../config/redisClient');
 const Order = require("../Models/orders.schema");
 const OrderReturn = require("../Models/return.schema");
 const Coupon = require("../Models/coupon.schema");
 const Banner = require("../Models/banner.schema");
+const PDFDocument = require('pdfkit');
 
-
-//signup get function
 const dashboard = async (req,res) => {
 
   const itemsPerPage = 6;
@@ -82,12 +80,17 @@ const dashboard = async (req,res) => {
 
     const coupons = await Coupon.find();
 
-
-        // console.log(weeklySalesData);
+    const salesReportData = {
+      totalSales: totalSales[0].totalAmount,
+      totalOrders,
+      todaysOrders,
+      weeklySales
+    };
+    req.session.salesReportData = salesReportData;
     res.render('pages/dashboard', {
       products ,
       users ,
-      categories,
+      categories, 
       orders,
       totalProducts, totalOrders, totalSales: totalSales[0].totalAmount,totalQuantity: totalQuantity[0].totalQuantity, todaysOrders,weeklySales ,
       returnData,
@@ -96,7 +99,6 @@ const dashboard = async (req,res) => {
       totalPages,
       totalOrderPages,
     });
-     
     } catch (err) {
       console.log(err);
     }
@@ -159,7 +161,7 @@ const editProduct = async (req,res) => {
       console.error(err , '****** this is error ********');
       res.status(500).json({ error: 'Error fetching product data.' });
     }  
-   }
+}
 
 const editProductPost = async (req, res) => {
   const { currentImage1 } = req.body;
@@ -309,16 +311,6 @@ const deleteCategory = async (req, res) => {
     res.status(500).send('Error while deleting category and updating products');
   }
 }
-// const logout = async (req, res) => {
-//   const token = req.cookies.adminJwt;
-
-//   if (!token) {
-//     return res.render('pages/adminLogin');
-//   }
-
-//   redisClient.set(token, 'revoked');
-//   return res.redirect('/admin/admin-login');
-// };
 
 const adminOrderStaus = async (req, res) => {
   try {
@@ -432,6 +424,145 @@ const bannerManagement = async (req, res) => {
   }
 };
 
+const adminLogout = async (req, res) => {
+  res.clearCookie('adminJwt');
+  res.redirect('/admin/admin-login');
+}
+
+const salesReportManagement = (req, res) => {
+  const salesReportData = req.session.salesReportData;
+
+  try {
+    // Create a new PDF document
+    const doc = new PDFDocument();
+
+    // Set PDF properties and metadata
+    doc.info.Title = 'Sales Report';
+    doc.info.Author = 'Planet Ecommerce Pvt. Ltd';
+
+    // Add content to the PDF
+    doc.fontSize(18).text('Sales Report', { align: 'center' });
+    doc.fontSize(14).text('Planet Ecommerce Pvt. Ltd', { align: 'center' });
+    doc.moveDown();
+    
+      // Add the current date
+    const currentDate = new Date().toLocaleDateString('en-US');
+    doc.fontSize(12).text('Date: ' + currentDate, { align: 'center' });
+
+    doc.moveDown();
+    doc.moveDown();
+    // Add a sentence
+    doc.fontSize(12).text('This report provides a summary of our sales data for the given period.', { align: 'center' });
+    
+    doc.moveDown();
+
+    doc.fontSize(16).text('Total Sales: $' + salesReportData.totalSales.toFixed(2));
+    doc.fontSize(16).text('Total Orders: ' + salesReportData.totalOrders);
+    doc.fontSize(16).text("Today's Orders: " + salesReportData.todaysOrders);
+    doc.moveDown();
+    // Add more content as needed
+
+    // Stream the PDF to the response
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', 'attachment; filename="sales-report.pdf"');
+    doc.pipe(res);
+
+    // Finalize the PDF
+    doc.end();
+
+    // Log a success message
+    console.log('PDF report generated and sent for download.');
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+const offerManagement = async (req, res) => {
+  const { offerData, offerProductId } = req.body;
+  try {
+    // Find the product by ID
+    const product = await Product.findById(offerProductId);
+
+    if (!product) {
+      return res.status(404).json({ error: 'Product not found' });
+    }
+
+    // Check if the offer with the same name, start date, and end date already exists
+    const existingOffer = product.offers.find(
+      (existingOffer) =>
+        existingOffer.offerName === offerData.offerName &&
+        existingOffer.startDate === offerData.startDate &&
+        existingOffer.endDate === offerData.endDate
+    );
+
+    if (existingOffer) {
+      console.log('offer already exists');
+      return res.status(400).json({ error: 'Offer already exists for this product' });
+    }
+
+    // Create the offer object
+    const offer = {
+      offerName: offerData.offerName,
+      discountPercentage: offerData.discountPercentage,
+      startDate: offerData.startDate,
+      endDate: offerData.endDate,
+    };
+
+    product.offers.push(offer);
+    product.productHasDiscount = true; // Set the productHasDiscount to true
+    await product.save();
+
+    console.log('Offer added successfully');
+    return res.status(200).json({ message: 'Offer added successfully' });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+const categoryOfferManagement = async (req, res) => {
+  const { offerData, offerCategory } = req.body;
+  try {
+    // Find all products with the matching category name
+    const products = await Product.find({ category: offerCategory });
+
+    if (!products || products.length === 0) {
+      return res.status(404).json({ error: 'No products found in the specified category' });
+    }
+
+    // Create the offer object
+    const offer = {
+      offerName: offerData.offerName,
+      discountPercentage: offerData.discountPercentage,
+      startDate: offerData.startDate,
+      endDate: offerData.endDate,
+    };
+
+    // Iterate through products and add the offer if it doesn't already exist
+    for (const product of products) {
+      const existingOffer = product.offers.find(
+        (existingOffer) =>
+          existingOffer.offerName === offer.offerName &&
+          existingOffer.startDate === offer.startDate &&
+          existingOffer.endDate === offer.endDate
+      );
+
+      if (!existingOffer) {
+        product.offers.push(offer);
+        product.productHasDiscount = true; // Set the productHasDiscount to true
+        await product.save();
+      }else{
+      console.log('offer already exists');
+      }
+    }
+    console.log('Offer added successfully to eligible products in the category');
+    return res.status(200).json({ message: 'Offer added successfully to eligible products in the category' });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+};
 
 
 module.exports = {
@@ -448,4 +579,8 @@ module.exports = {
     updateReturnStatus,
     couponManagement,
     bannerManagement,
+    adminLogout,
+    salesReportManagement,
+    offerManagement,
+    categoryOfferManagement
 };

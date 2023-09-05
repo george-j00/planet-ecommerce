@@ -36,6 +36,18 @@ const productSchema = new mongoose.Schema({
   additionalInformation: {
     type: String,
   },
+  productHasDiscount:{
+    type: Boolean,
+    default:false
+  },
+  offers: [
+    {
+      offerName: { type: String },
+      discountPercentage: { type: Number },
+      startDate: { type: Date },
+      endDate: { type: Date },
+    }
+  ],
 });
 
 
