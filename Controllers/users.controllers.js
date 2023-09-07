@@ -236,27 +236,32 @@ const homepage = async (req, res) => {
 };
 
 const viewProduct = async (req, res) => {
-
   const token = req.cookies.jwt;
   const decodedTokens = jwt.decode(token);
   const userId = decodedTokens.id;
   const cart = await Cart.find({ user: userId });
 
-
   let cartLength = 0;
   if (cart.length > 0 && cart[0].cartItems) {
     cartLength = cart[0].cartItems.length;
   }
+  let product = null;
   const productId = req.params.productId;
   try {
-    const product = await Product.findById(productId);
+     product = await Product.findById(productId);
 
-    // console.log(product , 'this is product');
-  res.render('pages/product',{product,cartLength});
+   
+
+    res.render('pages/product', { product, cartLength });
   } catch (err) {
-    console.error(err , '****** this is error ********');
+    console.error(err, '****** this is error ********');
+    if (!product) {
+      // Product not found, render a 404 page
+      return res.status(404).render('pages/404');
+    }
+    // Handle other errors here, or you can log them and send a generic error response.
     res.status(500).json({ error: 'Error fetching product data.' });
-  }  
+  }
 };
 
 const userProfile = async (req, res) => {
@@ -268,17 +273,19 @@ const userProfile = async (req, res) => {
     const userData = await User.findById(userId);
     const cart = await Cart.findOne({ user: userId });
     const orders = await Order.find({ user: userId }).populate('items.productId');
-    const wallet = await Wallet.find({userId: userId},{_id:0 , balance:1});
-
+    let wallet = await Wallet.findOne({ userId: userId });
     const orderReturns = await OrderReturn.find({ orderId: { $in: orders.map(order => order._id) } });
 
-    const balanceValue = wallet[0].balance;
-    // console.log(balanceValue); 
+    // If wallet doesn't exist, create one with a balance of zero
+    if (!wallet) {
+      wallet = new Wallet({ userId, balance: 0 });
+      await wallet.save();
+    }
 
-    
+    const balanceValue = wallet.balance;
     const cartLength = cart.cartItems.length;
 
-    res.render('pages/profile', { userData, cartLength, orders,orderReturns,balanceValue});
+    res.render('pages/profile', { userData, cartLength, orders, orderReturns, balanceValue });
   } catch (error) {
     console.error(error);
     res.send('An error occurred while fetching user data');
@@ -416,8 +423,6 @@ const addToCart = async (req, res) => {
   const token = req.cookies.jwt;
   const decodedTokens = jwt.decode(token);
   const userId = decodedTokens.id;
-
-
   
   try {
     // Find the product using the provided productId
@@ -524,13 +529,12 @@ const deleteCartItem = async (req, res) => {
   }
 }
 
-const checkout =  async (req, res) => {
-
+const checkout = async (req, res) => {
   const token = req.cookies.jwt;
   const decodedTokens = jwt.decode(token);
-  const userId = decodedTokens.id
+  const userId = decodedTokens.id;
   const cart = await Cart.find({ user: userId });
-
+  const walletBalance = await Wallet.find({}, { _id: 0, balance: 1 });
 
   let cartLength = 0;
   if (cart.length > 0 && cart[0].cartItems) {
@@ -540,22 +544,45 @@ const checkout =  async (req, res) => {
     const userCart = await Cart.findOne({ user: userId })
       .populate("user")
       .populate("cartItems.product");
-      
-    res.render('pages/checkout', { userCart: userCart,cartLength });
-  }catch (error) {
+
+    res.render('pages/checkout', { userCart: userCart, cartLength, walletBalance: walletBalance[0].balance });
+  } catch (error) {
     console.error('Error fetching cart data:', error);
     res.status(500).json({ message: 'An error occurred while fetching cart data' });
   }
-
-}
+};
 
 const placeOrder = async (req, res) => {
   const { orderData } = req.body;
   try {
 
     const paymentMethod = orderData.paymentMethod;
+    const walletAdded = orderData.walletAdded;
 
-    //payment method cod
+    // Check if walletAdded is true
+    if (walletAdded) {
+      // Find the user's wallet
+      const userWallet = await Wallet.findOne({ userId: orderData.userId });
+    
+      console.log(userWallet.balance,'wallettt');
+      // Calculate the total amount to deduct from the wallet (subtotal + shippingCharge)
+      const totalAmountToDeduct = orderData.subtotal + orderData.shippingCharge;
+      // console.log(totalAmountToDeduct , 'deduct amount ');
+
+      // Check if the user has sufficient balance
+      if (userWallet && userWallet.balance >= totalAmountToDeduct) {
+        userWallet.balance -= totalAmountToDeduct;
+        await userWallet.save();
+      }
+      //  else {
+      //   return res.status(400).json({ message: 'Insufficient wallet balance' });
+      // }
+    }else{
+      console.log('no wallet');
+    }
+  //   //payment method cod
+
+
     if (paymentMethod === 'COD' ) {
 
       const newOrder = new Order({
@@ -592,46 +619,7 @@ const placeOrder = async (req, res) => {
        
       res.status(201).json({ message: 'success cod' , flag : true });
     }
-    // else if (paymentMethod === 'wallet') {
-    //    // Check if user has sufficient balance in their wallet
-    //    const userWallet = await Wallet.findOne({ userId: orderData.userId });
-    //    if (!userWallet || userWallet.balance < orderData.totalAmount) {
-    //      return res.status(400).json({ message: 'Insufficient wallet balance' });
-    //    }
- 
-    //    // Create a new instance of the Order model
-    //    const newOrder = new Order({
-    //      user: orderData.userId,
-    //      items: orderData.items.map(item => ({
-    //        productId: item.productId,
-    //        quantity: item.quantity,
-    //        price: item.productPrice,
-    //      })),
-    //      shippingAddress: orderData.shippingAddress,
-    //      paymentMethod: 'wallet',
-    //      shippingCharge: orderData.shippingCharge,
-    //      subtotals: orderData.subtotal,
-    //      totalAmount: orderData.totalAmount,
-    //      status: 'Placed',
-    //    });
- 
-    //    // Save the new order to the database
-    //  const savedOrder =  await newOrder.save();
-       
-    //    console.log('wallet successs',savedOrder);
-    //    // Update the user's wallet balance
-    //    userWallet.balance -= orderData.totalAmount;
-    //    await userWallet.save();
- 
-    //    // Clear the user's cart
-    //    const userCart = await Cart.findOne({ user: orderData.userId });
-    //    if (userCart) {
-    //      userCart.cartItems = [];
-    //      await userCart.save();
-    //    }
- 
-    //    res.status(201).json({ message: 'Success Wallet Payment', flag:false });
-    // }
+
     else if (paymentMethod === 'credit-card'){
       // Create a new instance of the Order model with the orderData
       const newOrder = new Order({
@@ -687,6 +675,7 @@ const placeOrder = async (req, res) => {
         }
       });
     }
+
   } catch (error) {
     console.error('Error placing order:', error);
     res.status(500).json({ message: 'Error placing order' });

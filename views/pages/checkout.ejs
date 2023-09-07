@@ -151,21 +151,19 @@
          <div class="card">
           <div class="card-header bg-light">
               <ul class="nav nav-pills rounded nav-fill">
+
                   <li class="nav-item ">
                       <a data-toggle="pill" href="#credit-card" class="nav-link text-dark active btn btn-dark">
                           <i class="fas fa-mobile-alt mr-2"></i> Online
                       </a>
                   </li>
+              
                   <li class="nav-item">
-                      <a data-toggle="pill" href="#wallet" class="nav-link text-dark btn btn-dark">
-                        <i class="fa-solid fa-wallet"></i> Wallet
-                      </a>
-                  </li>
-                  <li class="nav-item">
-                      <a data-toggle="pill" href="#COD" class="nav-link text-dark btn btn-dark">
+                      <a data-toggle="pill" href="#COD"  class="nav-link text-dark btn btn-dark">
                         <i class="fa-solid fa-money-bill-transfer"></i> COD
                       </a>
                   </li>
+
               </ul>
           </div>
           <div class="card-body">
@@ -173,19 +171,19 @@
 
                   <!-- ****** CARD  ****** -->
                   <div id="credit-card" class="tab-pane fade show active">
-                      <form role="form">
-                          <button type="button" class="subscribe btn btn-dark btn-block shadow-sm confrimPayementBtn">Confirm Payment</button>
-                      </form>
-                  </div>
-                  <!-- ****** END OF CARD  ****** -->
-                  
-                  <!-- ****** PAYPAL ****** -->
-                  <div id="wallet" class="tab-pane fade pt-3">
                     <form role="form">
-                      <button type="button" class="subscribe btn btn-dark btn-block shadow-sm confrimPayementBtn">Confirm Payment</button>
-                  </form>
-                  </div>
-                  <!-- ****** END OF  PAYPAL ****** -->
+                       <!-- Display the wallet balance -->
+                       <p>Wallet Balance: $<span id="walletBalance"><%= walletBalance %></span></p>
+                        <div class="form-group">
+                            <label for="useWallet">Use Wallet Balance:</label>
+                            <input type="radio" id="useWallet" name="useWallet" value="yes"> Yes
+                            <input type="radio" id="useWallet" name="useWallet" value="no"> No
+                        </div>
+                        <button type="button" class="subscribe btn btn-dark btn-block shadow-sm confrimPayementBtn">Confirm Payment</button>
+                    </form>
+                </div>
+                
+                  <!-- ****** END OF CARD  ****** -->
 
                   <!-- ****** COD ****** -->
                   <div id="COD" class="tab-pane fade pt-3">
@@ -242,6 +240,9 @@
                       <p class="text-secondary mb-2">Add your code for an instant discount</p>
                       <input type="text" class="form-control border" id="couponCode" name="" placeholder="Have a code" />
                       <button class="btn btn-light text-primary border" id="couponApplyBtn">Apply</button>
+                      <p class="text-danger" id="couponError">Unable to apply coupon code or invalid coupon</p>
+                      <p class="text-danger" id="minCouponError">Unable to apply coupon code or invalid coupon</p>
+
                     </div>
                   </div>
                 </div>

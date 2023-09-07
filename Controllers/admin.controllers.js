@@ -20,8 +20,6 @@ const dashboard = async (req,res) => {
       const products = await Product.find({ status: 'active' });
       const totalProducts = await Product.countDocuments({ status: 'active' });
       
-
-
       const users = await User.find().skip(skip).limit(itemsPerPage);
       const totalUsers = await User.countDocuments();
       const totalPages = Math.ceil(totalUsers / itemsPerPage);

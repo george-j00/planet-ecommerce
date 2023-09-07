@@ -7,16 +7,19 @@ const adminRoutes = require('./Routes/admin.routes');
 const cors = require("cors");
 const session = require('express-session');
 const cookieParser = require('cookie-parser');
-const flash = require('express-flash');
 
-// const adminGetProducts = require('./Controllers/admin.controllers');
-// const redisClient = require('./config/redisClient');
 
 app.use(cookieParser());
 
 database.connectToMongoDB();
 
-
+  //to prevent going back after logout on the login page
+  app.use((req, res, next) => {
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+    next();
+  });
 
 app.use(
   session({
@@ -30,14 +33,7 @@ app.use(
   })
 );
 
-app.use(flash());
 
-// process.on('SIGINT', () => {
-//   redisClient.quit(() => {
-//     console.log('Redis client disconnected');
-//     process.exit(0);
-//   });
-// });
 
 app.use((req, res, next) => {
   res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
@@ -61,7 +57,10 @@ app.set('view engine', 'ejs');
 // app.use("/admin/get-products" ,adminGetProducts.getAllProducts); 
 app.use("/" , userRoutes ); 
 app.use("/admin" , adminRoutes); 
-
+// Define a catch-all route for undefined routes
+app.use((req, res) => {
+  res.status(404).render('pages/404'); // Render the 404 EJS template
+});
 
 app.listen(3000, () => {
   console.log('Server started on port 3000');

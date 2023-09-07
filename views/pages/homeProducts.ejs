@@ -28,74 +28,85 @@
             <div class="container-fluid d-flex" id="productContainer">
                 <div class="row">
                     <% products.forEach((product, index) => { %>
-                    <div class="col-lg-3 col-sm-6 d-flex flex-column align-items-center justify-content-center product-item my-3">
-                        <a href="/products/<%= product._id %>" class="text-decoration-none text-dark ">
-                            <div class="product">
-                                <img src="<%= product.productImages[0].secure_url %>" alt="">
+                        <div class="col-lg-3 col-sm-6 d-flex flex-column align-items-center justify-content-center product-item my-3">
+                            <a href="/products/<%= product._id %>" class="text-decoration-none text-dark ">
+                              <div class="product">
+                                <img src="<%= product.productImages[0].secure_url %>" alt=""> <!-- Display the first image URL -->
                                 <ul class="d-flex align-items-center justify-content-center list-unstyled icons">
-                                    <li class="icon"><span class="fas fa-expand-arrows-alt"></span></li>
-                                    <li class="icon mx-3"><span class="far fa-heart"></span></li>
-                                    <li class="icon"><span class="fas fa-shopping-bag"></span></li>
+                                  <li class="icon"><span class="fas fa-expand-arrows-alt"></span></li>
+                                  <li class="icon ml-3"><span class="fas fa-shopping-bag"></span></li>
                                 </ul>
-                            </div>
-                            <div class="title pt-4 pb-1"><%= product.productTitle %></div>
-                            <div class="price">$ <%= product.productPrice %>.0</div>
-                        </a>
-                    </div>
+                              </div>
+                              <% if (product.offers && product.offers.length > 0 && product.offers[0]) { %>
+                                <div class="tag bg-info text-light"> Offer - <%= product.offers[0].discountPercentage %>% off</div>
+                              <% } %>
+                              <div class="title pt-4 pb-1"><%= product.productTitle %></div>
+                              <div class="price">$ <%= product.productPrice %>.0</div>
+                            </a>
+                          </div>
                     <% }); %>
                 </div>
             </div>
         </div>
     </div>
-
+    <%- include('../partials/footerSection');%>
     <script>
         const productContainer = document.getElementById('productContainer');
         const searchForm = document.getElementById('searchForm');
         const searchInput = document.getElementById('searchInput');
         const categoryLinks = document.querySelectorAll('.categoryLink');
       
-        async function displaySearchResults(searchTerm,category) {
-          try {
-           
-            let url = `/search-product?searchTerm=${encodeURIComponent(searchTerm)}`;
-    
-            if (category) {
-               url += `&category=${encodeURIComponent(category)}`;
-             }
-
-             const response = await fetch(url);
-            // Send a GET request to the server with the search term
-            const filteredProducts = await response.json();
-
-            productContainer.querySelector('.row').innerHTML = '';
-            filteredProducts.forEach(product => {
-              const productHTML = `
-              <div class="col-lg-4 col-md-6 col-sm-6">
-    <div class="d-flex flex-column align-items-center justify-content-center product-item my-3">
-        <a href="/products/${product._id}" class="text-decoration-none text-dark">
-            <div class="product">
-                <img src="${product.productImages[0].secure_url}" alt="" style="max-width: 100%;">
-                <ul class="d-flex align-items-center justify-content-center list-unstyled icons">
-                    <li class="icon"><span class="fas fa-expand-arrows-alt"></span></li>
-                    <li class="icon mx-3"><span class="far fa-heart"></span></li>
-                    <li class="icon"><span class="fas fa-shopping-bag"></span></li>
-                </ul>
-            </div>
-            <div class="title pt-4 pb-1 text-center">${product.productTitle}</div>
-            <div class="price text-center">$ ${product.productPrice}.0</div>
-        </a>
-    </div>
-</div>
-
-              `;
-              productContainer.querySelector('.row').insertAdjacentHTML('beforeend', productHTML);
-            });
-
-            // Clear existing products and display filtered products
-          } catch (error) {
-            console.error('Error fetching search results:', error);
-          }
+        async function displaySearchResults(searchTerm, category) {
+    try {
+        // Construct the URL with the search term and category if available
+        let url = `/search-product?`;
+        if (searchTerm) {
+            url += `searchTerm=${encodeURIComponent(searchTerm)}`;
         }
+        if (category) {
+            url += `${searchTerm ? '&' : ''}category=${encodeURIComponent(category)}`;
+        }
+
+        const response = await fetch(url);
+        // Send a GET request to the server with the search term
+        const filteredProducts = await response.json();
+
+        // Clear existing products
+        productContainer.querySelector('.row').innerHTML = '';
+
+        if (filteredProducts.length === 0) {
+            // Handle the case when no results are found
+            productContainer.querySelector('.row').innerHTML = '<p>No results found.</p>';
+        } else {
+            // Display filtered products
+            filteredProducts.forEach(product => {
+                const offerTag = product.offers && product.offers.length > 0
+    ? `<div class="tag bg-info text-light"> Offer - ${product.offers[0].discountPercentage}% off</div>`
+    : '';
+                const productHTML = `
+                <div class="col-lg-3 col-sm-6 d-flex flex-column align-items-center justify-content-center product-item my-3">
+                    <a href="/products/${product._id}" class="text-decoration-none text-dark">
+                        <div class="product">
+                            <img src="${product.productImages[0].secure_url}" alt="">
+                            <ul class="d-flex align-items-center justify-content-center list-unstyled icons">
+                                <li class="icon"><span class="fas fa-expand-arrows-alt"></span></li>
+                                <li class="icon ml-3"><span class="fas fa-shopping-bag"></span></li>
+                            </ul>
+                        </div>
+                        ${offerTag}
+                        <div class="title pt-4 pb-1">${product.productTitle}</div>
+                        <div class="price">$ ${product.productPrice}.0</div>
+                    </a>
+                </div>
+                `;
+                productContainer.querySelector('.row').insertAdjacentHTML('beforeend', productHTML);
+            });
+        }
+    } catch (error) {
+        console.error('Error fetching search results:', error);
+    }
+}
+
         
     
     searchForm.addEventListener('submit', async event => {

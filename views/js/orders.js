@@ -9,7 +9,7 @@ const orderData = {
   totalAmount: 0, 
   createdOn: new Date(), 
   status: "Pending", //default status
-  deliveredOn: null, 
+  deliveredOn: null,
 };
 
 // Get references to the HTML elements
@@ -117,12 +117,22 @@ shippingRadios.forEach(shippingRadio => {
   shippingRadio.addEventListener('change', updateOrderSummary);
 });
 
+// Attach event listener to the wallet radio buttons
+const useWalletRadios = document.querySelectorAll('input[name="useWallet"]');
+useWalletRadios.forEach(useWalletRadio => {
+  useWalletRadio.addEventListener('change', () => {
+    // Add or remove the walletAdded flag based on the selected radio button
+    orderData.walletAdded = useWalletRadio.value === "yes" && useWalletRadio.checked ? true : false;
+  });
+});
+
 function updateOrderSummary() {
   const selectedShipping = document.querySelector('.shipping:checked');
   const shippingCharge = selectedShipping && selectedShipping.value === 'express' ? EXPRESS_SHIPPING_CHARGE : FREE_SHIPPING_CHARGE;
 
   const subtotal = parseFloat(subtotalElement.textContent.replace('$', ''));
-  const total = subtotal + shippingCharge; // Calculate total based on subtotal and shipping charge
+  const total = parseFloat(totalElement.textContent.replace('$', ''));
+  // const total = subtotal + shippingCharge; // Calculate total based on subtotal and shipping charge
   
   orderData.shippingCharge = shippingCharge;
   orderData.subtotal = subtotal;

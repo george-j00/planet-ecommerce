@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let couponDiscount = 0;
   let minPurchase = 0;
   let isCouponApplied = false;
-
+  // let targetPaymentMode = 0
     const addressCards = document.querySelectorAll('.select-address-card');
     const checkoutFreeRadio = document.getElementById('checkoutFreeShipping');
     const checkoutExpressRadio = document.getElementById('checkoutExpressShipping');
@@ -11,12 +11,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const totalCheckout = document.getElementById('checkoutTotal');
     const couponApplyBtn = document.getElementById('couponApplyBtn');
     const discountCoupon = document.getElementById('discountCouponId');//discountCoupon is the field in the main checkout shows discount 
+    const couponError = document.getElementById('couponError');
+    const minCouponError = document.getElementById('minCouponError');
 
     checkoutExpressRadio.addEventListener('change', updateSubtotalAndTotal);
     checkoutFreeRadio.addEventListener('change', updateSubtotalAndTotal);
 
-
-  couponApplyBtn.addEventListener('click', () => {
+    couponApplyBtn.addEventListener('click', () => {
 
     const couponCode = document.getElementById('couponCode').value;
     fetch('/apply-coupon', {
@@ -64,8 +65,14 @@ document.addEventListener('DOMContentLoaded', () => {
   tabLinks.forEach(link => {
       link.addEventListener('click', (event) => {
           const targetId = event.target.getAttribute('href');
+          const targetPaymentMode = event.target.getAttribute('href').replace('#','');
           const tabContent = document.querySelector(targetId);
-          
+
+          // Update the wallet radio based on the selected payment method
+         updateWalletRadio(targetPaymentMode);
+
+          // Call the function to update the order summary
+        updateSubtotalAndTotal();
           // Hide all tab contents
           document.querySelectorAll('.tab-pane').forEach(content => {
               content.classList.remove('show', 'active');
@@ -84,7 +91,6 @@ document.addEventListener('DOMContentLoaded', () => {
       });
   });
 
-  
 // Define a function to check if any cart item has offers
 function cartItemsHaveOffers() {
   const cartItems = document.querySelectorAll('.dataDiscount'); // Assuming this class exists on elements associated with cart items
@@ -99,65 +105,117 @@ function cartItemsHaveOffers() {
   return false; // No items have a discount
 }
 
-// Update your updateSubtotalAndTotal function
 async function updateSubtotalAndTotal() {
   let totalSubTotal = 0;
-  let totalDiscount = 0; // Initialize total discount
+  let totalDiscount = 0;
+  let total = 0;
+
+  const walletBalance = parseFloat(document.getElementById('walletBalance').textContent.replace('$', ''));
+  const useWalletRadio = document.querySelector('input[name="useWallet"]:checked');
+  const selectedShipping = document.querySelector('.shipping:checked');
 
   const subTotalElements = document.querySelectorAll('.dataSubtotal');
   const discountElements = document.querySelectorAll('.dataDiscount');
-  const couponSection = document.getElementById('couponSection'); // Add an ID to the coupon section
-  const totalDiscountSection = document.getElementById('totalDiscountSection'); // Add an ID to the total discount section
+  const couponSection = document.getElementById('couponSection');
+  const totalDiscountSection = document.getElementById('totalDiscountSection');
 
   subTotalElements.forEach((subTotalElement, index) => {
     const subtotalValue = parseFloat(subTotalElement.textContent.replace('Total: $', ''));
     totalSubTotal += subtotalValue;
 
-    // Check if there's a corresponding discount element for this item
     if (discountElements[index]) {
       const discountValue = parseFloat(discountElements[index].textContent.replace('Discount: $', ''));
-      totalDiscount += discountValue; // Accumulate discounts
+      totalDiscount += discountValue;
     }
   });
 
-  let total = totalSubTotal;
+  if (useWalletRadio && useWalletRadio.value === 'yes') {
+    total = totalSubTotal - walletBalance;
+    if (total <= 0) {
+      // Notify the user about insufficient balance but keep total above zero
+      total = 1; // Set total to a minimum value (e.g., 1)
+      couponError.style.display = 'block';
+      couponError.innerText = 'Insufficient balance to apply the discount.';
+      discountCoupon.innerText = '$0.00';
+      minCouponError.style.display = 'none';
+    } else {
+      couponError.style.display = 'none';
+      discountCoupon.innerText = `$${couponDiscount.toFixed(2)}`;
+      minCouponError.style.display = 'none';
+    }
+  } else {
+    total = totalSubTotal-totalDiscount;
+    couponError.style.display = 'none';
+    discountCoupon.innerText = `$${totalDiscount.toFixed(2)}`;
+    minCouponError.style.display = 'none';
+  }
 
   if (isCouponApplied) {
-    if (total >= minPurchase) {
-      total -= couponDiscount; // Reduce the coupon discount from the total
-      discountCoupon.innerText = `$${couponDiscount.toFixed(2)}`;
+    if (total > minPurchase) {
+      total -= couponDiscount;
+      if (total < 0) {
+        // Notify the user about the discount but keep total above zero
+        total = 1; // Set total to a minimum value (e.g., 1)
+        couponError.style.display = 'block';
+        couponError.innerText = 'Total is too low to apply the discount.';
+        discountCoupon.innerText = '$0.00';
+        minCouponError.style.display = 'none';
+      } else {
+        couponError.style.display = 'none';
+        discountCoupon.innerText = `$${couponDiscount.toFixed(2)}`;
+        minCouponError.style.display = 'none';
+      }
     } else {
-      console.log('Do min purchase');
+      minCouponError.style.display = 'block';
+      couponError.style.display = 'none';
     }
-  }else{
-    total -= totalDiscount
-    discountCoupon.innerText = `$${totalDiscount.toFixed(2)}`; 
   }
 
-  if (checkoutExpressRadio.checked) {
-    total += 15;
+  if (selectedShipping && selectedShipping.value === 'express') {
+    total += EXPRESS_SHIPPING_CHARGE; 
   }
-
-  // Display total discount
 
   subTotalCheckout.innerText = `$${totalSubTotal.toFixed(2)}`;
-  // discountCoupon.innerText = `$${totalDiscount.toFixed(2)}`;
   totalCheckout.innerText = `$${total.toFixed(2)}`;
 
-  // Check if any cart items have offers and hide/show sections accordingly
   if (cartItemsHaveOffers()) {
-    couponSection.style.display = 'none'; // Hide the coupon section
-    totalDiscountSection.style.display = 'none'; // Hide the total discount section
+    couponSection.style.display = 'none';
+    totalDiscountSection.style.display = 'none';
   } else {
-    couponSection.style.display = 'block'; // Show the coupon section
-    totalDiscountSection.style.display = 'block'; // Show the total discount section
+    couponSection.style.display = 'block';
+    totalDiscountSection.style.display = 'block';
   }
 }
 
-  
-  
-  updateSubtotalAndTotal();
+function updateWalletRadio(paymentMode) {
+  const walletRadio = document.querySelector('input[name="useWallet"][value="yes"]');
+
+  if (paymentMode === 'COD') {
+    // If payment mode is COD, set the wallet radio to 'No' and disable it
+    walletRadio.checked = false;
+    walletRadio.disabled = true;
+  } else {
+    // If payment mode is not COD, enable the wallet radio
+    walletRadio.disabled = false;
+  }
+}
+// Initialize wallet radio based on default payment mode (you can set this as needed)
+updateWalletRadio('Online');
+
+// Add event listener for the wallet radio button
+const useWalletRadios = document.querySelectorAll('input[name="useWallet"]');
+useWalletRadios.forEach(useWalletRadio => {
+  useWalletRadio.addEventListener('change', updateSubtotalAndTotal);
+});
+
+// Add event listener for shipping radio buttons
+const shippingRadios = document.querySelectorAll('.shipping');
+shippingRadios.forEach(shippingRadio => {
+  shippingRadio.addEventListener('change', updateSubtotalAndTotal);
+});
+
+// Update the total initially
+updateSubtotalAndTotal();
+
  
-
-
 });//end of dom content load
