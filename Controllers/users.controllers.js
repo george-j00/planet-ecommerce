@@ -454,7 +454,6 @@ const addToCart = async (req, res) => {
       userCart.cartItems.push(cartItem);
     }
     await userCart.save();
-    req.flash('success', 'Item added to the cart successfully.');
     return res.status(201).json({ message: "Item added to cart"});
   } catch (error) {
     console.error("Error adding item to cart:", error);
@@ -564,16 +563,22 @@ const placeOrder = async (req, res) => {
       // Find the user's wallet
       const userWallet = await Wallet.findOne({ userId: orderData.userId });
     
-      console.log(userWallet.balance,'wallettt');
-      // Calculate the total amount to deduct from the wallet (subtotal + shippingCharge)
+        // Calculate the total amount to deduct from the wallet (subtotal + shippingCharge)
       const totalAmountToDeduct = orderData.subtotal + orderData.shippingCharge;
       // console.log(totalAmountToDeduct , 'deduct amount ');
 
       // Check if the user has sufficient balance
-      if (userWallet && userWallet.balance >= totalAmountToDeduct) {
+      if (userWallet) {
         userWallet.balance -= totalAmountToDeduct;
+        if (userWallet.balance < 0 ) {
+          userWallet.balance = 0;
+        }
+        if (orderData.totalAmount == 1) {
+          userWallet.balance += 1 ;
+        }
         await userWallet.save();
       }
+
       //  else {
       //   return res.status(400).json({ message: 'Insufficient wallet balance' });
       // }
