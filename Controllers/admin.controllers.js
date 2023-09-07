@@ -7,6 +7,7 @@ const OrderReturn = require("../Models/return.schema");
 const Coupon = require("../Models/coupon.schema");
 const Banner = require("../Models/banner.schema");
 const PDFDocument = require('pdfkit');
+const Wallet = require("../Models/wallet.schema");
 
 const dashboard = async (req,res) => {
 
@@ -26,7 +27,7 @@ const dashboard = async (req,res) => {
       
       const categories = await Category.find();
 
-      const orders = await Order.find().skip(skip).limit(itemsPerPage);
+      const orders = await Order.find().sort({ createdOn: -1 }).skip(skip).limit(itemsPerPage);
       const totalOrders = await Order.countDocuments();
       const totalOrderPages = Math.ceil(totalOrders / itemsPerPage);
 
@@ -334,33 +335,93 @@ const adminOrderStaus = async (req, res) => {
   }
 }
 
+// const updateReturnStatus = async (req, res) => {
+//   try {
+//     const {returnId, status} = req.body;
+
+//     const updatedReturn = await OrderReturn.findByIdAndUpdate(
+//       returnId,
+//       { $set: { status: status } },
+//       { new: true }
+//     );
+//       const user = updatedReturn.orderId.user;
+//       const totalAmount = updatedReturn.orderId.totalAmount;
+
+//       console.log(user , totalAmount , 'update return ');
+
+//     if (updatedReturn.status === "Approved") {
+//       const wallet = await Wallet.findOne({userId:user});
+//       console.log(wallet , 'wallettt  ');
+//       // wallet.balance += totalAmount ;
+//       // await wallet.save();
+//     }
+
+//     if (!updatedReturn) {
+//       return res.status(404).json({ message: 'Return not found' });
+//     }
+
+//     // if (status === 'Approved') {
+//     //   for (const product of updatedReturn.products) {
+//     //     const returnedQuantity = product.productReason === 'baad' ? 1 : 0; // Check if it's a whole order or partial
+//     //     const existingProduct = await Product.findById(product.productId);
+//     //     if (existingProduct) {
+//     //       existingProduct.totalQuantity += returnedQuantity; // Increment the product quantity
+//     //       await existingProduct.save(); // Save the changes to the product
+//     //     }
+//     //   }
+//     // }
+//     console.log('updated quantity');
+//     // console.log(updatedReturn ,'update return productss');
+//     res.status(200).json({ message: `Return status updated ` });
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({ message: 'An error occurred while updating return status' });
+//   }
+// };
+
 const updateReturnStatus = async (req, res) => {
   try {
-    const {returnId, status} = req.body;
+    const { returnId, status } = req.body;
 
-    const updatedReturn = await OrderReturn.findByIdAndUpdate(
-      returnId,
-      { $set: { status: status } },
-      { new: true }
-    );
+    // Check if returnId is provided and status is valid
+    if (!returnId || (status !== 'Approved' && status !== 'Denied')) {
+      console.log('no returnid or status provided');
+      // return res.status(400).json({ message: 'Invalid input data' });
+    }
+
+    // Find the updated return and populate orderId field
+    const updatedReturn = await OrderReturn.findById(returnId).populate('orderId');
 
     if (!updatedReturn) {
       return res.status(404).json({ message: 'Return not found' });
     }
 
-    // if (status === 'Approved') {
-    //   for (const product of updatedReturn.products) {
-    //     const returnedQuantity = product.productReason === 'baad' ? 1 : 0; // Check if it's a whole order or partial
-    //     const existingProduct = await Product.findById(product.productId);
-    //     if (existingProduct) {
-    //       existingProduct.totalQuantity += returnedQuantity; // Increment the product quantity
-    //       await existingProduct.save(); // Save the changes to the product
-    //     }
-    //   }
-    // }
-    console.log('updated quantity');
-    // console.log(updatedReturn ,'update return productss');
-    res.status(200).json({ message: `Return status updated ` });
+    // Update the return status
+    updatedReturn.status = status;
+    await updatedReturn.save();
+
+    // Update the user's wallet balance if the status is 'Approved'
+    if (status === 'Approved') {
+      const user = updatedReturn.orderId.user;
+      const totalAmount = updatedReturn.orderId.totalAmount;
+
+      // Update the orderId's status directly
+      updatedReturn.orderId.status = 'Returned';
+      await updatedReturn.orderId.save();
+
+      const wallet = await Wallet.findOne({ userId: user });
+
+      if (!wallet) {
+        console.log('no wallet');
+        // return res.status(404).json({ message: 'Wallet not found for the user' });
+      }
+
+      wallet.balance += totalAmount;
+      await wallet.save();
+    }
+    // Log the update and send a response
+    console.log(`Return status updated to ${status}`);
+    res.status(200).json({ message: `Return status updated to ${status}` });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'An error occurred while updating return status' });

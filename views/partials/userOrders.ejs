@@ -42,6 +42,8 @@
                     <span class="badge badge-primary"><%= order.status %></span>
                     <% } else if (order.status === 'Placed') { %>
                       <span class="badge badge-info"><%= order.status %></span>
+                      <% } else if (order.status === 'Returned') { %>
+                        <span class="badge badge-info"><%= order.status %></span>
                   <% } else { %>
                     <span class="badge badge-secondary"><%= order.status %></span>
                   <% } %>
@@ -91,7 +93,9 @@
                     <p class="text-muted">Order Canceled</p>
                   <% } else if (order.status === 'Pending' || order.status === 'Shipped' || order.status === 'Placed') { %>
                     <button type="button" data-order-id="<%= order._id %>" data-toggle="modal" data-target="#orderCancel<%= order._id %>" class="btn btn-sm btn-outline-danger">Cancel</button>
-                  <% } %>
+                  <% } else { %>
+                    <p class="text-muted">Return Success</p>
+                    <% } %>
                 
                   <div class="modal fade" id="orderCancel<%= order._id %>" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
                     <div class="modal-dialog modal-dialog-centered" role="document">
