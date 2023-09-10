@@ -114,7 +114,8 @@ function updateSubtotalInDOM(productId, quantity) {
     })
     .then(response => response.json())
     .then(result => {
-      window.location.reload(); 
+      alert('Cart item deleted successfully');
+      window.location.reload();
     })
     .catch(err => {
       console.error(err);

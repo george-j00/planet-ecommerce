@@ -8,6 +8,7 @@ const Coupon = require("../Models/coupon.schema");
 const Banner = require("../Models/banner.schema");
 const PDFDocument = require('pdfkit');
 const Wallet = require("../Models/wallet.schema");
+const { ObjectId } = require("mongodb");
 
 const dashboard = async (req,res) => {
 
@@ -27,7 +28,8 @@ const dashboard = async (req,res) => {
       
       const categories = await Category.find();
 
-      const orders = await Order.find().sort({ createdOn: -1 }).skip(skip).limit(itemsPerPage);
+      const orders = await Order.find().sort({ createdOn: -1 }).skip(skip).limit(itemsPerPage); 
+      // const orders = await Order.find().sort({ createdOn: -1 }); 
       const totalOrders = await Order.countDocuments();
       const totalOrderPages = Math.ceil(totalOrders / itemsPerPage);
 
@@ -35,6 +37,7 @@ const dashboard = async (req,res) => {
     const totalSales = await Order.aggregate([
       { $group: { _id: null, totalAmount: { $sum: '$totalAmount' } } }
     ]);
+    console.log(totalSales , 'total salessss'); 
     // Today's Orders
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -514,10 +517,16 @@ const salesReportManagement = (req, res) => {
     doc.fontSize(12).text('This report provides a summary of our sales data for the given period.', { align: 'center' });
     
     doc.moveDown();
-
-    doc.fontSize(16).text('Total Sales: $' + salesReportData.totalSales.toFixed(2));
-    doc.fontSize(16).text('Total Orders: ' + salesReportData.totalOrders);
-    doc.fontSize(16).text("Today's Orders: " + salesReportData.todaysOrders);
+    if (salesReportData) {
+      doc.fontSize(16).text('Total Sales: $' + salesReportData?.totalSales?.toFixed(2));
+      doc.fontSize(16).text('Total Orders: ' + salesReportData.totalOrders);
+      doc.fontSize(16).text("Today's Orders: " + salesReportData.todaysOrders);
+    } else {
+      doc.fontSize(16).text('Total Sales: N/A');
+      doc.fontSize(16).text('Total Orders: N/A');
+      doc.fontSize(16).text("Today's Orders: N/A");
+    }
+    
     doc.moveDown();
     // Add more content as needed
 
@@ -623,7 +632,145 @@ const categoryOfferManagement = async (req, res) => {
   }
 };
 
+const getFullOrderData = async (req, res) => {
+  const orderId = req.params.orderId;
+  try {
+    const order = await Order.findById(orderId);
+    const productsPromises = order.items.map( async (item) => {
+    const products = await Product.findById(item.productId);
+    return products;
+  });
+  const productData = await Promise.all(productsPromises);
 
+  const resData = {
+    order:order,
+    product:productData
+  }
+  return res.json(resData);
+
+  } catch (error) {
+    console.log(error, 'this is error on get full order data view order');
+  }
+}
+
+
+    // const searchResults = await Order.find({ _id: new ObjectId ({ $regex: new RegExp(searchQuery, 'i') })});
+    // const searchOrders = async (req, res) => {
+    //   const orders = await Order.find();
+    //   const searchQuery = req.query.searchInput;
+    //   const page = parseInt(req.query.page) || 1; // Get the page number from the query parameters
+    //   const itemsPerPage = 6; // Define the number of items per page
+    
+    //   try {
+    //     let filteredOrders = orders;
+    
+    //     if (searchQuery) {
+    //       // Filter orders by search term in-memory
+    //       filteredOrders = filteredOrders.filter(order =>
+    //         order._id.toString().includes(searchQuery)
+    //       );
+    //     }
+    
+    //     // Calculate the total number of pages based on filtered orders
+    //     const totalOrderPages = Math.ceil(filteredOrders.length / itemsPerPage);
+    
+    //     // Apply pagination to the filtered orders
+    //     const startIndex = (page - 1) * itemsPerPage;
+    //     const endIndex = startIndex + itemsPerPage;
+    //     const finalFilteredOrders = filteredOrders.slice(startIndex, endIndex);
+    
+    //     // Return the paginated filtered orders as JSON response
+    //     return res.json({ results: finalFilteredOrders, totalOrderPages });
+    //   } catch (error) {
+    //     console.error(error);
+    //     res.status(500).json({ error: 'Internal Server Error' });
+    //   }
+    // };//work but the pagination is not synchronized
+
+    const searchOrders = async (req, res) => {
+      const orders = await Order.find().sort({ createdOn: -1 });
+      const searchQuery = req.query.searchInput;
+      const sort = req.query.sort === 'totalAmount';
+
+      const page = parseInt(req.query.page) || 1; // Get the page number from the query parameters
+      const itemsPerPage = 6; // Define the number of items per page
+    
+
+      try {
+        let filteredOrders = orders;
+        
+        if (searchQuery) {
+          // Filter orders by search term in-memory
+          filteredOrders = filteredOrders.filter(order =>
+            order._id.toString().includes(searchQuery)
+          );
+        }else if(sort){
+          filteredOrders = await Order.find().sort({ totalAmount: -1 });
+        }
+        
+          
+        // Calculate the total number of pages based on filtered orders
+        const totalOrderPages = Math.ceil(filteredOrders.length / itemsPerPage);
+    
+        // Apply pagination to the filtered orders
+        const startIndex = (page - 1) * itemsPerPage;
+        const endIndex = startIndex + itemsPerPage;
+        const finalFilteredOrders = filteredOrders.slice(startIndex, endIndex);
+    
+        // Return the paginated filtered orders as JSON response
+        return res.json({ results: finalFilteredOrders, totalOrderPages });
+      } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Internal Server Error' });
+      }
+    };
+    
+    
+   
+// const searchOrders = async (req, res) => {
+//       const searchQuery = req.query.searchInput;
+//       const page = parseInt(req.query.page) || 1; // Get the page number from the query parameters
+//       const itemsPerPage = 6; // Define the number of items per page
+    
+//       try {
+//         let filteredOrders;
+    
+//         if (searchQuery) {
+//           // Perform the search if a query is present
+//           filteredOrders = await Order.find({ _id: { $regex: new RegExp(searchQuery, 'i') } })
+//             .sort({ createdOn: -1 })
+//             .skip((page - 1) * itemsPerPage)
+//             .limit(itemsPerPage);
+    
+//           const totalSearchResults = await Order.countDocuments({ _id: { $regex: new RegExp(searchQuery, 'i') } });
+          
+//           // Calculate the total number of pages based on search results
+//           const totalPages = Math.ceil(totalSearchResults / itemsPerPage);
+    
+//           // Return the paginated search results and total pages as JSON response
+//           return res.json({ results: filteredOrders, totalPages });
+//         } else {
+//           // If no search query, retrieve all orders with pagination
+//           filteredOrders = await Order.find()
+//             .sort({ createdOn: -1 })
+//             .skip((page - 1) * itemsPerPage)
+//             .limit(itemsPerPage);
+    
+//           const totalOrders = await Order.countDocuments();
+    
+//           // Calculate the total number of pages for all orders
+//           const totalPages = Math.ceil(totalOrders / itemsPerPage);
+    
+//           // Return the paginated orders and total pages as JSON response
+//           return res.json({ results: filteredOrders, totalPages });
+//         }
+//       } catch (error) {
+//         console.error(error);
+//         res.status(500).json({ error: 'Internal Server Error' });
+//       }
+// };
+    
+    
 module.exports = {
     dashboard ,
     addproductGet,
@@ -641,5 +788,7 @@ module.exports = {
     adminLogout,
     salesReportManagement,
     offerManagement,
-    categoryOfferManagement
+    categoryOfferManagement,
+    getFullOrderData,
+    searchOrders
 };

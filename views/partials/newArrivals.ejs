@@ -4,7 +4,7 @@
         <div class="col-md-12">
             <div id="news-slider" class="owl-carousel">
                 <% products.forEach((product, index) => { %>
-                   <a href="/products/<%= product._id %>">
+                   <a href="/products/<%= product._id %>">  
                     <div class="post-slide">
                         <div class="post-img ml-3">
                           <img src="<%= product.productImages[0].secure_url %>" alt="product Image">
@@ -18,11 +18,10 @@
                             <span class="post-date">$ <%= product.productPrice %></span>
                           </div>
                           <div class="ml-auto">
-                            <button class="btn btn-dark addToCartBtn" product-id ="<%= product._id %>" >Add to cart</button>
+                            <button type="button" class="btn btn-dark newArrivalsAddToCartBtn"  data-product-id="<%= product._id %>" >Add to cart</button>
                           </div>
                         </div>
                       </div>
-                      
                    </a>
                   <% }); %>
             </div>
@@ -30,4 +29,16 @@
     </div>
 </div>
 
+<div class="modal fade" id="addedSuccess" tabindex="-1" aria-labelledby="addedSuccesslabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="addedSuccesslabel">Added to cart</h5>
+      </div>
+      </div>
+    </div>
+  </div>
+
+
+<script src="../js/addToCart.js"></script>
 <script src="../js/cart.js"></script>

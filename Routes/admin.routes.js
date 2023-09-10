@@ -41,5 +41,8 @@ router.get('/download-sales-report', adminController.salesReportManagement);
 router.post('/product/add-offer', adminController.offerManagement);
 router.post('/category/add-offer', adminController.categoryOfferManagement);
 
+router.get('/get-order-data/:orderId', adminController.getFullOrderData);
+router.get('/search-orders', adminController.searchOrders);
+
 
 module.exports = router;

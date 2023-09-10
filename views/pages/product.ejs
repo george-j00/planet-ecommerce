@@ -14,21 +14,15 @@
 <body>
     <%- include('../partials/navbar');%>
     
-    <div class="container mt-5">
+    <div class="container mt-3">
         <div class="row">
             <div class="col-md-6">
-                <div class="col-md-6 mt-5">
-                    
+                <div class="col-md-6">
                     <div id="productCarousel" class="carousel slide" data-ride="carousel">
                         <div class="carousel-inner" style="width: 25vw; height: 60vh;">
                             <% product.productImages.forEach((image, index) => { %>
                                 <div class="carousel-item <%= index === 0 ? 'active' : '' %>">
-                                    <% if (product.offers && product.offers.length > 0) { %>
-                                        <div class="tag bg-info text-light position-absolute" style="top: 10px; left: 10px;">
-                                            Offer - <%= product.offers[0].discountPercentage %>% off
-                                        </div>
-                                    <% } %>
-                                    <img class="d-block w-100 card-img-top" style="width: 50vw; height: 55vh;" src="<%= image.secure_url %>" alt="View Product" data-toggle="modal" data-target="#imageModal">
+                                    <img class="d-block w-100 card-img-top" style=" width: 50vw; height: 55vh;" src="<%= image.secure_url %>" alt="View Product" data-toggle="modal" data-target="#imageModal">
                                 </div>
                             <% }); %>
                         </div>
@@ -43,7 +37,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-6 mt-5">
+            <div class="col-md-6">
                 <div class="d-flex flex-column justify-content-between h-100">
                     <div>
                         <h2 class="mb-3"><%= product.productTitle %></h2>
@@ -52,6 +46,16 @@
                        <span class="text-secondary"> <p>Category :  <%= product.category %></p></span>
                        <div class="mb-3">
                         <label for="quantity" class="mb-2 d-block">Quantity:</label>
+                        <!-- <div class="input-group mb-3">
+                            <button class="btn btn-white border border-secondary rounded-left px-3" type="button" id="button-minus">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                            <input type="number" id="quantity" class="form-control text-center border-secondary" style="border-radius: 0;" placeholder="1" min="1" aria-label="Quantity">
+                            <button class="btn btn-white border border-secondary rounded-right px-3" type="button" id="button-plus">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        </div> -->
+
                         <div class="input-group mt-3">
                             <button class="btn btn-outline-dark" type="button"  id="decrementButton">-</button>
                             <input type="number" class="form-control" product-data-id="<%= product._id %>" id="quantityInput" min="1" value="1" step="1">
@@ -59,8 +63,6 @@
                         </div>
                     </div>
                         <button class="btn btn-dark w-100" id="addToCartBtnId">Add to Cart</button>
-                        <div id="addedToCartDiv" class="hidden pt-3 text-success float-animation"><strong>Added to cart</strong></div>
-
                     </div>
                 </div>
             </div>
@@ -82,9 +84,6 @@
                 <p class="text-justify"><%= product.additionalInformation %></p>
             </div>
         </div>
-
-        
-
     </div>
 
     <div class="modal fade" id="imageModal" tabindex="-1" role="dialog" aria-labelledby="imageModalLabel" aria-hidden="true">
@@ -97,9 +96,15 @@
             </div>
         </div>
     </div>
-
-    
-
+    <div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="addedSuccesslabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="addedSuccesslabel">Added to cart</h5>
+            </div>
+            </div>
+          </div>
+        </div>
     <%- include('../partials/footer');%>
 
     <script>
@@ -109,7 +114,11 @@ const incrementButton = document.getElementById('incrementButton');
 const decrementButton = document.getElementById('decrementButton');
 const quantityInput = document.getElementById('quantityInput');
 let currentQuantity = parseInt(quantityInput.value);
-const addedToCartDiv = document.getElementById('addedToCartDiv');
+// const  success = document.getElementById('successModal');
+const successModal = new bootstrap.Modal(document.getElementById('successModal'));
+// const incrementButtons = document.querySelectorAll('.cartIncrementButton');
+// const decrementButtons = document.querySelectorAll('.cartDecrementButton');
+// const quantityInputs = document.querySelectorAll('.cartQuantityInput');
 
 
 const decreaseButtons = document.querySelectorAll('.decreaseQty');
@@ -146,22 +155,11 @@ addToCartBtn.addEventListener('click', () => {
     .then(data => {
       // Handle the response as needed
       console.log('Added successfully');
-       // Remove the "hidden" class to show the <div> when the response indicates success
-    addedToCartDiv.classList.remove('hidden');
-
-     // Use setTimeout to add the "show" class after a delay
-     setTimeout(() => {
-      addedToCartDiv.classList.add('show');
-    }, 100);
-    
-    setTimeout(() => {
-      addedToCartDiv.style.display = 'none';
-    }, 2000);
-
-// You can also hide the <div> after a certain duration if desired
-setTimeout(() => {
-  addedToCartDiv.style.display = 'none';
-}, 5000); 
+      successModal.show();
+      setTimeout(() => {
+        successModal.hide();
+      }, 1000);
+      
     })
     .catch(error => {
       console.error('Error adding to cart:', error);
