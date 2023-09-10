@@ -100,6 +100,7 @@ function handleConfirmPayment(event) {
     getPaymentDetails();
     return true;
   } else {
+    alert('Please select an address');
     console.log('Please make sure all data is selected');
     return false;
 

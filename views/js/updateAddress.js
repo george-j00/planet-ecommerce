@@ -5,7 +5,6 @@ const editAddressBtns = document.querySelectorAll('.edit-address-btn')
 const deleteAddressBtns = document.querySelectorAll('.delete-address-btn')
 const editAddressId = document.getElementById('editAddressId');
 
-
 editAddressBtns.forEach((editAddressBtn) => {
     editAddressBtn.addEventListener('click',  () => {
         const addressId = editAddressBtn.getAttribute('data-address-id');
@@ -32,6 +31,7 @@ function openModal(data) {
 }
 
 editAddressForm.addEventListener('submit', async (event) => {
+
   event.preventDefault(); // Prevent the default form submission
 
   try {
@@ -44,9 +44,6 @@ editAddressForm.addEventListener('submit', async (event) => {
     const userId = document.getElementById('editUserId').value;
     const editAddressId = document.getElementById('editAddressId').value;
     
-
-  //  console.log(name ,country, streetAddress, city,state ,pincode ,userId,editAddressId);
-
     const response = await fetch(`/profile/update-address`, {
       method: 'POST',
       headers: {
@@ -56,6 +53,7 @@ editAddressForm.addEventListener('submit', async (event) => {
     });
 
     if (response.ok) {
+      alert('Address updated successfully')
       window.location.reload();
     }
   } catch (error) {
@@ -67,23 +65,27 @@ editAddressForm.addEventListener('submit', async (event) => {
 //delete address
 deleteAddressBtns.forEach((deleteAddressBtn) => {
   deleteAddressBtn.addEventListener('click',  () => {
-      const addressId = deleteAddressBtn.getAttribute('data-address-id');
-// console.log(addressId , 'dsafdaf');
-
- fetch(`/profile/delete-address`, {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json'
-  },
-  body: JSON.stringify({addressId})    
-})
-.then((response) => {
-  if (response.ok) {
-    
-    window.location.reload();
-  }
-})
+    const addressId = deleteAddressBtn.getAttribute('data-address-id');
+    const deleteAddressModal = new bootstrap.Modal(document.getElementById('deleteAddressModal'));
+    const modalDeleteAddressBtn = document.getElementById('modalDeleteAddressBtn');
+    deleteAddressModal.show();
+    modalDeleteAddressBtn.addEventListener('click', () => {
+      deleteAddress(addressId);
+  });
   });
 });
  
-
+function deleteAddress(addressId){
+  fetch(`/profile/delete-address`, {
+   method: 'POST',
+   headers: {
+     'Content-Type': 'application/json'
+   },
+   body: JSON.stringify({addressId})    
+ })
+ .then((response) => {
+   if (response.ok) {
+     window.location.reload();
+   }
+ })
+}

@@ -35,6 +35,7 @@ const userId = document.getElementById('userId').value;
        })
 
        if (response.ok) {
+        alert('address added successfully');
         window.location.reload();
     }
   } catch (error) {
