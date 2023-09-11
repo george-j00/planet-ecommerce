@@ -36,13 +36,17 @@ offerForm.addEventListener('submit', function (event) {
     .then((response) => response.json())
     .then((data) => {
       if (data.message) {
-        alert(data.message);
+      const offerModal = new bootstrap.Modal(document.getElementById('offerSuccess'));
         // Close the modal after successfully adding the offer.
         $('#addOffer').modal('hide');
+        offerModal.show();
+        setTimeout(() => {
+          offerModal.hide();
+        }, 1000);
       } else {
         alert('Failed to add offer');
       }
-    })
+    })  
     .catch((error) => {
       console.error(error);
       alert('An error occurred while adding the offer.');

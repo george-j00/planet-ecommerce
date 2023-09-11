@@ -8,6 +8,7 @@
             <th scope="col">Product ID</th>
             <th scope="col">Product Title</th>
             <th scope="col">Product Price</th>
+            <th scope="col">Category</th>
             <th scope="col">Product Image</th>
             <th scope="col">Product offer</th>
             <th scope="col">Edit</th>
@@ -21,6 +22,7 @@
               <td><%= product._id.toString().substr(15) %></td>
               <td><%= product.productTitle %></td>
               <td>$<%= product.productPrice.toFixed(2) %></td>
+              <td><%= product.category %></td>
               <td>
                 <img src="<%= product.productImages[0].secure_url %>" alt="product image" style="max-width: 80px;">
               </td>
@@ -30,42 +32,40 @@
                 </button>
 
                   <!-- add offer  -->
-      <div class="modal fade" id="addOffer" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLongTitle">Offer Management</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
+                  <div class="modal fade" id="addOffer" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="exampleModalLongTitle">Offer Management</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                              <form id="offerForm" action="/admin/product/add-offer" method="POST">
+                                <div class="form-group">
+                                    <label for="offerName">Offer Name</label>
+                                    <input type="text" class="form-control" id="offerName" name="offerName" placeholder="Enter offer name" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="discountPercentage">Discount Percentage (%)</label>
+                                    <input type="number" class="form-control" id="discountPercentage" name="discountPercentage" placeholder="Enter discount percentage" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="startDate">Start Date</label>
+                                    <input type="date" class="form-control" id="startDate" name="startDate" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="endDate">End Date</label>
+                                    <input type="date" class="form-control" id="endDate" name="endDate" required>
+                                    <input type="hidden" class="form-control" id="offerProduct" name="offerProductId" value="<%= product._id %>">
+                                </div>
+                                <button type="submit" id="addofferBtn" class="btn btn-primary">Apply Offer</button>
+                            </form>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="modal-body">
-                  <form id="offerForm" action="/admin/product/add-offer" method="POST">
-                    <div class="form-group">
-                        <label for="offerName">Offer Name</label>
-                        <input type="text" class="form-control" id="offerName" name="offerName" placeholder="Enter offer name" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="discountPercentage">Discount Percentage (%)</label>
-                        <input type="number" class="form-control" id="discountPercentage" name="discountPercentage" placeholder="Enter discount percentage" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="startDate">Start Date</label>
-                        <input type="date" class="form-control" id="startDate" name="startDate" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="endDate">End Date</label>
-                        <input type="date" class="form-control" id="endDate" name="endDate" required>
-                        <input type="hidden" class="form-control" id="offerProduct" name="offerProductId" value="<%= product._id %>">
-                    </div>
-                    <button type="submit" id="addofferBtn" class="btn btn-primary">Apply Offer</button>
-                </form>
-                
-                
-                </div>
-            </div>
-        </div>
-    </div>
               </td>
               <td>
                 <button type="button" onclick="editProduct('<%= product._id %>')" class="btn" data-bs-toggle="modal" data-bs-target="#editProductModal">
@@ -73,7 +73,7 @@
                 </button>
               </td>
               <td>
-                <button class="btn" onclick="deleteProduct('<%= product._id %>')">
+                <button class="btn" id="deleteProductBtn" onclick="deleteProduct('<%= product._id %>')">
                   <i class="fa-solid fa-trash" style="color: #ff0b0b;"></i>
                 </button>
               </td>
@@ -92,7 +92,7 @@
               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-              <form action="/admin/edit-product" method="POST" enctype="multipart/form-data">
+              <form  action="/admin/edit-product" method="POST" enctype="multipart/form-data">
                 <div class="mb-3">
                   <label for="productTitle" class="form-label">Product Title</label>
                   <input type="text" class="form-control" id="editProductTitle" name="productTitle" required>
@@ -138,32 +138,62 @@
                 so we are adding the cloudinary id into the below field using the dom manipulation -->
                 <!-- <input type="hidden" id="currentImage1" name="currentImage1" value=""> -->
 
-                <div id="cloudinaryIds"></div>
-                <!-- <input type="hidden" id="currentImage2" name="currentImage2" value=""> -->
-                <!-- <input type="hidden" id="currentImage3" name="currentImage3" value=""> -->
+                <div  id="cloudinaryIds"></div>
 
-                <button type="submit" class="btn btn-warning">Edit Product</button>
+                <button id="editProductModalBtn" type="submit" class="btn btn-warning">Edit Product</button>
               </form>
             </div>
           </div>
         </div>
       </div>
 
-    
-    
-
-    
-    
   </div>
   
+  <div class="modal fade" id="deleteProductModal" tabindex="-1" aria-labelledby="editProductModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Delete Address</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <p> Are you sure you want to delete the Product ?</p>
+         <button type="button" id="deleteProductModalBtn" class="btn btn-danger ml-4 mt-1 btn-logout">Delete</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="deleteSuccess" tabindex="-1" aria-labelledby="editProductModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Product deleted </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="offerSuccess" tabindex="-1" aria-labelledby="editProductModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Offer added Successfully </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+    </div>
+  </div>
+</div>
 
   <script>
-      function editProduct(product) {
-      
+  function editProduct(product) {
       fetch(`/admin/edit-product/${product}`)
       .then(response => response.json())
       .then(data => {
         console.log( 'data in edit product',data);
+        console.table(data);
 
         document.getElementById('currentProduct').value = product;
         
@@ -174,37 +204,49 @@
          // Update the content of the cloudinaryIds element
           document.getElementById('cloudinaryIds').textContent = cloudinaryIds;
         
-        openModal(data)
+        openModalFunc(data)
       })
     }
-    function deleteProduct(product) {
+  function deleteProduct(product) {
       
-      fetch(`/admin/delete-product/${product}`,{method:'POST'})
+   const deleteProductModal = new bootstrap.Modal(document.getElementById('deleteProductModal'))
+   const deleteSuccessModal = new bootstrap.Modal(document.getElementById('deleteSuccess'))
+   const deleteProductModalBtn = document.getElementById('deleteProductModalBtn');
+    deleteProductModal.show();
+    deleteProductModalBtn.addEventListener('click', () => {
+      deleteProductModal.hide();
+       fetch(`/admin/delete-product/${product}`,{method:'POST'})
       .then(res => {
         console.log('Deleted product');
         if (res.ok) {
+          deleteSuccessModal.show();
+          setTimeout(() => {
+            deleteSuccessModal.hide();
+          }, 1000);
           window.location.href = '/admin/dashboard';
         }else{
           console.log('failed to delete product');
         }
       })
       .catch(error => console.log(error));
-        // console.log(user);
+        console.log(user);
+    })
+   
     }
 
-    function openModal(data) {
-
-document.getElementById('editProductTitle').value = data.productTitle
-document.getElementById('editProductPrice').value = data.productPrice
-// const imageUrl = 'https://www.example.com/image.jpg'; // Replace with your image URL
-const productImage = document.getElementById('oldProductImage');
-productImage.src = data.productImages[0].secure_url;
-// document.getElementById('editProductImage') = data.productImage
-document.getElementById('editProductDescription').value = data.productDescription
-document.getElementById('editProductCategory').value = data.category
-document.getElementById('editAdditionalInformation').value = data.additionalInformation
-document.getElementById('editTotalQuantity').value = data.totalQuantity
-//  document.getElementById('editModal').classList.add('show');
+   function openModalFunc(data) { 
+    console.log(data , 'this is data inside open');
+    document.getElementById('editProductTitle').value = data.productTitle
+    document.getElementById('editProductPrice').value = data.productPrice
+    // const imageUrl = 'https://www.example.com/image.jpg'; // Replace with your image URL
+    const productImage = document.getElementById('oldProductImage');
+    productImage.src = data.productImages[0].secure_url;
+    // document.getElementById('editProductImage') = data.productImage
+    document.getElementById('editProductDescription').value = data.productDescription
+    document.getElementById('editProductCategory').value = data.category
+    document.getElementById('editAdditionalInformation').value = data.additionalInformation
+    document.getElementById('editTotalQuantity').value = data.totalQuantity
+    document.getElementById('editModal').classList.add('show');
 };
   </script>
   <script src="../js/addOffer.js"></script>

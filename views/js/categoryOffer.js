@@ -35,9 +35,12 @@ categoryOfferForm.addEventListener('submit', function (event) {
     .then((response) => response.json())
     .then((data) => {
       if (data.message) {
-        alert(data.message);
-        // Close the modal after successfully adding the offer.
+       const categoryOfferSuccessModal = new bootstrap.Modal(document.getElementById('categoryOfferSuccess'));
+        categoryOfferSuccessModal.show();
         $('#categoryOfferModal').modal('hide');
+        setTimeout(() => {
+          categoryOfferSuccessModal.hide();
+        }, 1000);
         window.location.reload();
       } else {
         alert('Failed to add offer');

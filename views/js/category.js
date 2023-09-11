@@ -43,20 +43,34 @@ categoryForm.addEventListener('submit', async (event) => {
 
 function deleteCategory(categoryName, categoryId) {
       
-    fetch(`/admin/delete-category`,{
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ categoryName , categoryId })  
-    })
-    .then(res => {
-      console.log('Deleted product');
-      if (res.ok) {
-        window.location.href = '/admin/dashboard';
-      }else{
-        console.log('failed to delete category');
-      }
-    })
-    .catch(error => console.log(error));
+   const deleteCategoryModal = new bootstrap.Modal(document.getElementById('deleteCategoryModal'));
+   deleteCategoryModal.show();
+   document.getElementById('modalDeleteCategoryBtn').addEventListener('click', () => {
+    deleteCategoryDb(categoryName, categoryId)
+    deleteCategoryModal.hide();
+   })
+} 
+
+function deleteCategoryDb(categoryName, categoryId){
+  fetch(`/admin/delete-category`,{
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ categoryName , categoryId })  
+  })
+  .then(res => {
+    console.log('Deleted category');
+    if (res.ok) {
+      const deleteCategorySuccessModal = new bootstrap.Modal(document.getElementById('deleteCategorySuccess'));
+      deleteCategorySuccessModal.show();
+      setTimeout(() => {
+        deleteCategorySuccessModal.hide();
+      }, 1000);
+      window.location.href = '/admin/dashboard';
+    }else{
+      console.log('failed to delete category');
+    }
+  })
+  .catch(error => console.log(error));
 }

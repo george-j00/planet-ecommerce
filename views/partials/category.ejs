@@ -64,7 +64,7 @@
         </button>
       </div>
       <div class="modal-body">
-        <form id="categoryOfferForm" action="/admin/category/add-offer" method="POST">
+        <form id="categoryOfferForm">
           <div class="form-group">
             <label for="offerName2">Offer Name</label>
             <input type="text" class="form-control" id="offerName2" name="offerData.offerName" placeholder="Enter offer name" required>
@@ -99,6 +99,45 @@
           </tbody>
         </table>
       </div>
+</div>
+
+
+<div class="modal fade" id="categoryOfferSuccess" tabindex="-1" aria-labelledby="categoryOfferSuccess" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Offer added to the category Successfully </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="deleteCategoryModal" tabindex="-1" aria-labelledby="deleteCategoryModal" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Delete Category</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+          <p> Are you sure you want to delete the category ?</p>
+       <button type="button" id="modalDeleteCategoryBtn" class="btn btn-danger ml-4 mt-1 btn-logout">Delete</button>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<div class="modal fade" id="deleteCategorySuccess" tabindex="-1" aria-labelledby="deleteCategorySuccess" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Category deleted Successfully </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script src="../js/categoryOffer.js"></script>

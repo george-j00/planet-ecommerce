@@ -8,7 +8,6 @@ const Coupon = require("../Models/coupon.schema");
 const Banner = require("../Models/banner.schema");
 const PDFDocument = require('pdfkit');
 const Wallet = require("../Models/wallet.schema");
-const { ObjectId } = require("mongodb");
 
 const dashboard = async (req,res) => {
 
@@ -37,7 +36,6 @@ const dashboard = async (req,res) => {
     const totalSales = await Order.aggregate([
       { $group: { _id: null, totalAmount: { $sum: '$totalAmount' } } }
     ]);
-    console.log(totalSales , 'total salessss'); 
     // Today's Orders
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -112,9 +110,11 @@ const addproductGet = (req,res) => {
 
 const addProduct =  async (req, res) => {
   try {
+
+    // console.log('service add product');
     // Upload image to cloudinary
     const files = req.files; // Access the uploaded files
-
+    const { productTitle , productDescription , productPrice , totalQuantity , category, additionalInformation } = req.body;
     // Upload images to Cloudinary and collect their secure URLs and IDs
     const uploadedImages = await Promise.all(files.map(async (file) => {
       const result = await cloudinary.uploader.upload(file.path);
@@ -124,30 +124,27 @@ const addProduct =  async (req, res) => {
       };
     }));
 
-
-    console.log(uploadedImages);
-
+    // console.log(uploadedImages , 'uploaded images');
     // const result = await cloudinary.uploader.upload(req.file.path);
-     // Create new user
+    //  Create new product
     let product = new Product({
-      productTitle: req.body.productTitle,
-      productDescription :req.body.productDescription,
-      productPrice:req.body.productPrice,
-      totalQuantity:req.body.totalQuantity,
-      category:req.body.category,
-      additionalInformation: req.body.additionalInformation,
+      productTitle: productTitle[1],
+      productDescription : productDescription[1],
+      productPrice:productPrice[1],
+      totalQuantity:totalQuantity[1],
+      category:category,
+      additionalInformation: additionalInformation[1],
       // productImage: result.secure_url,
       productImages: uploadedImages ,
       status : "active"
       // cloudinary_id: result.public_id,
     });
-    console.table(product);
+
     // Save user
     await product.save();
 
-    // res.json(product);
+    res.json(product);
     console.log('successsfully added product data');
-    res.redirect('/admin/add-product');
   } catch (err) {
     console.log(err);
 }}; 
