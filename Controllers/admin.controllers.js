@@ -18,6 +18,8 @@ const dashboard = async (req,res) => {
   const skip = (page - 1) * itemsPerPage;
 
     try {
+      const banner = await Banner.findOne();
+
       const products = await Product.find({ status: 'active' });
       const totalProducts = await Product.countDocuments({ status: 'active' });
       
@@ -88,6 +90,7 @@ const dashboard = async (req,res) => {
     };
     req.session.salesReportData = salesReportData;
     res.render('pages/dashboard', {
+      banner,
       products ,
       users ,
       categories, 
@@ -454,7 +457,7 @@ const couponManagement = async (req, res) => {
 const bannerManagement = async (req, res) => {
   const files = req.files; // Access the uploaded files
   const { bannerTitle, bannerFeaturedTitle } = req.body;
-
+  // console.log(files , bannerTitle, bannerFeaturedTitle , 'banner data');
   try {
     // Upload images to Cloudinary and collect their secure URLs and IDs
     const uploadedImages = await Promise.all(files.map(async (file) => {
@@ -475,13 +478,49 @@ const bannerManagement = async (req, res) => {
     });
 
     await newBanner.save();
-    console.log('Added successfully');
-    // res.status(201).json(newBanner); // Return the saved banner as JSON
+    res.status(201).json(newBanner); // Return the saved banner as JSON
   } catch (error) {
     console.error('Error creating banner:', error);
     res.status(500).json({ message: 'Error creating banner' });
   }
 };
+
+const editBanner = async (req, res) => {
+  const files = req.files; // Access the uploaded files
+  const { editBannerTitle, editFeaturedTitle } = req.body;
+
+  try {
+    // Fetch the existing banner data (assuming your Banner model is imported and set up correctly)
+    const existingBanner = await Banner.findOne();
+
+    if (!existingBanner) {
+      return res.status(404).json({ message: 'Banner not found' });
+    }
+
+    // Upload images to Cloudinary and collect their secure URLs and IDs
+    const uploadedImages = await Promise.all(files.map(async (file) => {
+      const result = await cloudinary.uploader.upload(file.path);
+      return {
+        secure_url: result.secure_url,
+        cloudinary_id: result.public_id
+      };
+    }));
+
+    // Update the banner data with the new information
+    existingBanner.bannerTitle = editBannerTitle;
+    existingBanner.bannerFeaturedTitle = editFeaturedTitle;
+    existingBanner.bannerImages = uploadedImages;
+
+    // Save the updated banner data
+    await existingBanner.save();
+
+    console.log('Banner edited successfully');
+    res.status(200).json({ message: 'Banner edited successfully' });
+  } catch (error) {
+    console.error('Error editing banner:', error);
+    res.status(500).json({ message: 'Error editing banner' });
+  }
+}
 
 const adminLogout = async (req, res) => {
   res.clearCookie('adminJwt');
@@ -650,7 +689,6 @@ const getFullOrderData = async (req, res) => {
   }
 }
 
-
     // const searchResults = await Order.find({ _id: new ObjectId ({ $regex: new RegExp(searchQuery, 'i') })});
     // const searchOrders = async (req, res) => {
     //   const orders = await Order.find();
@@ -684,7 +722,7 @@ const getFullOrderData = async (req, res) => {
     //   }
     // };//work but the pagination is not synchronized
 
-    const searchOrders = async (req, res) => {
+const searchOrders = async (req, res) => {
       const orders = await Order.find().sort({ createdOn: -1 });
       const searchQuery = req.query.searchInput;
       const sort = req.query.sort === 'totalAmount';
@@ -720,7 +758,7 @@ const getFullOrderData = async (req, res) => {
         console.error(error);
         res.status(500).json({ error: 'Internal Server Error' });
       }
-    };
+};
     
     
    
@@ -787,5 +825,6 @@ module.exports = {
     offerManagement,
     categoryOfferManagement,
     getFullOrderData,
-    searchOrders
+    searchOrders,
+    editBanner
 };

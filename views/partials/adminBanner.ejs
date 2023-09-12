@@ -1,7 +1,7 @@
 <div id="banner" class="contents">
     <div class="container">
         <h2 class="mb-4">Add Banner</h2>
-        <form id="bannerForm" action="/admin/banner" method="POST" enctype="multipart/form-data">
+        <form id="bannerForm">
           <div class="mb-3">
             <label for="bannerTitle" class="form-label">Banner Title</label>
             <input type="text" class="form-control" id="bannerTitle" name="bannerTitle" required>
@@ -14,7 +14,61 @@
             <label for="bannerImages" class="form-label">Banner Images </label>
             <input type="file" class="form-control" id="bannerImages" name="bannerImages" accept="image/*" required multiple>
           </div>
-          <button type="submit" class="btn btn-primary">Add Banner</button>
+          <button type="submit" class="btn btn-dark">Add Banner</button>
         </form>
+        <button class="mt-5 btn btn-warning" data-toggle="modal" data-target="#editBannerModal" </button>Edit Banner</button>
       </div>
 </div>
+
+<div class="modal fade" id="successBannerModal" tabindex="-1" aria-labelledby="successBannerModal" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"> Banner added succssfully </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="editBannerModal" tabindex="-1" aria-labelledby="editBannerModal" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Edit Banner</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-md-8">
+            <% banner.bannerImages.forEach(image => { %>
+              <img src="<%= image.secure_url %>" alt="Banner Image" class="img-thumbnail mb-2" width="100">
+            <% }) %>
+            <form id="editBannerForm">
+              <h6>Banner Title</h6>
+            <input type="text" class="form-control mb-3" id="editBannerTitle" name="editBannerTitle" value="<%= banner.bannerTitle %>" required>
+            <h6>Feature Title</h6>
+            <input type="text" class="form-control mb-3" id="editFeaturedTitle" name="editFeaturedTitle" value="<%= banner.bannerFeaturedTitle %>" required>
+            <h6>Add New Banner Images</h6>
+            <input type="file" class="form-control-file mb-3" id="newBannerImages" name="newBannerImages" multiple required>
+            <button type="submit" id="editBannerBtn" class="btn btn-dark"> Edit Banner </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="editBannerSuccess" tabindex="-1" aria-labelledby="editBannerSuccess" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header"> 
+        <h5 class="modal-title"> Banner edited successfully </h5>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+<script src="../js/adminBanner.js"></script>
