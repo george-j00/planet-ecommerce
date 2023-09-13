@@ -51,11 +51,41 @@
     </div>
   </div>
 
-  <div class="d-flex">
+  <!-- <div class="d-flex">
     <div class="ml-auto">
       <a href="/admin/download-sales-report" class="btn btn-dark">Download Sales Report</a>
     </div>
+  </div> -->
+
+  <!-- HTML code with Bootstrap classes -->
+<!-- HTML code with Bootstrap classes -->
+<div class="container mt-4">
+  <div class="row">
+    <div class="col-md-12 text-right">
+      <button id="showDatePickerBtn" class="btn btn-dark" data-toggle="collapse" data-target="#datePickerContainer">Download Sales report </button>
+    </div>
   </div>
+  <div class="row justify-content-end">
+    <div class="col-md-4">
+      <div id="datePickerContainer" class="collapse">
+        <form>
+          <div class="form-group">
+            <label for="startDate">Start Date:</label>
+            <input type="date" class="form-control" id="startDate" required>
+          </div>
+          <div class="form-group">
+            <label for="endDate">End Date:</label>
+            <input type="date" class="form-control" id="endDate" required>
+          </div>
+          <button id="downloadReportBtn" class="btn btn-dark btn-block">Choose Range</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
   
 
   <div class="w-75">
@@ -156,5 +186,55 @@ const weeklySalesData = <%- JSON.stringify(weeklySales) %>;
 var chart = new ApexCharts(document.querySelector("#chart"), options);
 
 chart.render();
+
+
+  const downloadReportBtn = document.getElementById('downloadReportBtn');
+  const startDateInput = document.getElementById('startDate');
+  const endDateInput = document.getElementById('endDate');
+
+  downloadReportBtn.addEventListener('click', async function () {
+    const startDate = startDateInput.value;
+    const endDate = endDateInput.value;
+
+    // Validate the date range (e.g., ensure endDate is after startDate)
+    if (startDate > endDate) {
+      alert('End date must be after start date');
+      return;
+    }
+
+    // Create an object with the date range data
+    const dateRangeData = {
+      startDate,
+      endDate,
+    };
+
+    try {
+      // Send a POST request with the date range data to the server
+      const response = await fetch('/admin/download-sales-report', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(dateRangeData),
+      });
+
+      // Check if the request was successful and handle the response
+      if (response.ok) {
+      // Since you are generating the PDF on the server, you don't need to redirect to '/admin/download-sales-report' here.
+      // Instead, you can display a success message to the user.
+      alert('Sales report generated successfully. Click OK to download.');
+
+      // You can also trigger the download by navigating to the generated PDF URL.
+      window.location.href = '/admin/download-sales-report';
+      } else {
+        // Handle error if the request was not successful
+        console.error('Error downloading sales report');
+      }
+    } catch (error) {
+      // Handle any network-related errors
+      console.error('Network error:', error);
+    }
+  });
+
 
 </script>

@@ -37,7 +37,9 @@ router.post('/banner',upload.array("bannerImages"), adminController.bannerManage
 router.post('/edit-banner',upload.array("newBannerImages"), adminController.editBanner);
 
 router.post('/logout', adminController.adminLogout);
-router.get('/download-sales-report', adminController.salesReportManagement);
+
+router.post('/download-sales-report', adminController.salesReportManagement);
+router.get('/download-sales-report', adminController.downloadSalesReportManagement);
 
 router.post('/product/add-offer', adminController.offerManagement);
 router.post('/category/add-offer', adminController.categoryOfferManagement);

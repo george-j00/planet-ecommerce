@@ -43,30 +43,69 @@ const dashboard = async (req,res) => {
     today.setHours(0, 0, 0, 0);
     const todaysOrders = await Order.countDocuments({ createdOn: { $gte: today } });
 
-  // Create an array for the entire week (Monday to Sunday)
-  const weeklySalesData = await Order.aggregate([
-    {
-      $project: {
-        dayOfWeek: { $dayOfWeek: "$createdOn" }, // Get the day of the week (1 = Sunday, 2 = Monday, ..., 7 = Saturday)
-        totalAmount: "$totalAmount"
-      }
+    // const today = new Date();
+const startOfWeek = new Date(today);
+startOfWeek.setHours(0, 0, 0, 0); // Set the time to the start of the day (midnight)
+const endOfWeek = new Date(today);
+endOfWeek.setDate(today.getDate() + 7); // Set the end date one week ahead
+
+const weeklySalesData = await Order.aggregate([
+  {
+    $match: {
+      createdOn: {
+        $gte: startOfWeek, // Filter orders created on or after the start of the week
+        $lt: endOfWeek,   // Filter orders created before the start of the next week
+      },
     },
-    {
-      $group: {
-        _id: "$dayOfWeek",
-        totalAmount: { $sum: "$totalAmount" }
-      }
-    }
-  ]);
+  },
+  {
+    $project: {
+      dayOfWeek: { $dayOfWeek: "$createdOn" }, // Get the day of the week (1 = Sunday, 2 = Monday, ..., 7 = Saturday)
+      totalAmount: "$totalAmount",
+    },
+  },
+  {
+    $group: {
+      _id: "$dayOfWeek",
+      totalAmount: { $sum: "$totalAmount" },
+    },
+  },
+]);
+
+// Create an array to represent sales data for each day (0 for Sunday, 1 for Monday, ..., 6 for Saturday)
+const weeklySales = Array(7).fill(0);
+
+// Iterate over the weeklySalesData and populate the weeklySales array
+weeklySalesData.forEach((data) => {
+  const dayOfWeek = data._id - 1; // Subtract 1 to adjust for JavaScript's 0-based index
+  weeklySales[dayOfWeek] = data.totalAmount;
+});
+
+
+  // // Create an array for the entire week (Monday to Sunday)
+  // const weeklySalesData = await Order.aggregate([
+  //   {
+  //     $project: {
+  //       dayOfWeek: { $dayOfWeek: "$createdOn" }, // Get the day of the week (1 = Sunday, 2 = Monday, ..., 7 = Saturday)
+  //       totalAmount: "$totalAmount"
+  //     }
+  //   },
+  //   {
+  //     $group: {
+  //       _id: "$dayOfWeek",
+  //       totalAmount: { $sum: "$totalAmount" }
+  //     }
+  //   }
+  // ]);
   
-  // Create an array to represent sales data for each day (0 for Sunday, 1 for Monday, ..., 6 for Saturday)
-  const weeklySales = Array(7).fill(0);
+  // // Create an array to represent sales data for each day (0 for Sunday, 1 for Monday, ..., 6 for Saturday)
+  // const weeklySales = Array(7).fill(0);
   
-  // Iterate over the weeklySalesData and populate the weeklySales array
-  weeklySalesData.forEach(data => {
-    const dayOfWeek = data._id - 1; // Subtract 1 to adjust for JavaScript's 0-based index
-    weeklySales[dayOfWeek] = data.totalAmount;
-  });
+  // // Iterate over the weeklySalesData and populate the weeklySales array
+  // weeklySalesData.forEach(data => {
+  //   const dayOfWeek = data._id - 1; // Subtract 1 to adjust for JavaScript's 0-based index
+  //   weeklySales[dayOfWeek] = data.totalAmount;
+  // });
   
 
     const totalQuantity = await Product.aggregate([
@@ -82,12 +121,12 @@ const dashboard = async (req,res) => {
 
     const coupons = await Coupon.find();
 
-    const salesReportData = {
-      totalSales: totalSales[0].totalAmount,
-      totalOrders,
-      todaysOrders,
-      weeklySales
-    };
+      const salesReportData = {
+        totalSales: totalSales[0].totalAmount,
+        totalOrders,
+        todaysOrders,
+        weeklySales
+      };
     req.session.salesReportData = salesReportData;
     res.render('pages/dashboard', {
       banner,
@@ -527,60 +566,165 @@ const adminLogout = async (req, res) => {
   res.redirect('/admin/admin-login');
 }
 
-const salesReportManagement = (req, res) => {
-  const salesReportData = req.session.salesReportData;
+// const salesReportManagement = (req, res) => {
+//   const salesReportData = req.session.salesReportData;
+//   const { startDate, endDate } = req.body;
 
-  try {
-    // Create a new PDF document
-    const doc = new PDFDocument();
 
-    // Set PDF properties and metadata
-    doc.info.Title = 'Sales Report';
-    doc.info.Author = 'Planet Ecommerce Pvt. Ltd';
+//   try {
+//     // Create a new PDF document
+//     const doc = new PDFDocument();
 
-    // Add content to the PDF
-    doc.fontSize(18).text('Sales Report', { align: 'center' });
-    doc.fontSize(14).text('Planet Ecommerce Pvt. Ltd', { align: 'center' });
-    doc.moveDown();
-    
-      // Add the current date
-    const currentDate = new Date().toLocaleDateString('en-US');
-    doc.fontSize(12).text('Date: ' + currentDate, { align: 'center' });
+//     // Set PDF properties and metadata
+//     doc.info.Title = 'Sales Report';
+//     doc.info.Author = 'Planet Ecommerce Pvt. Ltd';
 
-    doc.moveDown();
-    doc.moveDown();
-    // Add a sentence
-    doc.fontSize(12).text('This report provides a summary of our sales data for the given period.', { align: 'center' });
-    
-    doc.moveDown();
-    if (salesReportData) {
-      doc.fontSize(16).text('Total Sales: $' + salesReportData?.totalSales?.toFixed(2));
-      doc.fontSize(16).text('Total Orders: ' + salesReportData.totalOrders);
-      doc.fontSize(16).text("Today's Orders: " + salesReportData.todaysOrders);
-    } else {
-      doc.fontSize(16).text('Total Sales: N/A');
-      doc.fontSize(16).text('Total Orders: N/A');
-      doc.fontSize(16).text("Today's Orders: N/A");
-    }
-    
-    doc.moveDown();
-    // Add more content as needed
+//     // Add content to the PDF
+//     doc.fontSize(18).text('Sales Report', { align: 'center' });
+//     doc.fontSize(14).text('Planet Ecommerce Pvt. Ltd', { align: 'center' });
+//     doc.moveDown();
 
-    // Stream the PDF to the response
-    res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', 'attachment; filename="sales-report.pdf"');
-    doc.pipe(res);
+//     // Add the selected start and end dates
+//     doc.fontSize(12).text(`Period: ${startDate.toLocaleDateString()} - ${endDate.toLocaleDateString()}`, { align: 'center' });
 
-    // Finalize the PDF
-    doc.end();
+//     doc.moveDown();
+//     doc.moveDown();
+//     // Add a sentence
+//     doc.fontSize(12).text('This report provides a summary of our sales data for the given period.', { align: 'center' });
 
-    // Log a success message
-    console.log('PDF report generated and sent for download.');
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Internal server error' });
+//     doc.moveDown();
+//     if (salesReportData) {
+//       doc.fontSize(16).text('Total Sales: $' + salesReportData?.totalSales?.toFixed(2));
+//       doc.fontSize(16).text('Total Orders: ' + salesReportData.totalOrders);
+//       doc.fontSize(16).text("Today's Orders: " + salesReportData.todaysOrders);
+//     } else {
+//       doc.fontSize(16).text('Total Sales: N/A');
+//       doc.fontSize(16).text('Total Orders: N/A');
+//       doc.fontSize(16).text("Today's Orders: N/A");
+//     }
+
+//     doc.moveDown();
+//     // Add more content as needed
+
+//     // Stream the PDF to the response
+//     res.setHeader('Content-Type', 'application/pdf');
+//     res.setHeader('Content-Disposition', 'attachment; filename="sales-report.pdf"');
+//     doc.pipe(res);
+
+//     // Finalize the PDF
+//     doc.end();
+
+//     // Log a success message
+//     console.log('PDF report generated and sent for download.');
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({ error: 'Internal server error' });
+//   }
+// };
+
+const salesReportManagement = async (req, res) => {
+
+try {
+  const { startDate, endDate } = req.body;
+
+  // Validate the selected dates (e.g., ensure endDate is after startDate)
+  if (startDate > endDate) {
+    return res.status(400).json({ error: 'Invalid date range' });
   }
-};
+
+  // Query your sales data for the specified date range
+  const salesDataInRange = await querySalesData(startDate, endDate);
+
+    // Calculate total sales, total orders, and other metrics based on the filtered data
+  const  totalSales  = calculateSalesMetrics(salesDataInRange);
+
+  req.session.totalSales = totalSales;
+  // Log a success message
+  console.log('PDF report generated and sent for download.');
+  res.status(200).json({success: true});
+} catch (error) {
+  console.error(error);
+  res.status(500).json({ error: 'Internal server error' });
+}
+}
+
+const downloadSalesReportManagement = async (req , res) => {
+
+// Check if totalSales is defined in req.session
+if (!req.session.totalSales) {
+  return res.status(400).json({ error: 'Total sales data not found' });
+}
+
+// Destructure totalSales with a default value of 0
+const { totalSales = 0 } = req.session.totalSales;
+//  console.log(totalSales , 'total sales');
+ const doc = new PDFDocument();
+  doc.info.Title = 'Sales Report';
+  doc.info.Author = 'Planet Ecommerce Pvt. Ltd';
+
+  // Add content to the PDF
+  doc.fontSize(18).text('Sales Report', { align: 'center' });
+  doc.fontSize(14).text('Planet Ecommerce Pvt. Ltd', { align: 'center' });
+  doc.moveDown();
+
+  // Add the selected start and end dates
+  // doc.fontSize(12).text(`Period: ${startDate.toLocaleDateString()} - ${endDate.toLocaleDateString()}`, { align: 'center' });
+
+  doc.moveDown();
+  doc.moveDown();
+  // Add a sentence
+  doc.fontSize(12).text('This report provides a summary of our sales data for the given period.', { align: 'center' });
+
+  doc.moveDown();
+  doc.fontSize(16).text('Total Sales: $' + totalSales?.toFixed(2));
+  // doc.fontSize(16).text('Total Orders: ' + totalOrders);
+  // doc.fontSize(16).text("Today's Orders: " + todaysOrders);
+
+  doc.moveDown();
+  // Add more content as needed
+
+  // Stream the PDF to the response
+  res.setHeader('Content-Type', 'application/pdf');
+  res.setHeader('Content-Disposition', 'attachment; filename="sales-report.pdf"');
+  doc.pipe(res);
+
+  // Finalize the PDF
+  doc.end();
+
+}
+
+// Function to calculate sales metrics based on the filtered data
+function calculateSalesMetrics(salesData) {
+  try {
+    // Calculate total sales and total orders
+    let totalSales = 0;
+
+    salesData.forEach((order) => {
+      totalSales += order.totalAmount;
+    });
+
+    return {
+      totalSales,
+    };
+  } catch (error) {
+    throw error;
+  }
+}
+
+async function querySalesData(startDate, endDate) {
+  try {
+    const salesData = await Order.find({
+      createdOn: {
+        $gte: startDate, // Filter orders created on or after the start date
+        $lte: endDate,   // Filter orders created on or before the end date
+      },
+    });
+
+    return salesData;
+  } catch (error) {
+    throw error;
+  }
+}
 
 const offerManagement = async (req, res) => {
   const { offerData, offerProductId } = req.body;
@@ -822,6 +966,7 @@ module.exports = {
     bannerManagement,
     adminLogout,
     salesReportManagement,
+    downloadSalesReportManagement,
     offerManagement,
     categoryOfferManagement,
     getFullOrderData,
