@@ -131,8 +131,8 @@ function updateOrderSummary() {
   const selectedShipping = document.querySelector('.shipping:checked');
   const shippingCharge = selectedShipping && selectedShipping.value === 'express' ? EXPRESS_SHIPPING_CHARGE : FREE_SHIPPING_CHARGE;
 
-  const subtotal = parseFloat(subtotalElement.textContent.replace('$', ''));
-  const total = parseFloat(totalElement.textContent.replace('$', ''));
+  const subtotal = parseFloat(subtotalElement.textContent.replace('₹', ''));
+  const total = parseFloat(totalElement.textContent.replace('₹', ''));
   // const total = subtotal + shippingCharge; // Calculate total based on subtotal and shipping charge
   
   orderData.shippingCharge = shippingCharge;

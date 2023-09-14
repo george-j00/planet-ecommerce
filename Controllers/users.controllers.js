@@ -275,7 +275,7 @@ const userProfile = async (req, res) => {
     const orders = await Order.find({ user: userId }).populate('items.productId');
     let wallet = await Wallet.findOne({ userId: userId });
     const orderReturns = await OrderReturn.find({ orderId: { $in: orders.map(order => order._id) } });
-
+    const currentDate = new Date();
     // If wallet doesn't exist, create one with a balance of zero
     if (!wallet) {
       wallet = new Wallet({ userId, balance: 0 });
@@ -285,7 +285,7 @@ const userProfile = async (req, res) => {
     const balanceValue = wallet.balance;
     const cartLength = cart.cartItems.length;
 
-    res.render('pages/profile', { userData, cartLength, orders, orderReturns, balanceValue });
+    res.render('pages/profile', { userData, cartLength, orders, orderReturns, balanceValue ,currentDate });
   } catch (error) {
     console.error(error);
     res.send('An error occurred while fetching user data');
@@ -773,11 +773,10 @@ const orderCancel = async (req, res) => {
 };
 
 const orederReturnRequest = async (req, res) => {
-
   try {
     const orderId = req.params.orderId;
     const { returnProduct, returnReason } = req.body;
-
+    // console.log(orderId , returnProduct, returnReason , 'this is datata');
     let productsArray = [];
     let isWholeOrder = false;
 
@@ -786,7 +785,7 @@ const orederReturnRequest = async (req, res) => {
     } else {
       productsArray.push({ productId: returnProduct,  productReason: returnReason });
     }
-
+    
     const orderReturn = new OrderReturn({
       
       orderId,
@@ -799,9 +798,9 @@ const orederReturnRequest = async (req, res) => {
 
     await orderReturn.save();
     console.log('added to the return ');
-    res.redirect('/profile');
+    // res.redirect('/profile');
 
-    // res.status(200).json({ message: 'Return request submitted successfully.' });
+    res.status(200).json({ message: 'Return request submitted successfully.' });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'An error occurred while submitting the return request.' });

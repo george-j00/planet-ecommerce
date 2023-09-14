@@ -96,7 +96,7 @@ function cartItemsHaveOffers() {
   const cartItems = document.querySelectorAll('.dataDiscount'); // Assuming this class exists on elements associated with cart items
 
   for (const cartItem of cartItems) {
-    const discountValue = parseFloat(cartItem.textContent.replace('Discount: $', ''));
+    const discountValue = parseFloat(cartItem.textContent.replace('Discount: ₹', ''));
     if (discountValue > 0) {
       return true; // At least one item has a discount
     }
@@ -110,7 +110,7 @@ async function updateSubtotalAndTotal() {
   let totalDiscount = 0;
   let total = 0;
 
-  const walletBalance = parseFloat(document.getElementById('walletBalance').textContent.replace('$', ''));
+  const walletBalance = parseFloat(document.getElementById('walletBalance').textContent.replace('₹', ''));
   const useWalletRadio = document.querySelector('input[name="useWallet"]:checked');
   const selectedShipping = document.querySelector('.shipping:checked');
 
@@ -120,11 +120,11 @@ async function updateSubtotalAndTotal() {
   const totalDiscountSection = document.getElementById('totalDiscountSection');
 
   subTotalElements.forEach((subTotalElement, index) => {
-    const subtotalValue = parseFloat(subTotalElement.textContent.replace('Total: $', ''));
+    const subtotalValue = parseFloat(subTotalElement.textContent.replace('Total: ₹', ''));
     totalSubTotal += subtotalValue;
 
     if (discountElements[index]) {
-      const discountValue = parseFloat(discountElements[index].textContent.replace('Discount: $', ''));
+      const discountValue = parseFloat(discountElements[index].textContent.replace('Discount: ₹', ''));
       totalDiscount += discountValue;
     }
   });
@@ -136,17 +136,17 @@ async function updateSubtotalAndTotal() {
       total = 1; // Set total to a minimum value (e.g., 1)
       couponError.style.display = 'block';
       couponError.innerText = 'Insufficient balance to apply the discount.';
-      discountCoupon.innerText = '$0.00';
+      discountCoupon.innerText = '₹0.00';
       minCouponError.style.display = 'none';
     } else {
       couponError.style.display = 'none';
-      discountCoupon.innerText = `$${couponDiscount.toFixed(2)}`;
+      discountCoupon.innerText = `₹${couponDiscount.toFixed(2)}`;
       minCouponError.style.display = 'none';
     }
   } else {
     total = totalSubTotal-totalDiscount;
     couponError.style.display = 'none';
-    discountCoupon.innerText = `$${totalDiscount.toFixed(2)}`;
+    discountCoupon.innerText = `₹${totalDiscount.toFixed(2)}`;
     minCouponError.style.display = 'none';
   }
 
@@ -158,11 +158,11 @@ async function updateSubtotalAndTotal() {
         total = 1; // Set total to a minimum value (e.g., 1)
         couponError.style.display = 'block';
         couponError.innerText = 'Total is too low to apply the discount.';
-        discountCoupon.innerText = '$0.00';
+        discountCoupon.innerText = '₹0.00';
         minCouponError.style.display = 'none';
       } else {
         couponError.style.display = 'none';
-        discountCoupon.innerText = `$${couponDiscount.toFixed(2)}`;
+        discountCoupon.innerText = `₹${couponDiscount.toFixed(2)}`;
         minCouponError.style.display = 'none';
       }
     } else {
@@ -175,8 +175,8 @@ async function updateSubtotalAndTotal() {
     total += EXPRESS_SHIPPING_CHARGE; 
   }
 
-  subTotalCheckout.innerText = `$${totalSubTotal.toFixed(2)}`;
-  totalCheckout.innerText = `$${total.toFixed(2)}`;
+  subTotalCheckout.innerText = `₹${totalSubTotal.toFixed(2)}`;
+  totalCheckout.innerText = `₹${total.toFixed(2)}`;
 
   if (cartItemsHaveOffers()) {
     couponSection.style.display = 'none';

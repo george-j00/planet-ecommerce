@@ -64,7 +64,7 @@
                   </div>
                 </div>
               </td>
-              <td>$<%= order.totalAmount %></td>
+              <td><span>&#8377</span> <%= order.totalAmount %></td>
               <td><button class="btn btn-sm btn-outline-danger" onclick="openModal('<%= order._id %>')">View Order</button></td>
             </tr>
 
@@ -256,7 +256,7 @@ function getStatusBadgeClass(orderStatus) {
           </div>
             </div>
           </td>
-          <td>$${order.totalAmount}</td>
+          <td><span>&#8377</span>${order.totalAmount}</td>
           <td><button class="btn btn-sm btn-outline-danger" onclick="openModal('${order._id}')">View Order</button></td>
         </tr>
         `;

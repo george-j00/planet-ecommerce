@@ -50,9 +50,9 @@
                   
               
                </td>
-                <td class="pt-4 productPrice" data-price="<%= cartItem.product.productPrice %>">$<%= cartItem.product.productPrice %></td>
+                <td class="pt-4 productPrice" data-price="<%= cartItem.product.productPrice %>"><span>&#8377</span><%= cartItem.product.productPrice %></td>
                 <!-- <td class="pt-4 subTotal" data-subtotal="<%= cartItem.product.productPrice * cartItem.quantity %>" data-subtotal-cell="true">$<%= cartItem.product.productPrice * cartItem.quantity %></td> -->
-                <td class="pt-4 subTotal" data-subtotal="<%= cartItem.product.productPrice * cartItem.quantity %>" data-subtotal-cell="true" data-product-id="<%= cartItem.product._id %>">$<%= cartItem.product.productPrice * cartItem.quantity %></td>
+                <td class="pt-4 subTotal" data-subtotal="<%= cartItem.product.productPrice * cartItem.quantity %>" data-subtotal-cell="true" data-product-id="<%= cartItem.product._id %>"><span>&#8377</span><%= cartItem.product.productPrice * cartItem.quantity %></td>
 
                 <td>
                   <button class="deleteCartItem btn btn-danger mt-3" data-delete="<%= cartItem._id %>" cart-id="<%= populatedCart._id %>">Remove</button>
@@ -66,11 +66,10 @@
       </div>
 
       <div class="d-flex justify-content-center mt-1">
-        <p>Pay <strong>$15</strong> more to EXPRESS Shipping</p>
+        <p>Pay <strong><span>&#8377</span>15</strong> more to EXPRESS Shipping</p>
       </div>
 
       <div class="d-flex justify-content-center mt-5">
-       
         <div class="d-flex flex-column ml-5 border p-4 w-50">
             <div class="mb-3">
                 <input type="radio" class="shipping" name="shipping" id="freeShipping" value="FreeShipping">
@@ -78,22 +77,22 @@
             </div>
             <div class="mb-3">
                 <input type="radio" class="shipping" name="shipping" id="expressShipping" value="express">
-                <label for="expressShipping" class="ml-2">Express Shipping (+$15)</label>
+                <label for="expressShipping" class="ml-2">Express Shipping (+15)</label>
             </div>
             <div class="d-flex flex-row justify-content-between mb-2">
                 <p class="mb-0">Subtotal</p>
-                <p class="mb-0" id="subTotalCheckout">$0.00</p>
+                <span class="ml-auto">&#8377;</span> <p class="mb-0" id="subTotalCheckout">0.00</p>
             </div>
             <div class="d-flex flex-row justify-content-between mb-3">
                 <p class="mb-0">Total</p>
-                <p class="mb-0" id="totalCheckout">$0.00</p>
+                <span class="ml-auto">&#8377;</span> <p class="mb-0" id="totalCheckout">0.00</p>
             </div>
             <div>
                 <button class="w-100 btn btn-dark text-light" id="checkoutBtnId">Checkout</button>
             </div>
         </div>
-        
     </div>
+    
     
 </div>
 

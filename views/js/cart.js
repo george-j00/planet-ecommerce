@@ -58,7 +58,7 @@ function updateSubtotalInDOM(productId, quantity) {
   const productPrice = parseFloat(subtotalCell.getAttribute('data-subtotal')) / quantity;
 
   const newSubtotal = productPrice * quantity;
-  subtotalCell.textContent = `$${newSubtotal.toFixed(2)}`;
+  subtotalCell.textContent = `<span>&#8377</span>${newSubtotal.toFixed(2)}`;
   subtotalCell.setAttribute('data-subtotal', newSubtotal);
 }
 
@@ -86,8 +86,8 @@ function updateSubtotalInDOM(productId, quantity) {
       total += 15;
     }
 
-    subTotalCheckout.innerText = `$ ${totalSubTotal.toFixed(2)}`;
-    totalCheckout.innerText = `$ ${total.toFixed(2)}`;
+    subTotalCheckout.innerText = `${totalSubTotal.toFixed(2)}`;
+    totalCheckout.innerText = ` ${total.toFixed(2)}`;
   }
 
     updateSubtotalAndTotal();
@@ -128,186 +128,4 @@ function updateSubtotalInDOM(productId, quantity) {
 
 
 });
-
-
-
-
-// // document.addEventListener('DOMContentLoaded', () => {
-// //   const increaseButtons = document.querySelectorAll('.increaseQty');
-// //   const decreaseButtons = document.querySelectorAll('.decreaseQty');
-// //   const quantityElements = document.querySelectorAll('.quantity');
-
-// //   decreaseButtons.forEach((decreaseButton, index) => {
-// //     decreaseButton.addEventListener('click', async () => {
-// //       let currentQuantity = parseInt(quantityElements[index].textContent);
-// //       if (currentQuantity > 0) {
-// //         currentQuantity--;
-// //         quantityElements[index].textContent = currentQuantity;
-// //         await updateQuantityInDatabase(decreaseButton.getAttribute('data-product-id'), currentQuantity);
-// //         // updateTotalAmounts(); // Update subtotal and total
-// //         if (currentQuantity <= 0) {
-// //           window.location.reload();
-// //         }
-// //       }
-// //     });
-// //   });
-
-// //   increaseButtons.forEach((increaseButton, index) => {
-// //     increaseButton.addEventListener('click', async () => {
-// //       let currentQuantity = parseInt(quantityElements[index].textContent);
-// //       currentQuantity++;
-// //       quantityElements[index].textContent = currentQuantity;
-// //       await updateQuantityInDatabase(increaseButton.getAttribute('data-product-id'), currentQuantity);
-// //       // updateTotalAmounts(); // Update subtotal and total
-// //     });
-// //   });
-
-// // });
-  
-
-// //   function updateQuantityInDatabase(productId, quantity) {
-
-// //     console.log(productId , quantity , 'kjahsfdkjlhsafdklj');
-// //     fetch('/update-quantity', {
-// //       method: 'POST',
-// //       headers: {
-// //         'Content-Type': 'application/json',
-// //       },
-// //       body: JSON.stringify({ productId, quantity }),
-// //     })
-// //       .then(response => response.json())
-// //       .then(data => {
-// //         updateSubtotalInDOM(productId, quantity);
-// //         console.log('Quantity updated successfully:', data.message);
-// //       })
-// //       .catch(error => {
-// //         console.error('Error updating quantity:', error);
-// //       });
-  
-// // }
-
-// // function updateSubtotalInDOM(productId, quantity) {
-// //   const subtotalCell = document.querySelector(`[data-subtotal-cell][data-product-id="${productId}"]`);
-// //   const productPrice = parseFloat(subtotalCell.getAttribute('data-subtotal')) / quantity;
-
-// //   const newSubtotal = productPrice * quantity;
-// //   subtotalCell.textContent = `$${newSubtotal.toFixed(2)}`;
-// //   subtotalCell.setAttribute('data-subtotal', newSubtotal);
-// // }
-
-
-// //   //    subTotalElements.forEach((subTotalElement , index) => {
-// //   //     const subtotalValue = parseFloat(subTotalElement.innerText.replace('$', ''));
-// //   //     totalSubTotal += subtotalValue;
-
-// //   //     cartItems[index].subTotal = subtotalValue
-
-// //   //   });
-  
-// //   //   let total = totalSubTotal; // Initialize total with subtotal amount
-  
-// //   //   if (selectedShipping === 'express') {
-// //   //     total += 15; // Add $15 for express shipping
-// //   //   }
-  
-
-// //   //   totalCheckout.innerText = `$ ${total.toFixed(2)}`;
-// //   //   subTotalCheckout.innerText = `$ ${totalSubTotal.toFixed(2)}`;
-
-// //   //   // cartData(total.toFixed(2) , totalSubTotal.toFixed(2))
-// //   // }
-  
-// //   // // Event listeners for radio buttons
-// //   // expressRadio.addEventListener('change', () => {
-// //   //   selectedShipping = 'express';
-// //   //   updateTotal();
-// //   // });
-  
-// //   // freeRadio.addEventListener('change', () => {
-// //   //   selectedShipping = 'free';
-// //   //   updateTotal();
-// //   // });
-  
-// //   // // Initial call to update total
-// //   // updateTotal();
-  
-
-
-// document.addEventListener('DOMContentLoaded', () => {
-//   const increaseButtons = document.querySelectorAll('.increaseQty');
-//   const decreaseButtons = document.querySelectorAll('.decreaseQty');
-//   const quantityElements = document.querySelectorAll('.quantity');
-
-//   decreaseButtons.forEach((decreaseButton, index) => {
-//     decreaseButton.addEventListener('click', async () => {
-//       let currentQuantity = parseInt(quantityElements[index].textContent);
-//       if (currentQuantity > 0) {
-//         currentQuantity--;
-//         quantityElements[index].textContent = currentQuantity;
-//         await updateQuantityAndSubtotal(decreaseButton.getAttribute('data-product-id'), currentQuantity);
-//         updateSubtotal(); // Update subtotal and total
-//         if (currentQuantity <= 0) {
-//           window.location.reload();
-//         }
-//       }
-//     });
-//   });
-
-//   increaseButtons.forEach((increaseButton, index) => {
-//     increaseButton.addEventListener('click', async () => {
-//       let currentQuantity = parseInt(quantityElements[index].textContent);
-//       currentQuantity++;
-//       quantityElements[index].textContent = currentQuantity;
-//       await updateQuantityAndSubtotal(increaseButton.getAttribute('data-product-id'), currentQuantity);
-//       updateSubtotal(); // Update subtotal and total
-//     });
-//   });
-// });
-
-// async function updateQuantityAndSubtotal(productId, quantity) {
-//   try {
-//     await updateQuantityInDatabase(productId, quantity);
-//     updateSubtotalInDOM(productId, quantity);
-//   } catch (error) {
-//     console.error('Error updating quantity:', error);
-//   }
-// }
-
-// function updateQuantityInDatabase(productId, quantity) {
-//   return fetch('/update-quantity', {
-//     method: 'POST',
-//     headers: {
-//       'Content-Type': 'application/json',
-//     },
-//     body: JSON.stringify({ productId, quantity }),
-//   })
-//   .then(response => response.json())
-//   .catch(error => {
-//     throw new Error('Error updating quantity:', error);
-//   });
-// }
-
-// function updateSubtotalInDOM(productId, quantity) {
-//   const subtotalCell = document.querySelector(`[data-subtotal-cell][data-product-id="${productId}"]`);
-//   const productPrice = parseFloat(subtotalCell.getAttribute('data-subtotal')) / quantity;
-
-//   const newSubtotal = productPrice * quantity;
-//   subtotalCell.textContent = `$${newSubtotal.toFixed(2)}`;
-//   subtotalCell.setAttribute('data-subtotal', newSubtotal);
-// }
-
-  
-//   function updateSubtotal(){
-//     const subTotalElements = document.querySelectorAll('subTotal');
-  
-//     let totalSubTotal ;
-
-//     subTotalElements.forEach((subTotalElement , index) => {
-//       const subtotalValue = parseFloat(subTotalElement.innerText);
-//       totalSubTotal += subtotalValue;
-//     });
-
-//     console.log(totalSubTotal , 'sadjfkljsdf');
-        
-//   }
 

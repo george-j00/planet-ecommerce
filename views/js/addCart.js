@@ -26,7 +26,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     function addToCartFunction(productId, quantity) {
-
+        
         console.log('called the function');
         // fetch('/add-to-cart', {
         //     method: 'POST',

@@ -21,7 +21,7 @@
               <td scope="row"><%= index + 1 %></td>
               <td><%= product._id.toString().substr(15) %></td>
               <td><%= product.productTitle %></td>
-              <td>$<%= product.productPrice.toFixed(2) %></td>
+              <td><span>&#8377</span><%= product.productPrice.toFixed(2) %></td>
               <td><%= product.category %></td>
               <td>
                 <img src="<%= product.productImages[0].secure_url %>" alt="product image" style="max-width: 80px;">

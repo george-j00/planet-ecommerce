@@ -18,9 +18,9 @@
                     <% coupons.forEach(coupon => { %>
                         <tr>
                             <td><%= coupon.couponCode %></td>
-                            <td>$ <%= coupon.discountAmount %></td>
+                            <td><span>&#8377</span> <%= coupon.discountAmount %></td>
                             <td><%= coupon.expiryDate.toISOString().substring(0, 10) %></td>
-                            <td>$ <%= coupon.minPurchase %></td>
+                            <td><span>&#8377</span> <%= coupon.minPurchase %></td>
                         </tr>
                     <% }); %>
                 </tbody>

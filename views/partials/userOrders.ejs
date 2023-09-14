@@ -50,53 +50,65 @@
                 </td>
                
                 <!-- Display Total Amount -->
-                <td>$<%= order.totalAmount %></td>
+                <td><span>&#8377</span> <%= order.totalAmount %></td>
                 <td>
                   <% if (order.status === 'Delivered' && order.paymentMethod !== 'COD') { %>
-                    <button data-toggle="modal" data-target="#orderReturn<%= order._id %>" class="btn btn-sm btn-outline-secondary">Return</button>
-                    <div class="modal fade" id="orderReturn<%= order._id %>" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
-                      <div class="modal-dialog modal-dialog-centered" role="document">
-                        <div class="modal-content">
-                          <div class="modal-header">
-                            <h5 class="modal-title" id="exampleModalLongTitle">Order Return</h5>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                              <span aria-hidden="true">&times;</span>
-                            </button>
-                          </div>
-                          <div class="modal-body">
-                            <form action="/return-request/<%= order._id %>" method="POST">
-                              <div class="form-group">
-                                <label for="returnProductSelect<%= order._id %>">Select Product to Return:</label>
-                                <select class="form-control" id="returnProductSelect<%= order._id %>" name="returnProduct" required>
-                                  <option value="all">All Products</option>
-                                  <% order.items.forEach(item => { %>
-                                    <option value="<%= item.productId._id %>"><%= item.productId.productTitle %></option>
-                                  <% }); %>
-                                </select>
-                              </div>
-                              <div class="form-group">
-                                <label for="reasonInput<%= order._id %>">Enter the reason for return:</label>
-                                <input type="text" name="returnReason" class="form-control" id="reasonInput<%= order._id %>" required>
-                              </div>
-                              <p class="text-info">Note: Your return request will be considered only within a business day</p>
-                              <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                <button type="submit" class="btn btn-danger orderReturnBtn">Return Product</button>
-                              </div>
-                              <input type="hidden" name="userId" value="<%= order.user._id %>">
-                            </form>
+                    <% const orderDate = new Date(order.createdOn);
+                       const currentDate = new Date();
+
+                      const futureDate = new Date(orderDate);
+                      futureDate.setDate(futureDate.getDate() + 7);
+
+                      if (futureDate > currentDate) { %>
+                        <!-- The order date + 7 days is less than the current date -->
+                        <button data-toggle="modal" data-target="#orderReturn<%= order._id %>" class="btn btn-sm btn-outline-secondary">Return</button>
+                      <% } %>
+                      <div class="modal fade" id="orderReturn<%= order._id %>" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered" role="document">
+                          <div class="modal-content">
+                            <div class="modal-header">
+                              <h5 class="modal-title" id="exampleModalLongTitle">Order Return</h5>
+                              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                              </button>
+                            </div>
+                            <div class="modal-body">
+                              <form data-order-id="<%= order._id %>" class="returnRequestForm">
+                                <div class="form-group">
+                                  <label for="returnProductSelect<%= order._id %>">Select Product to Return:</label>
+                                  <select class="form-control" id="returnProductSelect<%= order._id %>" name="returnProduct" required>
+                                    <option value="all">All Products</option>
+                                    <% order.items.forEach(item => { %>
+                                      <option value="<%= item.productId._id %>" disabled><%= item.productId.productTitle %> </option>
+                                    <% }); %>
+                                  </select>
+                                </div>
+                                <div class="form-group">
+                                  <label for="returnReasonSelect<%= order._id %>">Select Return Reason:</label>
+                                  <select class="form-control" id="returnReasonSelect<%= order._id %>" name="returnReason" required>
+                                    <option value="Damaged">Damaged</option>
+                                    <option value="Not fit for space">Not fit for space</option>
+                                  </select>
+                                </div>
+                                <p class="text-info">Note: Your return request will be considered only within a business day</p>
+                                <div class="modal-footer">
+                                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                  <button type="submit" class="btn btn-danger orderReturnBtn">Return Product</button>
+                                </div>
+                                <input type="hidden" name="userId" value="<%= order.user._id %>">
+                              </form>
+                            </div>
                           </div>
                         </div>
                       </div>
-                    </div>
                   <% } else if (order.status === 'Canceled') { %>
                     <p class="text-muted">Order Canceled</p>
                   <% } else if (order.status === 'Pending' || order.status === 'Shipped' || order.status === 'Placed') { %>
                     <button type="button" data-order-id="<%= order._id %>" data-toggle="modal" data-target="#orderCancel<%= order._id %>" class="btn btn-sm btn-outline-danger">Cancel</button>
-                  <% } else { %>
+                  <% } else if (order.status === 'Returned'){ %>
                     <p class="text-muted">Return Success</p>
                     <% } %>
-                
+                    
                   <div class="modal fade" id="orderCancel<%= order._id %>" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
                     <div class="modal-dialog modal-dialog-centered" role="document">
                       <div class="modal-content">
@@ -130,15 +142,64 @@
     </div>
 
 
+    <div class="modal fade" id="returnRequestSuccess" tabindex="-1" aria-labelledby="returnRequestSuccess" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title"> Return request Successfull </h5>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+    <script>
+     const returnForms = document.querySelectorAll('.returnRequestForm');
+
+    returnForms.forEach(returnForm => {
+      returnForm.addEventListener('submit',async (e) => {
+        e.preventDefault();
+
+        // Get the order ID from the `data-order-id` attribute
+        const orderId = returnForm.getAttribute('data-order-id');
+
+        // Get the form data
+        const formData =  new FormData(returnForm);
+
+        const formDataObject = {};
+        formData.forEach((value, key) => {
+          formDataObject[key] = value;
+        });
+
+    console.log(formDataObject , 'form data object');
+    // Submit the form data to the server using the `fetch()` API
+    fetch(`/return-request/${orderId}`, {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  body: JSON.stringify(formDataObject),
+})
+      .then(response => response.json()) // Assuming you expect JSON response
+      .then(data => {
+          const returnRequestSuccessModal = new bootstrap.Modal(document.getElementById('returnRequestSuccess'));
+          returnRequestSuccessModal.show();
+          setTimeout(() => {
+            returnRequestSuccessModal.hide();
+          }, 1000);
+        // Handle the server response here, e.g., show a success message
+        console.log('Server Response:', data);
+        window.location.reload();
+      })
+      .catch(error => {
+        // Handle errors here, e.g., show an error message
+        console.error('Error:', error);
+      });
+  });
+  });
+
+</script>
     <script src="../js/cancelOrder.js"></script>
-    <!-- <script>
-      function shouldShowReturnButton(orderCreationDate) {
-        const currentDate = new Date();
-        const orderDate = new Date(orderCreationDate);
-        const timeDifference = currentDate - orderDate;
-        return timeDifference <= 7 * 24 * 60 * 60 * 1000; // 7 days in milliseconds
-      }
-    </script> -->
     
    
 

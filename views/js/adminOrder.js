@@ -9,6 +9,8 @@ function attachUpdateStatusEventListeners() {
       const orderId = button.getAttribute("data-order-id");
       const newStatus = button.getAttribute("data-status");
 
+
+      // console.log(orderId, newStatus , 'order id and status');
       fetch(`/admin/update-status/${orderId}`, {
         method: "POST",
         headers: {
@@ -30,7 +32,7 @@ function attachUpdateStatusEventListeners() {
     });
   });
 }
-
+attachUpdateStatusEventListeners();
 
     async function openModal(orderId){
        const viewOrderModal = new bootstrap.Modal(document.getElementById('viewOrderModal'+orderId));

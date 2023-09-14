@@ -460,6 +460,32 @@ const updateReturnStatus = async (req, res) => {
 
       wallet.balance += totalAmount;
       await wallet.save();
+
+
+      if (updatedReturn.returnReason === 'Not fit for space') {
+        const order =  await Order.findById(updatedReturn.orderId);
+        console.log(order , 'this is orderr');
+        if (!order) {
+         console.log('order not found , order return request  line : 792');
+         // return res.status(404).json({ message: 'Order not found.' });
+       }
+   
+       // Update the inventory for each product
+       for (const item of order.items) {
+         const { productId, quantity } = item;
+   
+         const product = await Product.findById(productId);
+   
+         if (!product) {
+           return res.status(404).json({ message: `Product with ID ${productId} not found.` });
+         }
+   
+         // Update the inventory quantity by adding the item's quantity
+         product.totalQuantity += quantity;
+         await product.save();
+       
+     }
+    }
     }
     // Log the update and send a response
     console.log(`Return status updated to ${status}`);
