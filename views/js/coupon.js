@@ -5,12 +5,18 @@ saveCouponBtn.addEventListener('click', () => {
     const couponCode = document.getElementById('couponCode').value;
     const discountAmount = document.getElementById('discountAmount').value;
     const minPurchase = document.getElementById('minPurchase').value;
+    const usageLimit = document.getElementById('usageLimit').value;
+    const maxPurchase = document.getElementById('maxPurchase').value;
     const expiryDate = document.getElementById('expiryDate').value;
+    const formModal = new bootstrap.Modal(document.getElementById('exampleModalCenter'));
+
 
     const couponData = {
         couponCode,
         discountAmount,
         minPurchase,
+        maxPurchase,
+        usageLimit,
         expiryDate
     };
 
@@ -23,6 +29,12 @@ saveCouponBtn.addEventListener('click', () => {
     })
     .then(response => response.json())
     .then(data => {
+        const couponSaveSuccessModal = new bootstrap.Modal(document.getElementById('couponSaveSuccess'));
+        formModal.hide();
+        couponSaveSuccessModal.show();
+        setTimeout(() => {
+            couponSaveSuccessModal.hide();
+        }, 1000);
         console.log('Coupon created:', data);
         window.location.reload();
     })

@@ -2,6 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   let couponDiscount = 0;
   let minPurchase = 0;
+  let maxPurchase = 0;
   let isCouponApplied = false;
   // let targetPaymentMode = 0
     const addressCards = document.querySelectorAll('.select-address-card');
@@ -16,36 +17,52 @@ document.addEventListener('DOMContentLoaded', () => {
 
     checkoutExpressRadio.addEventListener('change', updateSubtotalAndTotal);
     checkoutFreeRadio.addEventListener('change', updateSubtotalAndTotal);
-
-    couponApplyBtn.addEventListener('click', () => {
-
-    const couponCode = document.getElementById('couponCode').value;
-    fetch('/apply-coupon', {
-      method: 'POST',
-      headers: {
-          'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ couponCode })
-    })
-    .then(response => response.json())
-    .then(data => {
-      if (data.success) {
-        
-        console.log('Coupon applied:', data.coupon);
-        couponDiscount = data.coupon.discountAmount;
-        minPurchase = data.coupon.minPurchase;
-        isCouponApplied = true;
-        updateSubtotalAndTotal();
-      } else {
-        console.log('Coupon validation failed:', data.message);
-        // Display an error message to the user
-      }
-    })
-    .catch(error => {
-      console.error('Error applying coupon:', error);
-    });
-  });
     
+  couponApplyBtn.addEventListener('click', () => {
+    const couponCode = document.getElementById('couponCode').value;
+    const totalValue = totalCheckout.innerText.replace('₹','');
+    
+    // Clear previous error messages
+    couponError.style.display = 'none';
+    couponError.innerText = '';
+    minCouponError.style.display = 'none';
+  
+    if (couponError.style.display === 'none' && minCouponError.style.display === 'none' && couponCode ) {
+
+      // console.log(totalValue , 'total value value');
+      fetch('/apply-coupon', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ couponCode ,totalValue })
+      })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            console.log('Coupon applied:', data.coupon);
+            couponDiscount = data.coupon.discountAmount;
+            minPurchase = data.coupon.minPurchase;
+            maxPurchase = data.coupon.maxPurchase;
+            isCouponApplied = true;
+            couponApplyBtn.style.display = 'none';
+            updateSubtotalAndTotal();
+          } else {
+            console.log('Coupon validation failed:', data.message);
+            // Display an error message to the user
+            couponError.style.display = 'block';
+            couponError.innerText = data.message;
+          }
+        })
+        .catch(error => {
+          console.error('Error applying coupon:', error);
+        });
+    } else {
+      couponError.style.display = 'block';
+      couponError.innerText = 'Please enter a coupon code.';
+    }
+  });
+  
     addressCards.forEach(addressCard => {
       addressCard.addEventListener('click', () => {
         // Toggle the 'selected' class on click
@@ -113,11 +130,10 @@ async function updateSubtotalAndTotal() {
   const walletBalance = parseFloat(document.getElementById('walletBalance').textContent.replace('₹', ''));
   const useWalletRadio = document.querySelector('input[name="useWallet"]:checked');
   const selectedShipping = document.querySelector('.shipping:checked');
-
+  
   const subTotalElements = document.querySelectorAll('.dataSubtotal');
   const discountElements = document.querySelectorAll('.dataDiscount');
   const couponSection = document.getElementById('couponSection');
-  const totalDiscountSection = document.getElementById('totalDiscountSection');
 
   subTotalElements.forEach((subTotalElement, index) => {
     const subtotalValue = parseFloat(subTotalElement.textContent.replace('Total: ₹', ''));
@@ -135,7 +151,7 @@ async function updateSubtotalAndTotal() {
       // Notify the user about insufficient balance but keep total above zero
       total = 1; // Set total to a minimum value (e.g., 1)
       couponError.style.display = 'block';
-      couponError.innerText = 'Insufficient balance to apply the discount.';
+      couponError.innerText = 'Min purchase amount required';
       discountCoupon.innerText = '₹0.00';
       minCouponError.style.display = 'none';
     } else {
@@ -151,7 +167,7 @@ async function updateSubtotalAndTotal() {
   }
 
   if (isCouponApplied) {
-    if (total > minPurchase) {
+    if (total > minPurchase && total < maxPurchase) {
       total -= couponDiscount;
       if (total < 0) {
         // Notify the user about the discount but keep total above zero
@@ -180,10 +196,8 @@ async function updateSubtotalAndTotal() {
 
   if (cartItemsHaveOffers()) {
     couponSection.style.display = 'none';
-    totalDiscountSection.style.display = 'none';
   } else {
     couponSection.style.display = 'block';
-    totalDiscountSection.style.display = 'block';
   }
 }
 

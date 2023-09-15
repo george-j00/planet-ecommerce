@@ -498,13 +498,15 @@ const updateReturnStatus = async (req, res) => {
 
 const couponManagement = async (req, res) => {
   try {
-    const { couponCode, discountAmount, minPurchase, expiryDate } = req.body;
+    const { couponCode, discountAmount, minPurchase, maxPurchase ,usageLimit ,expiryDate } = req.body;
 
     // Create a new coupon instance using the Mongoose schema
     const newCoupon = new Coupon({
       couponCode,
       discountAmount,
       minPurchase,
+      maxPurchase,
+      usageLimit,
       expiryDate: new Date(expiryDate),
     });
 

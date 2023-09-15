@@ -58,7 +58,7 @@ function updateSubtotalInDOM(productId, quantity) {
   const productPrice = parseFloat(subtotalCell.getAttribute('data-subtotal')) / quantity;
 
   const newSubtotal = productPrice * quantity;
-  subtotalCell.textContent = `<span>&#8377</span>${newSubtotal.toFixed(2)}`;
+  subtotalCell.textContent = `₹${newSubtotal.toFixed(2)}`;
   subtotalCell.setAttribute('data-subtotal', newSubtotal);
 }
 

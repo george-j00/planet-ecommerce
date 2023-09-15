@@ -12,6 +12,8 @@
                         <th>Amount</th>
                         <th>Expiry Date</th>
                         <th>Min purchase</th>
+                        <th>Max purchase</th>
+                        <th>Usage limit</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -21,6 +23,8 @@
                             <td><span>&#8377</span> <%= coupon.discountAmount %></td>
                             <td><%= coupon.expiryDate.toISOString().substring(0, 10) %></td>
                             <td><span>&#8377</span> <%= coupon.minPurchase %></td>
+                            <td><span>&#8377</span> <%= coupon.maxPurchase %></td>
+                            <td><span>&#8377</span> <%= coupon.usageLimit %></td>
                         </tr>
                     <% }); %>
                 </tbody>
@@ -54,6 +58,14 @@
                         <input type="number" class="form-control" id="minPurchase" placeholder="Enter minimum purchase amount" required>
                     </div>
                     <div class="form-group">
+                        <label for="maxPurchase">Maximum Purchase Amount</label>
+                        <input type="number" class="form-control" id="maxPurchase" placeholder="Enter max purchase amount" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="usageLimit">Usage limit</label>
+                        <input type="number" class="form-control" id="usageLimit" placeholder="Enter usage limit" required>
+                    </div>
+                    <div class="form-group">
                         <label for="expiryDate">Expiry Date</label>
                         <input type="date" class="form-control" id="expiryDate" required>
                     </div>
@@ -66,5 +78,18 @@
         </div>
     </div>
 </div>
+
+
+<div class="modal fade" id="couponSaveSuccess" tabindex="-1" aria-labelledby="couponSaveSuccess" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Coupon added successfully </h5>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 
 <script src="../js/coupon.js"></script>

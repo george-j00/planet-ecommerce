@@ -534,21 +534,26 @@ const checkout = async (req, res) => {
   const userId = decodedTokens.id;
   const cart = await Cart.find({ user: userId });
   const walletBalance = await Wallet.find({}, { _id: 0, balance: 1 });
+  const coupons = await Coupon.find();
 
-  let cartLength = 0;
-  if (cart.length > 0 && cart[0].cartItems) {
-    cartLength = cart[0].cartItems.length;
-  }
-  try {
-    const userCart = await Cart.findOne({ user: userId })
-      .populate("user")
-      .populate("cartItems.product");
+    const validCoupons = coupons.filter(coupon => {
+     return coupon.usedCount <= coupon.usageLimit
+    })
 
-    res.render('pages/checkout', { userCart: userCart, cartLength, walletBalance: walletBalance[0].balance });
-  } catch (error) {
-    console.error('Error fetching cart data:', error);
-    res.status(500).json({ message: 'An error occurred while fetching cart data' });
-  }
+    let cartLength = 0;
+    if (cart.length > 0 && cart[0].cartItems) {
+      cartLength = cart[0].cartItems.length;
+    }
+    try {
+      const userCart = await Cart.findOne({ user: userId })
+        .populate("user")
+        .populate("cartItems.product");
+
+      res.render('pages/checkout', { userCart: userCart, cartLength, walletBalance: walletBalance[0].balance , validCoupons});
+    } catch (error) {
+      console.error('Error fetching cart data:', error);
+      res.status(500).json({ message: 'An error occurred while fetching cart data' });
+    }
 };
 
 const placeOrder = async (req, res) => {
@@ -810,20 +815,47 @@ const orederReturnRequest = async (req, res) => {
 
 const applyCoupon = async (req, res) => {
   try {
-    const { couponCode } = req.body;
+    const { couponCode, totalValue } = req.body;
 
-    // Find the coupon by code
+    // Find the coupon based on the provided couponCode
     const coupon = await Coupon.findOne({ couponCode });
     if (!coupon) {
-        return res.json({ success: false, message: 'Coupon not found' });
+      return res.status(404).json({ success: false, message: 'Coupon not found' });
     }
-    console.log('coupon validated successfully');
-    res.json({ success: true, coupon });
-} catch (error) {
+
+    // Check if the coupon has expired
+    const currentDate = new Date();
+    if (coupon.expiryDate <= currentDate) {
+      console.log('Coupon has expired');
+      return res.status(401).json({ success: false, message: 'Coupon has expired' });
+    }
+
+    // Check if the coupon has reached the usage limit
+    if (coupon.usedCount >= coupon.usageLimit) {
+      console.log('Coupon has reached the usage limit');
+      return res.status(401).json({ success: false, message: 'Coupon has reached the usage limit' });
+    }
+
+    // Check if the totalValue is within the valid range
+    const { minPurchase, maxPurchase } = coupon;
+    if (totalValue >= minPurchase && totalValue <= maxPurchase) {
+      // Proceed with coupon application
+      coupon.usedCount += 1;
+      await coupon.save();
+
+      console.log('Coupon applied successfully');
+      return res.json({ success: true, coupon });
+    } else {
+      // Total value is outside the valid range
+      console.log('Purchase amount is outside the coupon range.');
+      return res.status(400).json({ success: false, message: 'Purchase amount is outside the coupon range' });
+    }
+  } catch (error) {
     console.error('Error applying coupon:', error);
-    res.status(500).json({ success: false, message: 'Error applying coupon' });
-}
-}
+    return res.status(500).json({ success: false, message: 'Error applying coupon' });
+  }
+};
+
 
 const products = async (req, res) => {
 

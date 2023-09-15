@@ -252,6 +252,30 @@
               </div>
             </div>
 
+            <div class="availableCoupons mt-2">
+              <p class="font-weight-bold">Available Coupons</p>
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>Coupon Code</th>
+                    <th>Discount</th>
+                    <th>Min Purchase</th>
+                    <th>Max Purchase</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% validCoupons.forEach(coupon => { %>
+                    <tr>
+                      <td><%= coupon.couponCode %></td>
+                      <td>₹<%= coupon.discountAmount %></td>
+                      <td>₹<%= coupon.minPurchase %></td>
+                      <td>₹<%= coupon.maxPurchase %></td>
+                    </tr>
+                  <% }) %>
+                </tbody>
+              </table>
+            </div>
+            
                 <div class="couponcontainer" id="couponSection">
                   <div class="d-flex flex-column mr-5" >
                     <div class="input-group mt-3 mb-4">
@@ -260,8 +284,7 @@
                       <input type="text" class="form-control border" id="couponCode" name="" placeholder="Have a code" />
                       <button class="btn btn-light text-primary border" id="couponApplyBtn">Apply</button>
                       <p class="text-danger" id="couponError">Unable to apply coupon code or invalid coupon</p>
-                      <p class="text-danger" id="minCouponError">Unable to apply coupon code or invalid coupon</p>
-
+                      <p class="text-danger" id="minCouponError"> Min amount needed to apply the coupon</p>
                     </div>
                   </div>
                 </div>
@@ -311,27 +334,6 @@
     </div>
   </section>
 
-  <script>
-    const paymentSuccessMessage = document.getElementById('payment-success-message');
-  const confirmPaymentButton = document.querySelector('.confrimPayementBtn');
-
-  // Function to show the payment success message
-  function showPaymentSuccessMessage() {
-    paymentSuccessMessage.style.display = 'block';
-    setTimeout(function() {
-      paymentSuccessMessage.style.opacity = '1';
-    }, 100);
-    setTimeout(function() {
-      paymentSuccessMessage.style.opacity = '0';
-    }, 3000);
-    setTimeout(function() {
-      paymentSuccessMessage.style.display = 'none';
-    }, 3500);
-  }
-
-  // Add event listener to the payment confirmation button
-  confirmPaymentButton.addEventListener('click', showPaymentSuccessMessage);
-  </script>
 
   <script src="../js/coupon.js"></script>
   <script src="../js/orders.js"></script>
