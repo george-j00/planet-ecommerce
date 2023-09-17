@@ -54,12 +54,17 @@ app.set('view engine', 'ejs');
 
 
 
+
 // app.use("/admin/get-products" ,adminGetProducts.getAllProducts); 
 app.use("/" , userRoutes ); 
 app.use("/admin" , adminRoutes); 
 // Define a catch-all route for undefined routes
 app.use((req, res) => {
   res.status(404).render('pages/404'); // Render the 404 EJS template
+});
+// Define a middleware for handling 404 errors
+app.use((req, res, next) => {
+  res.status(404).render('pages/404'); // Render the 404 page with a 404 status code
 });
 
 app.listen(3000, () => {

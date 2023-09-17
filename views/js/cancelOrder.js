@@ -28,13 +28,3 @@ function sendOrderId(orderId) {
       // Handle errors if needed
     });
   }
-  
-    // const returnForm = document.getElementById('returnForm');
-
-    // returnForm.addEventListener('submit',  (event) => {
-    // event.preventDefault();
-
-    // const formData = new FormData(returnForm);
-
-    // console.log(formData,'formdata');
-    // });

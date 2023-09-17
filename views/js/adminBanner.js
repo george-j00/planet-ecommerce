@@ -42,13 +42,13 @@
       
       const formData = new FormData(this); // Serialize the form data
 
-  //     // Convert formData to a plain JavaScript object
+  // Convert formData to a plain JavaScript object
   // const formDataObject = {};
   // formData.forEach((value, key) => {
   //   formDataObject[key] = value;
   // });
 
-  // console.log(formDataObject , 'form data objecctt');
+  // console.log(formDataObject , 'we can only see the form data as this formdataObject');
       fetch('/admin/edit-banner', {
         method: 'POST',
         body: formData,

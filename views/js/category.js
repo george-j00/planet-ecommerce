@@ -39,8 +39,6 @@ categoryForm.addEventListener('submit', async (event) => {
   }
 });
 
-
-
 function deleteCategory(categoryName, categoryId) {
       
    const deleteCategoryModal = new bootstrap.Modal(document.getElementById('deleteCategoryModal'));

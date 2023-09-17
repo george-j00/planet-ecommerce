@@ -14,77 +14,62 @@
 <body>
     <%- include('../partials/navbar');%>
     
-    <div class="container mt-3">
+    <div class="container">
         <div class="row">
-            <div class="col-md-6">
-                <div class="col-md-6">
-                    <div id="productCarousel" class="carousel slide" data-ride="carousel">
-                        <div class="carousel-inner" style="width: 25vw; height: 60vh;">
-                            <% product.productImages.forEach((image, index) => { %>
-                                <div class="carousel-item <%= index === 0 ? 'active' : '' %>">
-                                    <img class="d-block w-100 card-img-top" style=" width: 50vw; height: 55vh;" src="<%= image.secure_url %>" alt="View Product" data-toggle="modal" data-target="#imageModal">
-                                </div>
-                            <% }); %>
-                        </div>
-                        <a class="carousel-control-prev" href="#productCarousel" role="button" data-slide="prev">
-                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                            <span class="sr-only">Previous</span>
-                        </a>
-                        <a class="carousel-control-next" href="#productCarousel" role="button" data-slide="next">
-                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                            <span class="sr-only">Next</span>
-                        </a>
-                    </div>
+            <div class="col-md-6 mt-5">
+                <div id="productCarousel" class="carousel slide" data-ride="carousel">
+                  <div class="carousel-inner">
+                    <% product.productImages.forEach((image, index) => { %>
+                      <div class="carousel-item <%= index === 0 ? 'active' : '' %>">
+                        <img class="d-block mx-auto" src="<%= image.secure_url %>" alt="View Product" data-toggle="modal" data-target="#imageModal" style="max-width: 100%; max-height: 60vh;">
+                      </div>
+                    <% }); %>
+                  </div>
+                  <a class="carousel-control-prev" href="#productCarousel" role="button" data-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="sr-only">Previous</span>
+                  </a>
+                  <a class="carousel-control-next" href="#productCarousel" role="button" data-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="sr-only">Next</span>
+                  </a>
                 </div>
-            </div>
-            <div class="col-md-6">
-                <div class="d-flex flex-column justify-content-between h-100">
-                    <div>
-                        <h2 class="mb-3"><%= product.productTitle %></h2>
-                        <p class="mb-3"> <%= product.productDescription %></p>
-                        <h3 class="mb-3"><span>&#8377</span> <%= product.productPrice %></h3>
-                       <span class="text-secondary"> <p>Category :  <%= product.category %></p></span>
-                       <div class="mb-3">
-                        <label for="quantity" class="mb-2 d-block">Quantity:</label>
-                        <!-- <div class="input-group mb-3">
-                            <button class="btn btn-white border border-secondary rounded-left px-3" type="button" id="button-minus">
-                                <i class="fas fa-minus"></i>
-                            </button>
-                            <input type="number" id="quantity" class="form-control text-center border-secondary" style="border-radius: 0;" placeholder="1" min="1" aria-label="Quantity">
-                            <button class="btn btn-white border border-secondary rounded-right px-3" type="button" id="button-plus">
-                                <i class="fas fa-plus"></i>
-                            </button>
-                        </div> -->
-
-                        <div class="input-group mt-3">
-                            <button class="btn btn-outline-dark" type="button"  id="decrementButton">-</button>
-                            <input type="number" class="form-control" product-data-id="<%= product._id %>" id="quantityInput" min="1" value="1" step="1">
-                            <button class="btn btn-outline-dark" type="button" id="incrementButton">+</button>
-                        </div>
-                    </div>
-                        <button class="btn btn-dark w-100" id="addToCartBtnId">Add to Cart</button>
-                    </div>
+              </div>
+          
+          <div class="col-md-6 mt-5">
+            <div class="d-flex flex-column h-100">
+              <div>
+                <h2 class="mb-3"><%= product.productTitle %></h2>
+                <p class="mb-3"><%= product.productDescription %></p>
+                <h3 class="mb-3"><span>&#8377;</span> <%= product.productPrice %></h3>
+                <p class="text-secondary mb-3">Category: <%= product.category %></p>
+                <div class="mb-3">
+                  <label for="quantity" class="mb-2 d-block">Quantity:</label>
+                  <div class="input-group mt-3">
+                    <button class="btn btn-outline-dark" type="button" id="decrementButton">-</button>
+                    <input type="number" class="form-control" product-data-id="<%= product._id %>" id="quantityInput" min="1" value="1" step="1">
+                    <button class="btn btn-outline-dark" type="button" id="incrementButton">+</button>
+                  </div>
                 </div>
+                <button class="btn btn-dark w-100" id="addToCartBtnId">Add to Cart</button>
+              </div>
             </div>
-            
+          </div>
         </div>
         <div class="row mt-5">
-            <div class="col-md-3">
-                <h3>Description</h3>
-            </div>
-            <div class="col-md-9">
-                <p class="text-justify"><%= product.productDescription %></p>
-            </div>
+          <div class="col-md-12">
+            <h3>Description</h3>
+            <p class="text-justify"><%= product.productDescription %></p>
+          </div>
         </div>
         <div class="row mt-3">
-            <div class="col-md-3">
-                <h6 class="text-secondary">Additional Information</h6>
-            </div>
-            <div class="col-md-9">
-                <p class="text-justify"><%= product.additionalInformation %></p>
-            </div>
+          <div class="col-md-12">
+            <h6 class="text-secondary">Additional Information</h6>
+            <p class="text-justify"><%= product.additionalInformation %></p>
+          </div>
         </div>
-    </div>
+      </div>
+      
 
     <div class="modal fade" id="imageModal" tabindex="-1" role="dialog" aria-labelledby="imageModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-xl">
@@ -104,7 +89,10 @@
             </div>
             </div>
           </div>
-        </div>
+        </div> 
+    
+    <%- include('../partials/footerSection');%>
+
     <%- include('../partials/footer');%>
 
     <script>

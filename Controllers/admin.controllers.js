@@ -10,13 +10,9 @@ const PDFDocument = require('pdfkit');
 const Wallet = require("../Models/wallet.schema");
 
 const dashboard = async (req,res) => {
-
   const itemsPerPage = 6;
   const page = parseInt(req.query.page) || 1;
-
-  // Calculate the skip value to skip items based on the page number
   const skip = (page - 1) * itemsPerPage;
-
     try {
       const banner = await Banner.findOne();
 
@@ -30,11 +26,9 @@ const dashboard = async (req,res) => {
       const categories = await Category.find();
 
       const orders = await Order.find().sort({ createdOn: -1 }).skip(skip).limit(itemsPerPage); 
-      // const orders = await Order.find().sort({ createdOn: -1 }); 
       const totalOrders = await Order.countDocuments();
       const totalOrderPages = Math.ceil(totalOrders / itemsPerPage);
 
-    // Total Price (Sum of totalAmount in orders)
     const totalSales = await Order.aggregate([
       { $group: { _id: null, totalAmount: { $sum: '$totalAmount' } } }
     ]);
@@ -44,44 +38,40 @@ const dashboard = async (req,res) => {
     const todaysOrders = await Order.countDocuments({ createdOn: { $gte: today } });
 
     // const today = new Date();
-const startOfWeek = new Date(today);
-startOfWeek.setHours(0, 0, 0, 0); // Set the time to the start of the day (midnight)
-const endOfWeek = new Date(today);
-endOfWeek.setDate(today.getDate() + 7); // Set the end date one week ahead
+    const startOfWeek = new Date(today);
+    startOfWeek.setHours(0, 0, 0, 0); // Set the time to the start of the day (midnight)
+    const endOfWeek = new Date(today);
+    endOfWeek.setDate(today.getDate() + 7); // Set the end date one week ahead
 
-const weeklySalesData = await Order.aggregate([
-  {
-    $match: {
-      createdOn: {
-        $gte: startOfWeek, // Filter orders created on or after the start of the week
-        $lt: endOfWeek,   // Filter orders created before the start of the next week
+    const weeklySalesData = await Order.aggregate([
+      {
+        $match: {
+          createdOn: {
+            $gte: startOfWeek, 
+            $lt: endOfWeek,  
+          },
+        },
       },
-    },
-  },
-  {
-    $project: {
-      dayOfWeek: { $dayOfWeek: "$createdOn" }, // Get the day of the week (1 = Sunday, 2 = Monday, ..., 7 = Saturday)
-      totalAmount: "$totalAmount",
-    },
-  },
-  {
-    $group: {
-      _id: "$dayOfWeek",
-      totalAmount: { $sum: "$totalAmount" },
-    },
-  },
-]);
-
-// Create an array to represent sales data for each day (0 for Sunday, 1 for Monday, ..., 6 for Saturday)
-const weeklySales = Array(7).fill(0);
-
-// Iterate over the weeklySalesData and populate the weeklySales array
-weeklySalesData.forEach((data) => {
-  const dayOfWeek = data._id - 1; // Subtract 1 to adjust for JavaScript's 0-based index
-  weeklySales[dayOfWeek] = data.totalAmount;
-});
-
-
+      {
+        $project: {
+          dayOfWeek: { $dayOfWeek: "$createdOn" }, // Get the day of the week (1 = Sunday, 2 = Monday, ..., 7 = Saturday)
+          totalAmount: "$totalAmount",
+        },
+      },
+      {
+        $group: {
+          _id: "$dayOfWeek",
+          totalAmount: { $sum: "$totalAmount" },
+        },
+      },
+    ]);
+    // Create an array to represent sales data for each day (0 for Sunday, 1 for Monday, ..., 6 for Saturday)
+    const weeklySales = Array(7).fill(0);
+    // Iterate over the weeklySalesData and populate the weeklySales array
+    weeklySalesData.forEach((data) => {
+      const dayOfWeek = data._id - 1; // Subtract 1 to adjust for JavaScript's 0-based index
+      weeklySales[dayOfWeek] = data.totalAmount;
+    });
   // // Create an array for the entire week (Monday to Sunday)
   // const weeklySalesData = await Order.aggregate([
   //   {
@@ -106,7 +96,6 @@ weeklySalesData.forEach((data) => {
   //   const dayOfWeek = data._id - 1; // Subtract 1 to adjust for JavaScript's 0-based index
   //   weeklySales[dayOfWeek] = data.totalAmount;
   // });
-  
 
     const totalQuantity = await Product.aggregate([
   {
@@ -152,8 +141,6 @@ const addproductGet = (req,res) => {
 
 const addProduct =  async (req, res) => {
   try {
-
-    // console.log('service add product');
     // Upload image to cloudinary
     const files = req.files; // Access the uploaded files
     const { productTitle , productDescription , productPrice , totalQuantity , category, additionalInformation } = req.body;
@@ -165,10 +152,6 @@ const addProduct =  async (req, res) => {
         cloudinary_id: result.public_id
       };
     }));
-
-    // console.log(uploadedImages , 'uploaded images');
-    // const result = await cloudinary.uploader.upload(req.file.path);
-    //  Create new product
     let product = new Product({
       productTitle: productTitle[1],
       productDescription : productDescription[1],
@@ -176,15 +159,10 @@ const addProduct =  async (req, res) => {
       totalQuantity:totalQuantity[1],
       category:category,
       additionalInformation: additionalInformation[1],
-      // productImage: result.secure_url,
       productImages: uploadedImages ,
       status : "active"
-      // cloudinary_id: result.public_id,
     });
-
-    // Save user
     await product.save();
-
     res.json(product);
     console.log('successsfully added product data');
   } catch (err) {
@@ -195,8 +173,6 @@ const editProduct = async (req,res) => {
     const productId = req.params.productId;
     try {
       const product = await Product.findById(productId);
-
-      // console.log(product , 'this is product');
       res.json(product); // Respond with JSON containing the product data
     } catch (err) {
       console.error(err , '****** this is error ********');
@@ -293,20 +269,15 @@ const blockAndUnblockUser = async (req, res) => {
       { _id: userId },
       { status: !blockStatus}
     );
-    
     res.json({blockStatus : !blockStatus});
-    // console.log('Blocked/unblocked successfully');
   } catch (error) {
     console.log(error, 'error while updating user');
   }
 };
 
 const addCategory = async (req, res) => {
-
   try {
     const query = req.body.categoryName;
-
-    // Use a case-insensitive regex to perform the query
     const uniqueness = await Category.findOne({ name: { $regex: new RegExp(`^${query}$`, 'i') } });
 
     if (uniqueness) {
@@ -317,8 +288,6 @@ const addCategory = async (req, res) => {
       let category = new Category({
         name: req.body.categoryName,
       });
-
-      // Save the category
       await category.save();
       console.log('Successfully added category data');
       const success = 'success';
@@ -339,8 +308,6 @@ const deleteCategory = async (req, res) => {
     }, {
       status: 'deleted',
     });
-    // const products = await Product.find({ category: categoryName });
-    // // Delete the category by its ID
     const deletedCategory = await Category.findByIdAndDelete(categoryId);
     console.log('success' , productData);
     if (!deletedCategory) {
@@ -358,7 +325,6 @@ const adminOrderStaus = async (req, res) => {
     const orderId = req.params.orderId;
     const newStatus = req.body.status;
 
-    // Find the order by ID and update the status
     const updatedOrder = await Order.findByIdAndUpdate(
       orderId,
       { $set: { status: newStatus } },
@@ -376,50 +342,6 @@ const adminOrderStaus = async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 }
-
-// const updateReturnStatus = async (req, res) => {
-//   try {
-//     const {returnId, status} = req.body;
-
-//     const updatedReturn = await OrderReturn.findByIdAndUpdate(
-//       returnId,
-//       { $set: { status: status } },
-//       { new: true }
-//     );
-//       const user = updatedReturn.orderId.user;
-//       const totalAmount = updatedReturn.orderId.totalAmount;
-
-//       console.log(user , totalAmount , 'update return ');
-
-//     if (updatedReturn.status === "Approved") {
-//       const wallet = await Wallet.findOne({userId:user});
-//       console.log(wallet , 'wallettt  ');
-//       // wallet.balance += totalAmount ;
-//       // await wallet.save();
-//     }
-
-//     if (!updatedReturn) {
-//       return res.status(404).json({ message: 'Return not found' });
-//     }
-
-//     // if (status === 'Approved') {
-//     //   for (const product of updatedReturn.products) {
-//     //     const returnedQuantity = product.productReason === 'baad' ? 1 : 0; // Check if it's a whole order or partial
-//     //     const existingProduct = await Product.findById(product.productId);
-//     //     if (existingProduct) {
-//     //       existingProduct.totalQuantity += returnedQuantity; // Increment the product quantity
-//     //       await existingProduct.save(); // Save the changes to the product
-//     //     }
-//     //   }
-//     // }
-//     console.log('updated quantity');
-//     // console.log(updatedReturn ,'update return productss');
-//     res.status(200).json({ message: `Return status updated ` });
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).json({ message: 'An error occurred while updating return status' });
-//   }
-// };
 
 const updateReturnStatus = async (req, res) => {
   try {
@@ -524,7 +446,6 @@ const couponManagement = async (req, res) => {
 const bannerManagement = async (req, res) => {
   const files = req.files; // Access the uploaded files
   const { bannerTitle, bannerFeaturedTitle } = req.body;
-  // console.log(files , bannerTitle, bannerFeaturedTitle , 'banner data');
   try {
     // Upload images to Cloudinary and collect their secure URLs and IDs
     const uploadedImages = await Promise.all(files.map(async (file) => {
@@ -557,7 +478,6 @@ const editBanner = async (req, res) => {
   const { editBannerTitle, editFeaturedTitle } = req.body;
 
   try {
-    // Fetch the existing banner data (assuming your Banner model is imported and set up correctly)
     const existingBanner = await Banner.findOne();
 
     if (!existingBanner) {
@@ -594,62 +514,6 @@ const adminLogout = async (req, res) => {
   res.redirect('/admin/admin-login');
 }
 
-// const salesReportManagement = (req, res) => {
-//   const salesReportData = req.session.salesReportData;
-//   const { startDate, endDate } = req.body;
-
-
-//   try {
-//     // Create a new PDF document
-//     const doc = new PDFDocument();
-
-//     // Set PDF properties and metadata
-//     doc.info.Title = 'Sales Report';
-//     doc.info.Author = 'Planet Ecommerce Pvt. Ltd';
-
-//     // Add content to the PDF
-//     doc.fontSize(18).text('Sales Report', { align: 'center' });
-//     doc.fontSize(14).text('Planet Ecommerce Pvt. Ltd', { align: 'center' });
-//     doc.moveDown();
-
-//     // Add the selected start and end dates
-//     doc.fontSize(12).text(`Period: ${startDate.toLocaleDateString()} - ${endDate.toLocaleDateString()}`, { align: 'center' });
-
-//     doc.moveDown();
-//     doc.moveDown();
-//     // Add a sentence
-//     doc.fontSize(12).text('This report provides a summary of our sales data for the given period.', { align: 'center' });
-
-//     doc.moveDown();
-//     if (salesReportData) {
-//       doc.fontSize(16).text('Total Sales: $' + salesReportData?.totalSales?.toFixed(2));
-//       doc.fontSize(16).text('Total Orders: ' + salesReportData.totalOrders);
-//       doc.fontSize(16).text("Today's Orders: " + salesReportData.todaysOrders);
-//     } else {
-//       doc.fontSize(16).text('Total Sales: N/A');
-//       doc.fontSize(16).text('Total Orders: N/A');
-//       doc.fontSize(16).text("Today's Orders: N/A");
-//     }
-
-//     doc.moveDown();
-//     // Add more content as needed
-
-//     // Stream the PDF to the response
-//     res.setHeader('Content-Type', 'application/pdf');
-//     res.setHeader('Content-Disposition', 'attachment; filename="sales-report.pdf"');
-//     doc.pipe(res);
-
-//     // Finalize the PDF
-//     doc.end();
-
-//     // Log a success message
-//     console.log('PDF report generated and sent for download.');
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).json({ error: 'Internal server error' });
-//   }
-// };
-
 const salesReportManagement = async (req, res) => {
 
 try {
@@ -684,9 +548,8 @@ if (!req.session.totalSales) {
 }
 
 // Destructure totalSales with a default value of 0
-const { totalSales = 0 } = req.session.totalSales;
-//  console.log(totalSales , 'total sales');
- const doc = new PDFDocument();
+  const { totalSales = 0 } = req.session.totalSales;
+  const doc = new PDFDocument();
   doc.info.Title = 'Sales Report';
   doc.info.Author = 'Planet Ecommerce Pvt. Ltd';
 
@@ -757,7 +620,6 @@ async function querySalesData(startDate, endDate) {
 const offerManagement = async (req, res) => {
   const { offerData, offerProductId } = req.body;
   try {
-    // Find the product by ID
     const product = await Product.findById(offerProductId);
 
     if (!product) {
@@ -861,39 +723,6 @@ const getFullOrderData = async (req, res) => {
   }
 }
 
-    // const searchResults = await Order.find({ _id: new ObjectId ({ $regex: new RegExp(searchQuery, 'i') })});
-    // const searchOrders = async (req, res) => {
-    //   const orders = await Order.find();
-    //   const searchQuery = req.query.searchInput;
-    //   const page = parseInt(req.query.page) || 1; // Get the page number from the query parameters
-    //   const itemsPerPage = 6; // Define the number of items per page
-    
-    //   try {
-    //     let filteredOrders = orders;
-    
-    //     if (searchQuery) {
-    //       // Filter orders by search term in-memory
-    //       filteredOrders = filteredOrders.filter(order =>
-    //         order._id.toString().includes(searchQuery)
-    //       );
-    //     }
-    
-    //     // Calculate the total number of pages based on filtered orders
-    //     const totalOrderPages = Math.ceil(filteredOrders.length / itemsPerPage);
-    
-    //     // Apply pagination to the filtered orders
-    //     const startIndex = (page - 1) * itemsPerPage;
-    //     const endIndex = startIndex + itemsPerPage;
-    //     const finalFilteredOrders = filteredOrders.slice(startIndex, endIndex);
-    
-    //     // Return the paginated filtered orders as JSON response
-    //     return res.json({ results: finalFilteredOrders, totalOrderPages });
-    //   } catch (error) {
-    //     console.error(error);
-    //     res.status(500).json({ error: 'Internal Server Error' });
-    //   }
-    // };//work but the pagination is not synchronized
-
 const searchOrders = async (req, res) => {
       const orders = await Order.find().sort({ createdOn: -1 });
       const searchQuery = req.query.searchInput;
@@ -931,52 +760,6 @@ const searchOrders = async (req, res) => {
         res.status(500).json({ error: 'Internal Server Error' });
       }
 };
-    
-    
-   
-// const searchOrders = async (req, res) => {
-//       const searchQuery = req.query.searchInput;
-//       const page = parseInt(req.query.page) || 1; // Get the page number from the query parameters
-//       const itemsPerPage = 6; // Define the number of items per page
-    
-//       try {
-//         let filteredOrders;
-    
-//         if (searchQuery) {
-//           // Perform the search if a query is present
-//           filteredOrders = await Order.find({ _id: { $regex: new RegExp(searchQuery, 'i') } })
-//             .sort({ createdOn: -1 })
-//             .skip((page - 1) * itemsPerPage)
-//             .limit(itemsPerPage);
-    
-//           const totalSearchResults = await Order.countDocuments({ _id: { $regex: new RegExp(searchQuery, 'i') } });
-          
-//           // Calculate the total number of pages based on search results
-//           const totalPages = Math.ceil(totalSearchResults / itemsPerPage);
-    
-//           // Return the paginated search results and total pages as JSON response
-//           return res.json({ results: filteredOrders, totalPages });
-//         } else {
-//           // If no search query, retrieve all orders with pagination
-//           filteredOrders = await Order.find()
-//             .sort({ createdOn: -1 })
-//             .skip((page - 1) * itemsPerPage)
-//             .limit(itemsPerPage);
-    
-//           const totalOrders = await Order.countDocuments();
-    
-//           // Calculate the total number of pages for all orders
-//           const totalPages = Math.ceil(totalOrders / itemsPerPage);
-    
-//           // Return the paginated orders and total pages as JSON response
-//           return res.json({ results: filteredOrders, totalPages });
-//         }
-//       } catch (error) {
-//         console.error(error);
-//         res.status(500).json({ error: 'Internal Server Error' });
-//       }
-// };
-    
     
 module.exports = {
     dashboard ,

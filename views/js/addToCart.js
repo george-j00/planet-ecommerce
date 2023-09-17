@@ -1,7 +1,6 @@
 const addToCartBtns  = document.querySelectorAll('.newArrivalsAddToCartBtn');
 const successModal = new bootstrap.Modal(document.getElementById('addedSuccess'));
 
-
 addToCartBtns.forEach(item => {
   item.addEventListener('click', () => {
     const productId = item.getAttribute('data-product-id');
@@ -9,7 +8,6 @@ addToCartBtns.forEach(item => {
     console.log('clickedd add to cart button');
 })
 })
-
 
 //this function is called inside the products partial , onclick
 function addToCart(productId){
