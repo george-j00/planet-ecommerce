@@ -50,9 +50,9 @@
                   
               
                </td>
-                <td class="pt-4 productPrice" data-price="<%= cartItem.product.productPrice %>"><span>&#8377</span><%= cartItem.product.productPrice %></td>
+                <td class="pt-4 productPrice" data-price="<%= cartItem.product.productPrice %>">$<%= cartItem.product.productPrice %></td>
                 <!-- <td class="pt-4 subTotal" data-subtotal="<%= cartItem.product.productPrice * cartItem.quantity %>" data-subtotal-cell="true">$<%= cartItem.product.productPrice * cartItem.quantity %></td> -->
-                <td class="pt-4 subTotal" data-subtotal="<%= cartItem.product.productPrice * cartItem.quantity %>" data-subtotal-cell="true" data-product-id="<%= cartItem.product._id %>"><span>&#8377</span><%= cartItem.product.productPrice * cartItem.quantity %></td>
+                <td class="pt-4 subTotal" data-subtotal="<%= cartItem.product.productPrice * cartItem.quantity %>" data-subtotal-cell="true" data-product-id="<%= cartItem.product._id %>">$<%= cartItem.product.productPrice * cartItem.quantity %></td>
 
                 <td>
                   <button class="deleteCartItem btn btn-danger mt-3" data-delete="<%= cartItem._id %>" cart-id="<%= populatedCart._id %>">Remove</button>

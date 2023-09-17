@@ -35,7 +35,7 @@ editAddressForm.addEventListener('submit', async (event) => {
   event.preventDefault(); // Prevent the default form submission
 
   try {
-    const name = document.getElementById('editName').value;
+
     const country = document.getElementById('editCountry').value;
     const streetAddress = document.getElementById('editStreetAddress').value;
     const city = document.getElementById('editCity').value;
@@ -44,12 +44,15 @@ editAddressForm.addEventListener('submit', async (event) => {
     const userId = document.getElementById('editUserId').value;
     const editAddressId = document.getElementById('editAddressId').value;
     
+
+  //  console.log(name ,country, streetAddress, city,state ,pincode ,userId,editAddressId);
+
     const response = await fetch(`/profile/update-address`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({name, country, streetAddress, city,state ,pincode ,userId ,editAddressId})    
+      body: JSON.stringify({ country, streetAddress, city,state ,pincode ,userId ,editAddressId})    
     });
 
     if (response.ok) {

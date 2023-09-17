@@ -32,11 +32,8 @@ router.post('/update-quantity' , userController.updateQuantity);
 router.post('/add-to-cart' ,isAuthenticated, userController.addToCart); 
 router.post('/delete-cartItem', isAuthenticated, userController.deleteCartItem); 
 
-router.get('/checkout',isAuthenticated, userController.checkout); 
+router.get('/checkout',isAuthenticated , userController.checkout); 
 router.post('/place-order',isAuthenticated , userController.placeOrder); 
-router.post('/verify-payment',isAuthenticated , userController.verifyPayment); 
-router.post('/order-cancel',isAuthenticated , userController.orderCancel); 
-router.post('/return-request/:orderId', isAuthenticated, userController.orederReturnRequest);
 
 router.post('/apply-coupon', isAuthenticated, userController.applyCoupon);
 router.get('/products', userController.products);
