@@ -22,6 +22,7 @@
           </tr>
         </thead>
         <tbody id="orderTableBody">
+        <% if (orders && orders.length > 0) { %>
           <% orders.forEach(order => { %>
             <tr>
               <!-- Display Order ID -->
@@ -86,6 +87,11 @@
               </div>
             </div>
           <% }); %>
+          <% } else { %>
+            <tr>
+              <td colspan="7">No orders to display</td>
+            </tr>
+          <% } %>
         </tbody>
       </table>
     </div>
