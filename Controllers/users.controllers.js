@@ -377,11 +377,19 @@ const addToCart = async (req, res) => {
   const decodedTokens = jwt.decode(token);
   const userId = decodedTokens.id;
   try {
+
+    if (!token) {
+      console.log('Login to add to cart');
+      // return res.status(401).json({ message: "Login to add product" });
+      res.redirect('/login');
+    }
+    
     const product = await Product.findById(productId);
 
     if (!product) {
       return res.status(404).json({ message: "Product not found" });
     }
+
     const cartItem = {
       product: productId,
       quantity: quantity,

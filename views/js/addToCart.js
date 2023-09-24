@@ -31,7 +31,6 @@ function addToCartFunction(productId){
         }, 1000);
       })
       console.log('added to cart');
-
 }
 
 

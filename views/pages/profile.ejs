@@ -12,7 +12,29 @@
 <div class="fixed">
   <%- include('../partials/navbar');%>
 </div>
+<!-- user profile sidebar -->
+<div class="mt-5" id="hamburger">
+  <nav role="navigation">
+    <div id="menuToggle">
+      <input type="checkbox" />
+      <span></span>
+      <span></span>
+      <span></span>
+      
+      <ul id="menu">
+        <a href="#profile"><li>Profile</li></a>
+        <a href="#address"><li>Address</li></a>
+        <a href="#order"><li>Orders</li></a>
+        <a href="#returns"><li>Returns</li></a>
+        <a href="#wallet"><li>Wallet</li></a>
+        <button type="button" id="" class="btn btn-danger mt-1 logoutButton" >Logout</button>
 
+      </ul>
+    </div>
+  </nav>
+</div>
+
+<div class="sidebar-container">
 <div class="sidebar bg-light">
   <div class="profile_info">
     <div class="profile-icon">
@@ -21,12 +43,14 @@
   <h4 class="text-dark"> <strong> <%= userData.name %></strong> </h4>
 
   </div>
+
   <a href="#profile" class="text-dark">Profile</a>
   <a href="#address" class="text-dark">Address</a>
   <a href="#order" class="text-dark">Orders</a>
   <a href="#returns" class="text-dark">Returns</a>
   <a href="#wallet" class="text-dark">Wallet</a>
-  <button type="button" id="logoutButton" class="btn btn-danger ml-4 mt-1" >Logout</button>
+  <button type="button" id="" class="btn btn-danger ml-5 mt-4 logoutButton" >Logout</button>
+</div>
 </div>
 
 <div class="content">
@@ -70,38 +94,81 @@
 </div>
 
 <script>
+  // document.addEventListener("DOMContentLoaded", function() {
+  //   const sidebarLinks = document.querySelectorAll(".sidebar a");
+  //   const contentSections = document.querySelectorAll(".contents");
+
+  //   // Display the "Profile" content section initially
+  //   const profileSection = document.getElementById("profile");
+  //   profileSection.style.display = "block";
+
+  //   sidebarLinks.forEach(link => {
+  //     link.addEventListener("click", event => {
+  //       event.preventDefault();
+
+  //       // Hide all content sections
+  //       contentSections.forEach(section => {
+  //         section.style.display = "none";
+  //       });
+
+  //       // Show the selected content section
+  //       const targetSectionId = link.getAttribute("href").substring(1);
+  //       const targetSection = document.getElementById(targetSectionId);
+  //       targetSection.style.display = "block";
+  //     });
+  //   });
+  // });
+  
+
   document.addEventListener("DOMContentLoaded", function() {
-    const sidebarLinks = document.querySelectorAll(".sidebar a");
-    const contentSections = document.querySelectorAll(".contents");
+  const sidebarLinks = document.querySelectorAll(".sidebar a");
+  const hamburgerLinks = document.querySelectorAll("#menu a");
+  const contentSections = document.querySelectorAll(".contents");
 
-    // Display the "Profile" content section initially
-    const profileSection = document.getElementById("profile");
-    profileSection.style.display = "block";
+  // Display the "Profile" content section initially
+  const profileSection = document.getElementById("profile");
+  profileSection.style.display = "block";
 
-    sidebarLinks.forEach(link => {
-      link.addEventListener("click", event => {
-        event.preventDefault();
+  // Function to toggle the active section
+  function toggleSection(targetSectionId) {
+    // Hide all content sections
+    contentSections.forEach(section => {
+      section.style.display = "none";
+    });
 
-        // Hide all content sections
-        contentSections.forEach(section => {
-          section.style.display = "none";
-        });
+    // Show the selected content section
+    const targetSection = document.getElementById(targetSectionId);
+    targetSection.style.display = "block";
+  }
 
-        // Show the selected content section
-        const targetSectionId = link.getAttribute("href").substring(1);
-        const targetSection = document.getElementById(targetSectionId);
-        targetSection.style.display = "block";
-      });
+  // Add event listeners for sidebar links
+  sidebarLinks.forEach(link => {
+    link.addEventListener("click", event => {
+      event.preventDefault();
+      const targetSectionId = link.getAttribute("href").substring(1);
+      toggleSection(targetSectionId);
     });
   });
-  
-  const logoutButton = document.getElementById('logoutButton');
+
+  // Add event listeners for hamburger menu links
+  hamburgerLinks.forEach(link => {
+    link.addEventListener("click", event => {
+      event.preventDefault();
+      const targetSectionId = link.getAttribute("href").substring(1);
+      toggleSection(targetSectionId);
+    });
+  });
+});
+
+  const logoutButtons = document.querySelectorAll('.logoutButton');
   const modalLogoutBtn = document.getElementById('modalLogoutBtn');
   const logoutModal = new bootstrap.Modal(document.getElementById('logoutModal'));
 
-logoutButton.addEventListener('click', function () {
-  logoutModal.show();
-});
+logoutButtons.forEach(logoutBtn =>  {
+  logoutBtn.addEventListener('click', ()=>{
+    logoutModal.show();
+  })
+})
 
 modalLogoutBtn.addEventListener('click',async function () {
   try {
@@ -117,7 +184,6 @@ modalLogoutBtn.addEventListener('click',async function () {
   }
 });
 
-  
 </script>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
 </body>

@@ -52,9 +52,6 @@ app.use(express.static("views"));
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
-
-
-
 // app.use("/admin/get-products" ,adminGetProducts.getAllProducts); 
 app.use("/" , userRoutes ); 
 app.use("/admin" , adminRoutes); 
@@ -67,6 +64,7 @@ app.use((req, res, next) => {
   res.status(404).render('pages/404'); // Render the 404 page with a 404 status code
 });
 
-app.listen(3000, () => {
-  console.log('Server started on port 3000');
+app.listen(8000, () => {
+  console.log('Server started on port 8000');
 }); 
+
