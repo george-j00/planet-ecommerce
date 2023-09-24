@@ -25,11 +25,11 @@
         <% if (orders && orders.length > 0) { %>
           <% orders.forEach(order => { %>
             <tr>
-              <!-- Display Order ID -->
+             
               <td><%= order._id.toString().substr(15) %></td>
               <td><%= order.user.toString().substr(15) %></td>
               
-              <!-- Display Product Names -->
+             
               <td>
                 <ul class="list-unstyled">
                   <% order.items.forEach(item => { %>
