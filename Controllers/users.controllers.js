@@ -198,7 +198,7 @@ const homepage = async (req, res) => {
     if (cart.length > 0 && cart[0].cartItems) {
       cartLength = cart[0].cartItems.length;
     }
-    res.render('pages/home', { products, cartLength,banners ,bannerTitle, featuredTitle});
+    res.render('pages/home', { products, cartLength,banners ,bannerTitle, featuredTitle ,userId });
   } catch (err) {
     console.log(err);
   }
@@ -255,7 +255,7 @@ const userProfile = async (req, res) => {
     }
     const balanceValue = wallet.balance;
     const cartLength = cart.cartItems.length;
-    res.render('pages/profile', { userData, cartLength, orders, orderReturns, balanceValue ,currentDate });
+    res.render('pages/profile', { userData, cartLength, orders, orderReturns, balanceValue ,currentDate ,userId });
   } catch (error) {
     console.error(error);
     res.send('An error occurred while fetching user data');
@@ -789,7 +789,7 @@ const products = async (req, res) => {
   const categories = await Category.find();
   const products = await Product.find();
 
-  res.render('pages/homeProducts',{products,categories ,cartLength});
+  res.render('pages/homeProducts',{products,categories ,cartLength ,userId});
 }
 
 const searchProduct = async (req, res) => {

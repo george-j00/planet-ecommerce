@@ -35,11 +35,16 @@
                   </svg></a>
               </li>
           </ul>
-          <a href="/login" class="nav-link text-dark">
-            <div class="text-secondary">
-             Sign In
-            </div>
-          </a>
+          
+          <% if (typeof userId === 'undefined') { %>
+            <a href="/login" class="nav-link text-dark">
+              <div class="text-secondary">
+                Sign In
+              </div>
+            </a>
+          <% } %>
+          
+
           <form class="form-inline my-2 my-lg-0">
            <a href="/profile">
             <div>
