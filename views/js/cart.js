@@ -128,7 +128,11 @@ function updateSubtotalInDOM(productId, quantity) {
     })
     .then(response => response.json())
     .then(result => {
-      alert('Cart item deleted successfully');
+      const removeCartIteModal = new bootstrap.Modal(document.getElementById('removeCartIteSuccess'));
+      removeCartIteModal.show();
+      setTimeout(() => {
+        removeCartIteModal.hide();
+      }, 1000);
       window.location.reload();
     })
     .catch(err => {

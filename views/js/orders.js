@@ -100,7 +100,12 @@ function handleConfirmPayment(event) {
     getPaymentDetails();
     return true;
   } else {
-    alert('Please select an address');
+    const selectAddressModal = new bootstrap.Modal(document.getElementById('selectAddress'));
+    selectAddressModal.show();
+    setTimeout(() => {
+      selectAddressModal.hide();
+    }, 1000);
+    // alert('Please select an address');
     console.log('Please make sure all data is selected');
     return false;
 

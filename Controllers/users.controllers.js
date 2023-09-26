@@ -427,7 +427,7 @@ const cart = async (req, res) => {
     return res.status(404).json({ message: "Cart not found" });
   }
   const populatedCart = userCart.toObject(); // Convert to plain object for manipulation
-  res.render('pages/cart',{cartLength , populatedCart});
+  res.render('pages/cart',{cartLength , populatedCart ,userId});
 }
 
 const updateQuantity = async (req, res) => {
