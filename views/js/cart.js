@@ -9,6 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const totalCheckout = document.getElementById('totalCheckout');
   const deleteBtns = document.querySelectorAll('.deleteCartItem');
   const checkoutBtn = document.getElementById('checkoutBtnId');
+  let priceValues = document.querySelectorAll('.productPrice');
 
   decreaseButtons.forEach((decreaseButton, index) => {
     decreaseButton.addEventListener('click', async () => {
@@ -31,7 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
       currentQuantity++;
       quantityElements[index].textContent = currentQuantity;
       await updateQuantityInDatabase(increaseButton.getAttribute('data-product-id'), currentQuantity);
-      updateSubtotalAndTotal(); // Update subtotal and total
+       updateSubtotalAndTotal(); // Update subtotal and total
     });
   });
 
@@ -45,8 +46,9 @@ document.addEventListener('DOMContentLoaded', () => {
   })
   .then(response => response.json())
   .then(data => {
-            updateSubtotalInDOM(productId, quantity);
             console.log('Quantity updated successfully:', data.message);
+            updateSubtotalInDOM(productId, quantity);
+
           })
   .catch(error => {
     throw new Error('Error updating quantity:', error);
@@ -54,12 +56,24 @@ document.addEventListener('DOMContentLoaded', () => {
 }
 
 function updateSubtotalInDOM(productId, quantity) {
-  const subtotalCell = document.querySelector(`[data-subtotal-cell][data-product-id="${productId}"]`);
-  const productPrice = parseFloat(subtotalCell.getAttribute('data-subtotal')) / quantity;
+  // Find the subtotal element corresponding to the productId
+  const subtotalCell = document.querySelector(`[data-subtotal][data-product-id="${productId}"]`);
+  const productPriceCell = document.querySelector(`[data-price][data-product-id="${productId}"]`);
 
-  const newSubtotal = productPrice * quantity;
-  subtotalCell.textContent = `₹${newSubtotal.toFixed(2)}`;
-  subtotalCell.setAttribute('data-subtotal', newSubtotal);
+  if (subtotalCell ) {
+    // Retrieve the product price from the data-subtotal attribute
+    // const productPrice = parseFloat(subtotalCell.getAttribute('data-subtotal'));
+    const productPrice = parseFloat(productPriceCell.getAttribute('data-price'));
+    
+    // Calculate the new subtotal
+    const newSubtotal = productPrice * quantity;
+
+    // Update the inner HTML of the subtotal element
+    subtotalCell.textContent = `₹${newSubtotal.toFixed(2)}`;
+
+    // Update the data-subtotal attribute for future reference
+    subtotalCell.setAttribute('data-subtotal', newSubtotal);
+  }
 }
 
   expressRadio.addEventListener('change', () => {
