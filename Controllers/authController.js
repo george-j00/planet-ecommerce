@@ -1,6 +1,6 @@
 const Admin = require('../Models/admin.schema');
 const User = require('../Models/users.schema');
-const bcrypt = require("bcrypt")
+const bcrypt = require("bcryptjs")
 const jwt = require('jsonwebtoken')
 
 const loginUser = (req,res) => {

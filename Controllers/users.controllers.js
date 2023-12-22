@@ -14,7 +14,7 @@ const instance = new razorpay({
   key_secret:process.env.RAZORPAY_SECRET_KEY,
 });
 
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
 const OrderReturn = require('../Models/return.schema');
 const Wallet = require('../Models/wallet.schema');
 const Coupon = require('../Models/coupon.schema');
